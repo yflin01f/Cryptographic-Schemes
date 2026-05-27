@@ -28,6 +28,7 @@ class Parser:
 	__OptionPlace = ("p", "/p", "-p", "place", "/place", "--place")
 	__DefaultPlace = 9
 	__PlaceTranslations = {"s":0, "second":0, "ms":3, "millisecond":3, "microsecond":6, "ns":9, "nanosecond":9, "ps":12, "picosecond":12, "fs":15, "femtosecond":15}
+	__OptionQuiet = ("q", "/q", "-q", "quiet", "/quiet", "--quiet")
 	__OptionRun = ("r", "/r", "-r", "run", "/run", "--run")
 	__DefaultRun = 10
 	__OptionTime = ("t", "/t", "-t", "time", "/time", "--time")
@@ -58,6 +59,7 @@ class Parser:
 		print("\t{0} [s|ms|microsecond|ns|ps|0|3|6|9|12|...]\t\tSpecify the decimal place, which should be a non-negative integer. The default value is {1}. ".format(	\
 			self.__formatOption(Parser.__OptionPlace), Parser.__DefaultPlace)																							\
 		)
+		print("\t{0}\t\tDisable the verbose console outputs. ".format(self.__formatOption(Parser.__OptionQuiet)))
 		print("\t{0} [1|2|5|10|20|50|100|...]\t\tSpecify the run count, which must be a positive integer. The default value is {1}. ".format(self.__formatOption(Parser.__OptionRun), Parser.__DefaultRun))
 		print(																																							\
 			"\t{0} [0|0.1|1|10|...|inf]\t\tSpecify the waiting time before exiting, which should be non-negative. ".format(self.__formatOption(Parser.__OptionTime))	\
@@ -136,8 +138,8 @@ class Parser:
 		except:
 			return None
 	def parse(self:object) -> tuple:
-		flag, encoding, outputFilePath, decimalPlace, runCount, waitingTime, overwritingConfirmed = (																		\
-			max(EXIT_SUCCESS, EOF) + 1, Parser.__DefaultEncoding, Parser.__DefaultOutputFileName, Parser.__DefaultPlace, Parser.__DefaultRun, Parser.__DefaultTime, False	\
+		flag, encoding, outputFilePath, decimalPlace, isVerbose, runCount, waitingTime, overwritingConfirmed = (																	\
+			max(EXIT_SUCCESS, EOF) + 1, Parser.__DefaultEncoding, Parser.__DefaultOutputFileName, Parser.__DefaultPlace, True, Parser.__DefaultRun, Parser.__DefaultTime, False		\
 		)
 		index, argumentCount, buffers = 1, len(self.__arguments), []
 		while index < argumentCount:
@@ -185,6 +187,8 @@ class Parser:
 				else:
 					flag = EOF
 					buffers.append("Parser: The value for the output file path option is missing at [{0}]. ".format(index))
+			elif argument in Parser.__OptionQuiet:
+				isVerbose = False
 			elif argument in Parser.__OptionRun:
 				index += 1
 				if index < argumentCount:
@@ -226,7 +230,7 @@ class Parser:
 		if EOF == flag:
 			for buffer in buffers:
 				print(buffer)
-		return (flag, encoding, outputFilePath, decimalPlace, runCount, waitingTime, overwritingConfirmed)
+		return (flag, encoding, outputFilePath, decimalPlace, isVerbose, runCount, waitingTime, overwritingConfirmed)
 	def checkOverwriting(self:object, outputFP:str, overwriting:bool) -> tuple:
 		if isinstance(outputFP, str) and isinstance(overwriting, bool):
 			outputFilePath, overwritingConfirmed, flag = outputFP, overwriting, False
@@ -559,13 +563,14 @@ class Saver:
 			return False
 
 class SchemeHIBME:
+	__DefaultL = 30
 	def __init__(self:object, group:None|PairingGroup = None) -> object: # This scheme is applicable to symmetric and asymmetric groups of prime orders. 
 		self.__group = group if isinstance(group, PairingGroup) else PairingGroup("SS512", secparam = 512)
 		if self.__group.secparam < 1:
 			self.__group = PairingGroup(self.__group.groupType())
 			print("Init: The securtiy parameter should be a positive integer but it is not, which has been defaulted to {0}. ".format(self.__group.secparam))
 		self.__operand = (1 << self.__group.secparam) - 1 # use to cast binary strings
-		self.__l = 30
+		self.__l = SchemeHIBME.__DefaultL
 		self.__mpk = None
 		self.__msk = None
 		self.__flag = False # to indicate whether it has already set up
@@ -583,14 +588,14 @@ class SchemeHIBME:
 			return result if isinstance(result, Element) else self.__group.init(ZR, result)
 		except Exception:
 			return self.__group.init(ZR, 1)
-	def Setup(self:object, l:int = 30) -> tuple: # $\textbf{Setup}(l) \to (\textit{mpk}, \textit{msk})$
+	def Setup(self:object, l:int = __DefaultL) -> tuple: # $\textbf{Setup}(l) \to (\textit{mpk}, \textit{msk})$
 		# Checks #
 		self.__flag = False
 		if isinstance(l, int) and l >= 3: # boundary check
 			self.__l = l
 		else:
-			self.__l = 30
-			print("Setup: The variable $l$ should be a positive integer not smaller than $3$ but it is not, which has been defaulted to $30$. ")
+			self.__l = SchemeHIBME.__DefaultL
+			print("Setup: The variable $l$ should be a positive integer not smaller than $3$ but it is not, which has been defaulted to ${0}$. ".format(SchemeHIBME.__DefaultL))
 		
 		# Scheme #
 		g = self.__group.init(G1, 1) # $g \gets 1_{\mathbb{G}_1}$
@@ -1142,7 +1147,7 @@ def conductScheme(curveParameter:tuple|list|dict|str, l:int = 30, m:int = 20, n:
 
 def main() -> int:
 	parser = Parser(argv)
-	flag, encoding, outputFilePath, decimalPlace, runCount, waitingTime, overwritingConfirmed = parser.parse()
+	flag, encoding, outputFilePath, decimalPlace, isVerbose, runCount, waitingTime, overwritingConfirmed = parser.parse()
 	if flag > EXIT_SUCCESS and flag > EOF:
 		if any((PairingGroup is None, G1 is None, G2 is None, GT is None, ZR is None, pair is None, Element is None)):
 			parser.disableConsoleEchoes()
@@ -1174,9 +1179,9 @@ def main() -> int:
 					for l in range(10, 31, 5):
 						for m in range(5, l, 5):
 							for n in range(5, l, 5):
-								averages = conductScheme(curveParameter, l = l, m = m, n = n, run = 1)
+								averages = conductScheme(curveParameter, l = l, m = m, n = n, run = 1, isVerbose = isVerbose)
 								for run in range(2, runCount + 1):
-									result = conductScheme(curveParameter, l = l, m = m, n = n, run = run)
+									result = conductScheme(curveParameter, l = l, m = m, n = n, run = run, isVerbose = isVerbose)
 									for idx in range(qLength, qvLength):
 										averages[idx] += result[idx]
 									for idx in range(qvLength, length):
@@ -1191,7 +1196,12 @@ def main() -> int:
 										averages[idx] = "N/A"
 								results.append(averages)
 								saver.save(results)
-								print()
+								if isVerbose:
+									print()
+				if not results:
+					print("No experiments were conducted. ")
+				elif not isVerbose:
+					print()
 			except KeyboardInterrupt:
 				print()
 				print("The experiments were interrupted by users. Saved results are retained. ")

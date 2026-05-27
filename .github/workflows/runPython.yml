@@ -134,7 +134,7 @@ jobs:
             runSchemeVLPSICA="${{ github.event.inputs.runSchemeVLPSICA }}"
           else
             runSchemeAAIBME="true"
-            runSchemeCANIFPPCT="false"
+            runSchemeCANIFPPCT="true"
             runSchemeHIBME="true"
             runSchemeIBMEMR="true"
             runSchemeIBMETR="true"

@@ -563,7 +563,7 @@ class Saver:
 			return False
 
 class SchemeCANIFPPCT:
-	__DefaultN, __DefaultM = 10, 5
+	__DefaultN, __DefaultM = 30, 10
 	def __init__(self, group:None|PairingGroup = None) -> object: # This scheme is applicable to symmetric and asymmetric groups of prime orders. 
 		self.__group = group if isinstance(group, PairingGroup) else PairingGroup("SS512", secparam = 512)
 		if self.__group.secparam < 1:
@@ -634,10 +634,14 @@ class SchemeCANIFPPCT:
 	def Setup(self:object, n:int = __DefaultN, m:int = __DefaultM) -> tuple: # $\textbf{Setup}(n, m) \to (\textit{mpk}, \textit{msk})$
 		# Checks #
 		self.__flag = False
-		if isinstance(n, int) and isinstance(m, int) and n >= 1 and m >= 1:
+		if isinstance(n, int) and isinstance(m, int) and 1 <= m <= n:
 			self.__n, self.__m = n, m
 		else:
 			self.__n, self.__m = SchemeCANIFPPCT.__DefaultN, SchemeCANIFPPCT.__DefaultM
+			print(																																	\
+				"Setup: The variables $n$ and $m$ should be two positive integers satisfying $1 \\leqslant m \\leqslant n$ but they are not, "		\
+				+ "which have been defaulted to ${0}$ and ${1}$, respectively. ".format(SchemeCANIFPPCT.__DefaultN, SchemeCANIFPPCT.__DefaultM)		\
+			)
 		
 		# Scheme #
 		g1 = self.__group.init(G1, 1) # $g_1 \gets 1_{\mathbb{G}_1}$
@@ -701,7 +705,7 @@ class SchemeCANIFPPCT:
 		if isinstance(skIDi, Element) and skIDi.type == ZR:
 			sk_ID_i = skIDi
 		else:
-			sk_ID_i = self.KGen(self.__group.random(ZR), [])
+			sk_ID_i = self.KGen(self.__group.random(ZR), [])[0]
 			print("Encryption: The variable $\\textit{sk}_{\\textit{ID}_i}$ should be an element of $\\mathbb{Z}_r$ but it is not, which has been generated randomly. ")
 		if isinstance(ekIDi, tuple) and len(ekIDi) == 2 and all(isinstance(ele, Element) for ele in ekIDi):
 			ek_ID_i = ekIDi
@@ -784,16 +788,19 @@ class SchemeCANIFPPCT:
 		if not self.__flag:
 			print("Query: The ``Setup`` procedure has not been called yet. The program will call the ``Setup`` first and finish the ``Query`` subsequently. ")
 			self.Setup()
-		if isinstance(CTTPi, tuple) and len(CTTPi) == 10 and all(isinstance(ele, Element) for ele in CTTPi):
-			CT_TP_i = CTTPi
-		else:
-			CT_TP_i = None#####
-			print("Query: The variable $\textit{CT}_{\textit{TP}_i}$ should be a tuple containing 10 elements but it is not, which has been generated randomly. ")
 		if isinstance(_s, (tuple, list)) and len(_s) == self.__n and all(isinstance(ele, Element) and ele.type == ZR for ele in _s):
 			s = _s
 		else:
 			s = tuple(self.__group.random(ZR) for _ in range(self.__n))
 			print("Encryption: The variable $s$ should be a tuple or a list containing $n$ elements of \\mathbb{Z}_r but it is not, which has been generated randomly. ")
+		if isinstance(CTTPi, tuple) and len(CTTPi) == 10 and all(isinstance(ele, Element) for ele in CTTPi):
+			CT_TP_i = CTTPi
+		else:
+			CT_TP_i = self.Encryption(																					\
+				randbelow(1 << self.__group.secparam).to_bytes((self.__group.secparam + 7) >> 3, byteorder = "big"), 	\
+				*self.KGen(self.__group.random(ZR), []), s, s[randbelow(self.__n)]										\
+			)
+			print("Query: The variable $\textit{CT}_{\textit{TP}_i}$ should be a tuple containing 10 elements but it is not, which has been generated randomly. ")
 		
 		# Unpack #
 		H2, Omega = self.__mpk[4], self.__mpk[10]
@@ -817,7 +824,10 @@ class SchemeCANIFPPCT:
 		if isinstance(CTTPi, tuple) and len(CTTPi) == 10 and all(isinstance(ele, Element) for ele in CTTPi):
 			CT_TP_i = CTTPi
 		else:
-			CT_TP_i = None#####
+			CT_TP_i = self.Encryption(																					\
+				randbelow(1 << self.__group.secparam).to_bytes((self.__group.secparam + 7) >> 3, byteorder = "big"), 	\
+				*self.KGen(self.__group.random(ZR), []), s, s[randbelow(self.__n)]										\
+			)
 			print("Trace: The variable $\textit{CT}_{\textit{TP}_i}$ should be a tuple containing 10 elements but it is not, which has been generated randomly. ")
 		if isinstance(_L, list):
 			L = _L

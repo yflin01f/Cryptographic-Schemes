@@ -12,31 +12,43 @@ on:
         type: choice
         options:
           - './SchemeAAIBME/SchemeAAIBME.java'
+  push:
+    branches:
+      - main
+    paths:
+      - '**/*.java'
+      - '.github/workflows/runJava.yml'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - '**/*.java'
+      - '.github/workflows/runJava.yml'
 
 jobs:
   runJava:
     runs-on: ubuntu-latest
     
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v6
-    
-    - name: Set up JDK
+      - name: Checkout code
+        uses: actions/checkout@v6
+      
+      - name: Set up JDK
         uses: actions/setup-java@v5
         with:
           java-version: '25'
           distribution: 'temurin'
-    
-    - name: Run Java
-      run: |
-        cd "${{ github.workspace }}"
-        echo "The current working directory is \"$(pwd)\". "
-        if [[ -f "${{ github.event.inputs.cryptographicScheme }}" ]];
-        then
-          echo "\$ java -cp lib/jpbc-api-2.0.0.jar:lib/jpbc-plaf-2.0.0.jar \"${{ github.event.inputs.cryptographicScheme }}\""
-          java -cp lib/jpbc-api-2.0.0.jar:lib/jpbc-plaf-2.0.0.jar "${{ github.event.inputs.cryptographicScheme }}"
-        else
-          echo "Could not execute the cryptographic scheme file \"${{ github.event.inputs.cryptographicScheme }}\" via Java. "
-          tree
-          exit 1
-        fi
+      
+      - name: Run Java
+        run: |
+          cd "${{ github.workspace }}"
+          echo "The current working directory is \"$(pwd)\". "
+          if [[ -f "${{ github.event.inputs.cryptographicScheme }}" ]];
+          then
+            echo "\$ java -cp lib/jpbc-api-2.0.0.jar:lib/jpbc-plaf-2.0.0.jar \"${{ github.event.inputs.cryptographicScheme }}\""
+            java -cp lib/jpbc-api-2.0.0.jar:lib/jpbc-plaf-2.0.0.jar "${{ github.event.inputs.cryptographicScheme }}"
+          else
+            echo "Could not execute the cryptographic scheme file \"${{ github.event.inputs.cryptographicScheme }}\" via Java. "
+            tree
+            exit 1
+          fi
