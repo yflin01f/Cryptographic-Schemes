@@ -660,7 +660,7 @@ class SchemeCANIFPPCT:
 		v2 = g2 ** t2 # $v_2 \gets g_2^{t_2}$
 		v3 = g2 ** t3 # $v_3 \gets g_2^{t_3}$
 		v4 = g2 ** t4 # $v_4 \gets g_2^{t_4}$
-		self.__mpk = (g1, g2, g3, H1, H2, H3, H4, R, S, T, Omega, v1, v2, v3, v4) # \textit{mpk} \gets (g_1, g_2, g_3, H_1, H_2, H_3, H_4, R, S, T, \Omega, v_1, v_2, v_3, v_4)$
+		self.__mpk = (g1, g2, g3, H1, H2, H3, H4, R, S, T, Omega, v1, v2, v3, v4) # $\textit{mpk} \gets (g_1, g_2, g_3, H_1, H_2, H_3, H_4, R, S, T, \Omega, v_1, v_2, v_3, v_4)$
 		self.__msk = (r, s, t, omega, t1, t2, t3, t4) # \textit{msk} \gets (r, s, t, \omega, t_1, t_2, t_3, t_4)$
 		
 		# Return #

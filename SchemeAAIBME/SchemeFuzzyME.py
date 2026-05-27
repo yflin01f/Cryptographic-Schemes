@@ -575,8 +575,8 @@ class SchemeFuzzyME:
 		if self.__group.secparam < 1:
 			self.__group = PairingGroup(self.__group.groupType())
 			print("Init: The securtiy parameter should be a positive integer but it is not, which has been defaulted to {0}. ".format(self.__group.secparam))
-		self.__n = __DefaultN
-		self.__d = __DefaultD
+		self.__n = SchemeFuzzyME.__DefaultN
+		self.__d = SchemeFuzzyME.__DefaultD
 		self.__mpk = None
 		self.__msk = None
 		self.__flag = False # to indicate whether it has already set up
