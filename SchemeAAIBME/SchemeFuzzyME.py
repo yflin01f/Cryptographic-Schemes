@@ -49,7 +49,7 @@ class Parser:
 		else:
 			return ""
 	def __printHelp(self:object) -> None:
-		print("This is a possible implementation of the Fuzzy-ME cryptographic scheme in Python programming language based on the Python charm library. ")
+		print("This is a possible implementation of the Fuzzy-ME cryptographic scheme in Python programming language based on the Python Charm-Crypto framework. ")
 		print()
 		print("Options (not case-sensitive): ")
 		print("\t{0} [utf-8|utf-16|...]\t\tSpecify the encoding mode for CSV and TXT outputs. The default value is {1}. ".format(self.__formatOption(Parser.__OptionEncoding), Parser.__DefaultEncoding))
@@ -574,7 +574,7 @@ class SchemeFuzzyME:
 			print("Init: This scheme is only applicable to symmetric groups of prime orders. The curve name has been defaulted to \"SS512\". ")
 		if self.__group.secparam < 1:
 			self.__group = PairingGroup(self.__group.groupType())
-			print("Init: The securtiy parameter should be a positive integer but it is not, which has been defaulted to {0}. ".format(self.__group.secparam))
+			print("Init: The securtiy parameter should be a positive integer, but it is not, which has been defaulted to {0}. ".format(self.__group.secparam))
 		self.__n = SchemeFuzzyME.__DefaultN
 		self.__d = SchemeFuzzyME.__DefaultD
 		self.__mpk = None
@@ -653,7 +653,7 @@ class SchemeFuzzyME:
 			S_A = SA
 		else:
 			S_A = tuple(self.__group.random(ZR) for _ in range(self.__n))
-			print("EKGen: The variable $S_A$ should be a tuple containing $n$ elements of $\\mathbb{Z}_r$ but it is not, which has been generated randomly. ")
+			print("EKGen: The variable $S_A$ should be a tuple containing $n$ elements of $\\mathbb{Z}_r$, but it is not, which has been generated randomly. ")
 		
 		# Unpack #
 		g3, lVec = self.__mpk[2], self.__mpk[6]
@@ -682,12 +682,12 @@ class SchemeFuzzyME:
 			S_B = SB
 		else:
 			S_B = tuple(self.__group.random(ZR) for _ in range(self.__n))
-			print("DKGen: The variable $S_B$ should be a tuple containing $n$ elements of $\\mathbb{Z}_r$ but it is not, which has been generated randomly. ")
+			print("DKGen: The variable $S_B$ should be a tuple containing $n$ elements of $\\mathbb{Z}_r$, but it is not, which has been generated randomly. ")
 		if isinstance(PA, tuple) and len(PA) == self.__n and all(isinstance(ele, Element) and ele.type == ZR for ele in PA): # hybrid check
 			P_A = PA
 		else:
 			P_A = tuple(self.__group.random(ZR) for _ in range(self.__n))
-			print("DKGen: The variable $P_A$ should be a tuple containing $n$ elements of $\\mathbb{Z}_r$ but it is not, which has been generated randomly. ")
+			print("DKGen: The variable $P_A$ should be a tuple containing $n$ elements of $\\mathbb{Z}_r$, but it is not, which has been generated randomly. ")
 		
 		# Unpack #
 		g2, g3, tVec, lVec = self.__mpk[1], self.__mpk[2], self.__mpk[5], self.__mpk[6]
@@ -746,22 +746,22 @@ class SchemeFuzzyME:
 				ek_S_A = ekSA
 			else:
 				ek_S_A = self.EKGen(S_A)
-				print("Encryption: The variable $\\textit{ek}_{S_A}$ should be a tuple containing 2 tuples but it is not, which has been generated accordingly. ")
+				print("Encryption: The variable $\\textit{ek}_{S_A}$ should be a tuple containing 2 tuples, but it is not, which has been generated accordingly. ")
 		else:
 			S_A = tuple(self.__group.random(ZR) for _ in range(self.__n))
-			print("Encryption: The variable $S_A$ should be a tuple containing $n$ elements of $\\mathbb{Z}_r$ but it is not, which has been generated randomly. ")
+			print("Encryption: The variable $S_A$ should be a tuple containing $n$ elements of $\\mathbb{Z}_r$, but it is not, which has been generated randomly. ")
 			ek_S_A = self.EKGen(S_A)
 			print("Encryption: The variable $\\textit{ek}_{S_A}$ has been generated accordingly. ")
 		if isinstance(PB, tuple) and len(PB) == self.__n and all(isinstance(ele, Element) and ele.type == ZR for ele in PB): # hybrid check
 			P_B = PB
 		else:
 			P_B = tuple(self.__group.random(ZR) for _ in range(self.__n))
-			print("Encryption: The variable $P_B$ should be a tuple containing $n$ elements of $\\mathbb{Z}_r$ but it is not, which has been generated randomly. ")
+			print("Encryption: The variable $P_B$ should be a tuple containing $n$ elements of $\\mathbb{Z}_r$, but it is not, which has been generated randomly. ")
 		if isinstance(message, Element) and message.type == GT: # type check
 			M = message
 		else:
 			M = self.__group.random(GT)
-			print("Encryption: The variable $M$ should be an element of $\\mathbb{G}_T$ but it is not, which has been generated randomly. ")
+			print("Encryption: The variable $M$ should be an element of $\\mathbb{G}_T$, but it is not, which has been generated randomly. ")
 		
 		# Unpack #
 		g2, g3, Y1, Y2, tVec, lVec, eta1, eta2, eta3, eta4, H1 = self.__mpk[1], self.__mpk[2], self.__mpk[3], self.__mpk[4], self.__mpk[5], self.__mpk[6], self.__mpk[7], self.__mpk[8], self.__mpk[9], self.__mpk[10], self.__mpk[11]
@@ -815,18 +815,18 @@ class SchemeFuzzyME:
 				dk_SBPA = dkSBPA
 			else:
 				dk_SBPA = self.DKGen(S_B, P_A)
-				print("Decryption: The variable $\\textit{dk}_{S_B, P_A}$ should be a tuple containing 2 tuples but it is not, which has been generated accordingly. ")
+				print("Decryption: The variable $\\textit{dk}_{S_B, P_A}$ should be a tuple containing 2 tuples, but it is not, which has been generated accordingly. ")
 		else:
 			S_A, P_A = tuple(self.__group.random(ZR) for _ in range(self.__n)), tuple(self.__group.random(ZR) for _ in range(self.__n))
 			S_B, P_B = tuple(self.__group.random(ZR) for _ in range(self.__n)), tuple(self.__group.random(ZR) for _ in range(self.__n))
-			print("Decryption: Each of the variables $S_A$, $P_A$, $S_B$, and $P_B$ should be a tuple containing 4 elements of $\\mathbb{Z}_r$ but at least one of them is not, all of which have been generated randomly. ")
+			print("Decryption: Each of the variables $S_A$, $P_A$, $S_B$, and $P_B$ should be a tuple containing 4 elements of $\\mathbb{Z}_r$, but at least one of them is not, all of which have been generated randomly. ")
 			dk_SBPA = self.DKGen(S_B, P_A)
 			print("Decryption: The variable $\\textit{dk}_{S_B, P_A}$ has been generated accordingly. ")
 		if isinstance(cipherText, tuple) and len(cipherText) == 10 and all(isinstance(ele, Element) for ele in cipherText[:5]) and all(isinstance(ele, tuple) and len(ele) == self.__n for ele in cipherText[5:]): # hybrid check
 			CT = cipherText
 		else:
 			CT = self.Enc(self.EKGen(S_A), S_A, P_B, self.__group.random(GT))
-			print("Decryption: The variable $\\textit{CT}$ should be a tuple containing 5 elements and 5 tuples but it is not, which has been generated randomly. ")
+			print("Decryption: The variable $\\textit{CT}$ should be a tuple containing 5 elements and 5 tuples, but it is not, which has been generated randomly. ")
 		
 		# Unpack #
 		H1 = self.__mpk[11]
@@ -886,7 +886,7 @@ class SchemeFuzzyME:
 
 def conductScheme(curveParameter:tuple|list|dict|str, n:int = 30, d:int = 10, run:int|None = None, isVerbose:bool = True) -> list:
 	# Begin #
-	curveName, securityParameter, nString, dString, runString = "N/A", 512, "N/A", "N/A", "N/A" # the default value of the security parameter in the Python charm library is 512
+	curveName, securityParameter, nString, dString, runString = "N/A", 512, "N/A", "N/A", "N/A" # the default value of the security parameter in the Python Charm-Crypto framework is 512
 	isSystemValid, isSchemeCorrect = False, False
 	timeSetup, timeEKGen, timeDKGen, timeEncryption, timeDecryption = ("N/A", ) * 5
 	sizeZR, sizeG1G2, sizeGT = ("N/A", ) * 3

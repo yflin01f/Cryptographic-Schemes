@@ -48,7 +48,7 @@ class Parser:
 		else:
 			return ""
 	def __printHelp(self:object) -> None:
-		print("This is a possible implementation of the IBME cryptographic scheme in Python programming language based on the Python charm library. ")
+		print("This is a possible implementation of the IBME cryptographic scheme in Python programming language based on the Python Charm-Crypto framework. ")
 		print()
 		print("Options (not case-sensitive): ")
 		print("\t{0} [utf-8|utf-16|...]\t\tSpecify the encoding mode for CSV and TXT outputs. The default value is {1}. ".format(self.__formatOption(Parser.__OptionEncoding), Parser.__DefaultEncoding))
@@ -572,7 +572,7 @@ class SchemeIBME:
 			print("Init: This scheme is only applicable to symmetric groups of prime orders. The curve name has been defaulted to \"SS512\". ")
 		if self.__group.secparam < 1:
 			self.__group = PairingGroup(self.__group.groupType())
-			print("Init: The securtiy parameter should be a positive integer but it is not, which has been defaulted to {0}. ".format(self.__group.secparam))
+			print("Init: The securtiy parameter should be a positive integer, but it is not, which has been defaulted to {0}. ".format(self.__group.secparam))
 		self.__operand = (1 << self.__group.secparam) - 1 # use to cast binary strings
 		self.__mpk = None
 		self.__msk = None
@@ -603,7 +603,7 @@ class SchemeIBME:
 			S = sender
 		else:
 			S = self.__group.random(ZR)
-			print("SKGen: The variable $S$ should be an element of $\\mathbb{Z}_r$ but it is not, which has been generated randomly. ")
+			print("SKGen: The variable $S$ should be an element of $\\mathbb{Z}_r$, but it is not, which has been generated randomly. ")
 		
 		# Unpack #
 		HPrime = self.__mpk[-1]
@@ -623,7 +623,7 @@ class SchemeIBME:
 			R = receiver
 		else:
 			R = self.__group.random(ZR)
-			print("RKGen: The variable $R$ should be an element of $\\mathbb{Z}_r$ but it is not, which has been generated randomly. ")
+			print("RKGen: The variable $R$ should be an element of $\\mathbb{Z}_r$, but it is not, which has been generated randomly. ")
 		
 		# Unpack #
 		H = self.__mpk[-2]
@@ -643,16 +643,16 @@ class SchemeIBME:
 		if not self.__flag:
 			self.Setup()
 			print("Enc: The ``Setup`` procedure has not been called yet. The program will call the ``Setup`` first and finish the ``Enc`` subsequently. ")
-		if isinstance(ekS, Element):
+		if isinstance(ekS, Element) and ekS.type == G1: # type check
 			ek_S = ekS
 		else:
 			ek_S = self.SKGen(self.__group.random(ZR))
-			print("Enc: The variable $\\textit{ek}_S$ should be an element but it is not, which has been generated randomly. ")
+			print("Enc: The variable $\\textit{ek}_S$ should be an element of $\\mathbb{G}_1$, but it is not, which has been generated randomly. ")
 		if isinstance(receiver, Element) and receiver.type == ZR: # type check
 			R = receiver
 		else:
 			R = self.__group.random(ZR)
-			print("Enc: The variable $R$ should be an element of $\\mathbb{Z}_r$ but it is not, which has been generated randomly. ")
+			print("Enc: The variable $R$ should be an element of $\\mathbb{Z}_r$, but it is not, which has been generated randomly. ")
 		if isinstance(message, int) and message >= 0: # type check
 			M = message & self.__operand
 			if message != M:
@@ -663,7 +663,7 @@ class SchemeIBME:
 				print("Enc: The passed message (bytes) is too long, which has been cast. ")
 		else:
 			M = int.from_bytes(b"SchemeIBME", byteorder = "big") & self.__operand
-			print("Enc: The variable $M$ should be an integer or a ``bytes`` object but it is not, which has been defaulted to b\"SchemeIBME\". ")
+			print("Enc: The variable $M$ should be an integer or a ``bytes`` object, but it is not, which has been defaulted to b\"SchemeIBME\". ")
 		
 		# Unpack #
 		H = self.__mpk[-2]
@@ -690,17 +690,17 @@ class SchemeIBME:
 			dk_R = dkR
 		else:
 			dk_R = self.RKGen(self.__group.random(ZR))
-			print("Dec: The variable $\\textit{dk}_R$ should be a tuple containing 3 elements but it is not, which has been generated randomly. ")
+			print("Dec: The variable $\\textit{dk}_R$ should be a tuple containing 3 elements, but it is not, which has been generated randomly. ")
 		if isinstance(sender, Element) and sender.type == ZR: # type check
 			S = sender
 		else:
 			S = self.__group.random(ZR)
-			print("Dec: The variable $S$ should be an element of $\\mathbb{Z}_r$ but it is not, which has been generated randomly. ")
+			print("Dec: The variable $S$ should be an element of $\\mathbb{Z}_r$, but it is not, which has been generated randomly. ")
 		if isinstance(cipher, tuple) and len(cipher) == 3 and isinstance(cipher[0], Element) and isinstance(cipher[1], Element) and isinstance(cipher[2], int): # hybrid check
 			C = cipher
 		else:
 			C = self.Enc(self.SKGen(self.__group.random(ZR)), self.__group.random(ZR), b"SchemeIBME")
-			print("Dec: The variable $C$ should be a tuple containing 2 elements and an ``int`` object but it is not, which has been generated randomly. ")
+			print("Dec: The variable $C$ should be a tuple containing 2 elements and an ``int`` object, but it is not, which has been generated randomly. ")
 		
 		# Unpack #
 		HPrime = self.__mpk[-1]
@@ -734,7 +734,7 @@ class SchemeIBME:
 
 def conductScheme(curveParameter:tuple|list|dict|str, run:int|None = None, isVerbose:bool = True) -> list:
 	# Begin #
-	curveName, securityParameter, runString = "N/A", 512, "N/A" # the default value of the security parameter in the Python charm library is 512
+	curveName, securityParameter, runString = "N/A", 512, "N/A" # the default value of the security parameter in the Python Charm-Crypto framework is 512
 	isSystemValid, isSchemeCorrect = False, False
 	timeSetup, timeSKGen, timeRKGen, timeEnc, timeDec = ("N/A", ) * 5
 	sizeZR, sizeG1G2, sizeGT = ("N/A", ) * 3

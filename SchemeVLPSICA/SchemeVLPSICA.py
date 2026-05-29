@@ -49,7 +49,7 @@ class Parser:
 		else:
 			return ""
 	def __printHelp(self:object) -> None:
-		print("This is the official implementation of the VL-PSI-CA cryptographic scheme in Python programming language based on the Python charm library. ")
+		print("This is the official implementation of the VL-PSI-CA cryptographic scheme in Python programming language based on the Python Charm-Crypto framework. ")
 		print()
 		print("Options (not case-sensitive): ")
 		print("\t{0} [utf-8|utf-16|...]\t\tSpecify the encoding mode for CSV and TXT outputs. The default value is {1}. ".format(self.__formatOption(Parser.__OptionEncoding), Parser.__DefaultEncoding))
@@ -565,11 +565,11 @@ class Saver:
 
 class SchemeVLPSICA:
 	__DefaultM, __DefaultN, __DefaultD = 10, 10, 10
-	def __init__(self, group:None|PairingGroup = None) -> object: # This scheme is applicable to symmetric and asymmetric groups of prime orders. 
+	def __init__(self:object, group:None|PairingGroup = None) -> object: # This scheme is applicable to symmetric and asymmetric groups of prime orders. 
 		self.__group = group if isinstance(group, PairingGroup) else PairingGroup("SS512", secparam = 512)
 		if self.__group.secparam < 1:
 			self.__group = PairingGroup(self.__group.groupType())
-			print("Init: The securtiy parameter should be a positive integer but it is not, which has been defaulted to {0}. ".format(self.__group.secparam))
+			print("Init: The securtiy parameter should be a positive integer, but it is not, which has been defaulted to {0}. ".format(self.__group.secparam))
 		self.__m = SchemeVLPSICA.__DefaultM
 		self.__n = SchemeVLPSICA.__DefaultN
 		self.__d = SchemeVLPSICA.__DefaultD
@@ -612,17 +612,17 @@ class SchemeVLPSICA:
 			self.__m = m
 		else:
 			self.__m = SchemeVLPSICA.__DefaultM
-			print("Setup: The variable $m$ should be a positive integer but it is not, which has been defaulted to ${0}$. ".format(SchemeVLPSICA.__DefaultM))
+			print("Setup: The variable $m$ should be a positive integer, but it is not, which has been defaulted to ${0}$. ".format(SchemeVLPSICA.__DefaultM))
 		if isinstance(n, int) and n >= 1:
 			self.__n = n
 		else:
 			self.__n = SchemeVLPSICA.__DefaultN
-			print("Setup: The variable $n$ should be a positive integer but it is not, which has been defaulted to ${0}$. ".format(SchemeVLPSICA.__DefaultN))
+			print("Setup: The variable $n$ should be a positive integer, but it is not, which has been defaulted to ${0}$. ".format(SchemeVLPSICA.__DefaultN))
 		if isinstance(d, int) and d >= 1:
 			self.__d = d
 		else:
 			self.__d = SchemeVLPSICA.__DefaultD
-			print("Setup: The variable $d$ should be a positive integer but it is not, which has been defaulted to ${0}$. ".format(SchemeVLPSICA.__DefaultD))
+			print("Setup: The variable $d$ should be a positive integer, but it is not, which has been defaulted to ${0}$. ".format(SchemeVLPSICA.__DefaultD))
 		
 		# Scheme #
 		g1 = self.__group.init(G1, 1) # $g_1 \gets 1_{\mathbb{G}_1}$
@@ -644,7 +644,7 @@ class SchemeVLPSICA:
 			H = lambda x:int.from_bytes(md5(self.__group.serialize(x)).digest(), byteorder = "big")
 		else:
 			H = lambda x:int.from_bytes(sha512(self.__group.serialize(x)).digest() * (((self.__group.secparam - 1) >> 9) + 1), byteorder = "big") & self.__operand # $H: \mathbb{G}_T \to \{0, 1\}^\lambda$
-			print("Setup: An irregular security parameter ($\\lambda = {0}$) is specified. It is recommended to use 128, 160, 224, 256, 384, or 512 as the security parameter. ".format(self.__group.secparam))
+			print("Setup: An irregular security parameter ($\\lambda = {0}$) is specified. It is recommended to use 128, 160, 224, 256, 384, 512, or 1024 as the security parameter. ".format(self.__group.secparam))
 		self.__mpk = (g1, SPrime, H) # $\textit{mpk} \gets (g_1, S', H)$
 		self.__msk = (g2, SVec) # $\textit{msk} \gets (g_2, \vec{S})$
 		
@@ -660,12 +660,12 @@ class SchemeVLPSICA:
 			vVec = _vVec
 		else:
 			vVec = tuple(self.__group.random(ZR) for _ in range(self.__d))
-			print("Sender: The variable $\\vec{v}$ should be a tuple containing $d$ elements of $\\mathbb{Z}_r$ but it is not, which has been generated randomly. ")
+			print("Sender: The variable $\\vec{v}$ should be a tuple containing $d$ elements of $\\mathbb{Z}_r$, but it is not, which has been generated randomly. ")
 		if isinstance(_YVec, tuple) and len(_YVec) == self.__n and all(isinstance(ele, Element) and ele.type == ZR for ele in _YVec): # hybrid check
 			YVec = _YVec
 		else:
 			YVec = tuple(self.__group.random(ZR) for _ in range(self.__n))
-			print("Sender: The variable $\\vec{Y}$ should be a tuple containing $n$ elements of $\\mathbb{Z}_r$ but it is not, which has been generated randomly. ")
+			print("Sender: The variable $\\vec{Y}$ should be a tuple containing $n$ elements of $\\mathbb{Z}_r$, but it is not, which has been generated randomly. ")
 		
 		# Unpack #
 		g1, SPrime = self.__mpk[0], self.__mpk[1]
@@ -691,12 +691,12 @@ class SchemeVLPSICA:
 			vVec = _vVec
 		else:
 			vVec = tuple(self.__group.random(ZR) for _ in range(self.__d))
-			print("Receiver: The variable $\\vec{v}$ should be a tuple containing $d$ elements of $\\mathbb{Z}_r$ but it is not, which has been generated randomly. ")
+			print("Receiver: The variable $\\vec{v}$ should be a tuple containing $d$ elements of $\\mathbb{Z}_r$, but it is not, which has been generated randomly. ")
 		if isinstance(_XVec, tuple) and len(_XVec) == self.__m and all(isinstance(ele, Element) and ele.type == ZR for ele in _XVec): # hybrid check
 			XVec = _XVec
 		else:
 			XVec = tuple(self.__group.random(ZR) for _ in range(self.__m))
-			print("Receiver: The variable $\\vec{X}$ should be a tuple containing $m$ elements of $\\mathbb{Z}_r$ but it is not, which has been generated randomly. ")
+			print("Receiver: The variable $\\vec{X}$ should be a tuple containing $m$ elements of $\\mathbb{Z}_r$, but it is not, which has been generated randomly. ")
 		
 		# Unpack #
 		SVec = self.__msk[1]
@@ -722,12 +722,12 @@ class SchemeVLPSICA:
 			TTPrime = _TTPrime
 		else:
 			TTPrime = tuple(self.__group.random(G1) for _ in range(self.__n + self.__d))
-			print("Cloud1: The variable $\\vec{{T}} || \\vec{{T}}'$ should be a tuple containing $n + d = {0} + {1} = {2}$ elements of $\\mathbb{{G}}_1$ but it is not, which has been generated randomly. ".format(self.__n, self.__d, self.__n + self.__d))
+			print("Cloud1: The variable $\\vec{{T}} || \\vec{{T}}'$ should be a tuple containing $n + d = {0} + {1} = {2}$ elements of $\\mathbb{{G}}_1$, but it is not, which has been generated randomly. ".format(self.__n, self.__d, self.__n + self.__d))
 		if isinstance(_R, Element) and _R.type == G2: # type check
 			R = _R
 		else:
 			R = self.__group.random(G2)
-			print("Cloud1: The variable $R$ should be an element of $\\mathbb{G}_2$ but it is not, which has been generated randomly. ")
+			print("Cloud1: The variable $R$ should be an element of $\\mathbb{G}_2$, but it is not, which has been generated randomly. ")
 		
 		# Unpack #
 		H = self.__mpk[2]
@@ -749,12 +749,12 @@ class SchemeVLPSICA:
 			UUPrime = _UUPrime
 		else:
 			UUPrime = tuple(self.__group.random(G1) for _ in range(self.__n + self.__d))
-			print("Cloud2: The variable $\\vec{{U}} || \\vec{{U}}'$ should be a tuple containing $n + d = {0} + {1} = {2}$ elements of $\\mathbb{{G}}_1$ but it is not, which has been generated randomly. ".format(self.__n, self.__d, self.__n + self.__d))
+			print("Cloud2: The variable $\\vec{{U}} || \\vec{{U}}'$ should be a tuple containing $n + d = {0} + {1} = {2}$ elements of $\\mathbb{{G}}_1$, but it is not, which has been generated randomly. ".format(self.__n, self.__d, self.__n + self.__d))
 		if isinstance(_RPrimeVec, tuple) and len(_RPrimeVec) == self.__m + self.__d and all(isinstance(ele, Element) and ele.type == G2 for ele in _RPrimeVec): # hybrid check
 			RPrimeVec = _RPrimeVec
 		else:
 			RPrimeVec = tuple(self.__group.random(G2) for _ in range(self.__m + self.__d))
-			print("Cloud2: The variable $\\vec{{R}}'$ should be a tuple containing $m + d = {0} + {1} = {2}$ elements of $\\mathbb{{G}}_1$ but it is not, which has been generated randomly. ".format(self.__m, self.__d, self.__m + self.__d))
+			print("Cloud2: The variable $\\vec{{R}}'$ should be a tuple containing $m + d = {0} + {1} = {2}$ elements of $\\mathbb{{G}}_1$, but it is not, which has been generated randomly. ".format(self.__m, self.__d, self.__m + self.__d))
 		
 		# Unpack #
 		H = self.__mpk[2]
@@ -776,12 +776,12 @@ class SchemeVLPSICA:
 			KVec = _KVec
 		else:
 			KVec = self.Cloud2(tuple(self.__group.random(G1) for _ in range(self.__n + self.__d)), tuple(self.__group.random(G2) for _ in range(self.__m + self.__d)))
-			print("Verify: The variable $\\vec{{K}}$ should be a tuple containing $(m + d)(n + d) = {0}$ integers but it is not, which has been generated randomly. ".format((self.__m + self.__d) * (self.__n + self.__d)))
+			print("Verify: The variable $\\vec{{K}}$ should be a tuple containing $(m + d)(n + d) = {0}$ integers, but it is not, which has been generated randomly. ".format((self.__m + self.__d) * (self.__n + self.__d)))
 		if isinstance(_WVec, tuple) and len(_WVec) == self.__n + self.__d and all(isinstance(ele, int) for ele in _WVec): # hybrid check
 			WVec = _WVec
 		else:
 			WVec = self.Cloud1(tuple(self.__group.random(G1) for _ in range(self.__n + self.__d)), self.__group.random(G2))
-			print("Verify: The variable $\\vec{{W}}$ should be a tuple containing $n + d = {0} + {1} = {2}$ integers but it is not, which has been generated randomly. ".format(self.__n, self.__d, self.__n + self.__d))
+			print("Verify: The variable $\\vec{{W}}$ should be a tuple containing $n + d = {0} + {1} = {2}$ integers, but it is not, which has been generated randomly. ".format(self.__n, self.__d, self.__n + self.__d))
 		
 		# Unpack #
 		pass
@@ -814,7 +814,7 @@ class SchemeVLPSICA:
 
 def conductScheme(curveParameter:tuple|list|dict|str, m:int = 10, n:int = 10, d:int = 10, run:int|None = None, isVerbose:bool = True) -> list:
 	# Begin #
-	curveName, securityParameter, mString, nString, dString, runString = "N/A", 512, "N/A", "N/A", "N/A", "N/A" # the default value of the security parameter in the Python charm library is 512
+	curveName, securityParameter, mString, nString, dString, runString = "N/A", 512, "N/A", "N/A", "N/A", "N/A" # the default value of the security parameter in the Python Charm-Crypto framework is 512
 	isSystemValid, isSchemeCorrect = False, False
 	timeSetup, timeSender, timeReceiver, timeCloud1, timeCloud2, timeVerify = ("N/A", ) * 6
 	sizeZR, sizeG1, sizeG2, sizeGT = ("N/A", ) * 4

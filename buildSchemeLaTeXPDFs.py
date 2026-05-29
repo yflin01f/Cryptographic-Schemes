@@ -5,7 +5,7 @@ try:
 except:
 	Attribute, CSTNode, Call, ClassDef, ConcatenatedString, EmptyLine, FunctionDef, Name, SimpleString, TrailingWhitespace, parse_module = (None, ) * 11
 from getpass import getpass
-from re import search
+from re import match
 from subprocess import TimeoutExpired, run
 from time import perf_counter, sleep
 try:
@@ -108,7 +108,8 @@ class Environments:
 
 class Builder:
 	__DefaultCompilationTimeout = 10
-	def __init__(self:object, schemeFilePath:str, pathWithoutExtensions:str) -> object:
+	__GenerationDiagnostics = {"":[], "Saver":[], "Function":[]}
+	def __init__(self:object, schemeFilePath:str, pathWithoutExtensions:str, collectionMode:bool = False) -> object:
 		self.__schemeFilePath = schemeFilePath
 		if isinstance(self.__schemeFilePath, str) and isinstance(pathWithoutExtensions, str):
 			self.__schemeLaTeXFilePath = pathWithoutExtensions + ".tex"
@@ -121,13 +122,137 @@ class Builder:
 			self.__schemeLaTeXFileName = None
 			self.__schemePDFFilePath = None
 			self.__flag = 0
+		self.__collectionMode = True == collectionMode
 		self.__generationDiagnostics = None
 		self.__generationTimeConsumption = None
 		self.__compilationDiagnostics = None
 		self.__compilationTimeConsumption = None
+	def __checkString(self:object, string:str) -> bool:
+		if self.__collectionMode:
+			if string not in Builder.__GenerationDiagnostics[""]:
+				Builder.__GenerationDiagnostics[""].append(string)
+			return True
+		elif string in (
+			"", "\t{0}\t\tDisable the verbose console outputs. ", "\t{0}\t\tIndicate to confirm the overwriting of the existing output file. ", 
+			"\t{0}\t\tPrint this help document. ", "\t{0} [1|2|5|10|20|50|100|...]\t\tSpecify the run count, which must be a positive integer. The default value is {1}. ", 
+			"\t{0} [s|ms|microsecond|ns|ps|0|3|6|9|12|...]\t\tSpecify the decimal place, which should be a non-negative integer. The default value is {1}. ", 
+			"\t{0} [utf-8|utf-16|...]\t\tSpecify the encoding mode for CSV and TXT outputs. The default value is {1}. ", 
+			"\t{0} [|.|./{1}.xlsx|./{1}.csv|...]\t\tSpecify the output file path, leaving it empty for console output. The default value is {2}. ", 
+			"\rThe countdown is {0} second(s). ", "$d$:", "$k$:", "$l$:", "$m$:", "$n$:", "Curve: ({0}, {1})", "Dec1:", "Dec2:", "Decrypted:", "Derived:", "Is DKey Sanity? {0}. ", 
+			"Is EKey Sanity? {0}. ", "Is ``Dec1`` passed (m == message)? {0}. ", "Is ``Dec2`` passed (m' == message)? {0}. ", "Is ``ProxyDec`` passed? {0}. ", 
+			"Is ``ProxyEnc`` passed? {0}. ", "Is ``ReEnc`` passed? {0}. ", "Is the basic scheme correct? {0}. ", "Is the deriver passed (M' == message)? {0}. ", 
+			"Is the scheme correct (M == message)? {0}. ", "Is the scheme correct (m == message)? {0}. ", "Is the scheme correct (result is not False)? {0}. ", "Is the scheme correct? {0}. ", 
+			"Is the system valid? No. Failed to create the ``PairingGroup`` instance due to {0}. ", "Is the system valid? No. The parameter $d$ should be a positive integer. ", 
+			"Is the system valid? No. The parameter $l$ and $n$ should be two positive integers satisfying $1 \\leqslant n \\leqslant l$. ", 
+			"Is the system valid? No. The parameters $l$ and $k$ should be two positive integers satisfying $2 \\leqslant k < l$. ", 
+			"Is the system valid? No. The parameters $l$, $m$, and $n$ should be three positive integers satisfying $2 \\leqslant m < l \\land 2 \\leqslant n < l$. ", 
+			"Is the system valid? No. The parameters $m$ and $n$ should be two positive integers satisfying $1 \\leqslant m \\leqslant n$. ", 
+			"Is the system valid? No. The parameters $m$, $n$, and $d$ should be three positive integers. ", 
+			"Is the system valid? No. The parameters $n$ and $d$ should be two positive integers satisfying $2 \\leqslant d \\leqslant n$. ", 
+			"Is the system valid? No. The parameters $n$, $k$, and $d$ should be three positive integers satisfying $1 \\leqslant d \\leqslant k \\leqslant n$. ", 
+			"Is the system valid? Yes. ", "Is the tracing verified? {0}. ", "Is tracing 1 verified (M1 == message1)? {0}. ", "Is tracing 2 verified (M2 == message2)? {0}. ", 
+			"No experiments were conducted. ", "Options (not case-sensitive): ", "Original:", 
+			"Parser: The extension name of the output file path passed is one of the protected extension names, which would be reset to the default extension {0}. ", 
+			"Parser: The output file path passed looks like a folder, which would be connected with the default file name {0}. ", 
+			"Parser: The path {0} exists not to be a regular file. ", "Please press the enter key to exit ({0}). ", 
+			"Please refer to https://github.com/JHUISI/charm if necessary. ", 
+			"Please wait {0} second(s) for automatic exit, or exit manually, for example by pressing ``Ctrl + C`` ({1}). ", "Space:", 
+			"The execution environment of the Python Charm-Crypto framework is not handled correctly. ", "The execution has finished ({0}). ", 
+			"The execution has started. ", "The experiments were interrupted by users. Saved results are retained. ", "The experiments were interrupted by {0}. Saved results are retained. ", 
+			"This is a possible implementation of the AIBE cryptographic scheme in Python programming language based on the Python Charm-Crypto framework. ", 
+			"This is a possible implementation of the ARES cryptographic scheme in Python programming language based on the Python Charm-Crypto framework. ", 
+			"This is a possible implementation of the Fuzzy-ME cryptographic scheme in Python programming language based on the Python Charm-Crypto framework. ", 
+			"This is a possible implementation of the IBBME cryptographic scheme in Python programming language based on the Python Charm-Crypto framework. ", 
+			"This is a possible implementation of the IBME cryptographic scheme in Python programming language based on the Python Charm-Crypto framework. ", 
+			"This is a possible implementation of the IBMECH cryptographic scheme in Python programming language based on the Python Charm-Crypto framework. ", 
+			"This is a possible implementation of the IBPME cryptographic scheme in Python programming language based on the Python Charm-Crypto framework. ", 
+			"This is the official implementation of the AA-IB-ME cryptographic scheme in Python programming language based on the Python Charm-Crypto framework. ", (
+				"This is the official implementation of the AnonymousME cryptographic scheme (``Anonymous Hierarchical Identity-based Encryption``) "
+				+ "in Python programming language based on the Python Charm-Crypto framework. "
+			), "This is the official implementation of the CA-NI-FPPCT cryptographic scheme in Python programming language based on the Python Charm-Crypto framework. ", 
+			"This is the official implementation of the HIB-ME cryptographic scheme in Python programming language based on the Python Charm-Crypto framework. ", 
+			"This is the official implementation of the IBMEMR cryptographic scheme in Python programming language based on the Python Charm-Crypto framework. ", 
+			"This is the official implementation of the IBMETR cryptographic scheme in Python programming language based on the Python Charm-Crypto framework. ", 
+			"This is the official implementation of the IBPRME cryptographic scheme in Python programming language based on the Python Charm-Crypto framework. ", 
+			"This is the official implementation of the PBAC cryptographic scheme in Python programming language based on the Python Charm-Crypto framework. ", 
+			"This is the official implementation of the VL-PSI-CA cryptographic scheme in Python programming language based on the Python Charm-Crypto framework. ", 
+			"Time:", "Verify:", "bys:", "identities:", "run:", "ys:"
+		):
+			return True
+		else:
+			self.__generationDiagnostics[""].append("The statement {0} is not official. ".format(repr(string)))
+			return False
+	def __checkSaverString(self:object, string:str) -> bool:
+		if self.__collectionMode:
+			if string not in Builder.__GenerationDiagnostics["Saver"]:
+				Builder.__GenerationDiagnostics["Saver"].append(string)
+			return True
+		elif "\t{0}" == string:
+			return True
+		elif not string.startswith("Saver: "):
+			self.__generationDiagnostics["Saver"].append("The statement {0} should start with {1}. ".format(repr(string), repr(descriptor)))
+			return False
+		elif string[7:] in (
+			"Failed to initialize the directory for the output file path {0}. ", "Failed to save the results to {0} due to the following exception(s). \n\t{1}", 
+			"Failed to save the results to {0} in the {1} format due to the following exception(s). \n\t{2}", 
+			"Failed to save the results to {0} since {1} is one of the protected extension names. ", "Successfully saved the results to {0} in the TXT format. ", 
+			"Successfully saved the results to {0} in the {1} format. ", "The results are invalid. ", "{0}"
+		):
+			return True
+		else:
+			self.__generationDiagnostics["Saver"].append("The statement {0} is not official. ".format(repr(string)))
+			return False
+	def __checkFunctionString(self:object, string:str, functionName:str) -> bool:
+		descriptor = functionName + ": "
+		descriptorLength = len(descriptor)
+		if self.__collectionMode:
+			if string not in Builder.__GenerationDiagnostics["Function"]:
+				Builder.__GenerationDiagnostics["Function"].append(string)
+			return True
+		elif not functionName:
+			self.__generationDiagnostics["Function"].append("The statement {0} appears in a private function. ".format(repr(string)))
+			return False
+		elif not string.startswith(descriptor):
+			self.__generationDiagnostics["Function"].append("The statement {0} should start with {1}. ".format(repr(string), repr(descriptor)))
+			return False
+		elif string[descriptorLength:] in (
+			"An irregular security parameter ($\\lambda = {0}$) is specified. It is recommended to use 128, 160, 224, 256, 384, 512, or 1024 as the security parameter. ", 
+			"The variable $\textit{btrapdoor}_i$ should be a tuple containing 5 elements, but it is not, which has been generated randomly. ", (
+				"Each of the variables $S_A$, $P_A$, $S_B$, and $P_B$ should be a tuple containing 4 elements of $\\mathbb{Z}_r$, "
+				+ "but at least one of them is not, all of which have been generated randomly. "
+			), "The securtiy parameter should be a positive integer, but it is not, which has been defaulted to {0}. ", 
+			"The ``BSetup`` procedure has not been called yet. The program will call the ``BSetup`` first and finish the ``{0}`` subsequently. ".format(functionName), 
+			"The ``Setup`` procedure has not been called yet. The program will call the ``Setup`` first and finish the ``{0}`` subsequently. ".format(functionName), 
+			"The passed message (bytes) is too long, which has been cast. ", "The passed message (int) is too long, which has been cast. ", 
+			"The securtiy parameter should be a positive integer, but it is not, which has been defaulted to {0}. ", 
+			"The variable $L$ should be a list, but it is not, which has been initialized as an empty list. ", 
+			"This scheme is only applicable to symmetric groups of prime orders. The curve name has been defaulted to \"SS512\". "
+		) or match("^The variable \\$[ \'(),\\-0-9A-Za-z\\\\_{}]+\\$ has been generated accordingly\\. $", string[descriptorLength:]) or match(
+			"^The variable \\$[*0-9A-Za-z\\\\\\^_{}]+\\$ should be (?:a ``bytes`` object|an integer), but it is not, which has been generated (?:accordingly|randomly)\\. $", 
+		string[descriptorLength:]) or match(
+			"^The variable \\$[A-Za-z\\\\_{}]+\\$ should be a positive integer( not smaller than \\$[0-9]\\$)?, but it is not, which has been defaulted to .+\\. $", 
+		string[descriptorLength:]) or match((
+			"^The variable \\$[ \'*,0-9A-Za-z\\\\\\^_{|}]+\\$ should be a (?:set|subset of \\$[\'A-Z]+\\$|tuple( or a list)?) containing .+, but it is not, "
+			+ "which has been generated (?:accordingly|randomly|randomly with (?:\\$[A-Za-z]\\$ set to .+|a length of \\$.+\\$|\\$M \\\\in \\\\mathbb{G}_T\\$ generated randomly))\\. $"
+		), string[descriptorLength:]) or match((
+			"^The variable \\$[\'()A-Za-z\\\\_{}]+\\$ should be a ``dict`` containing \\$[a-z]\\$ ``[a-z]+``--``[a-z]+`` pairs, "
+			+ "but it is not, which has been generated (?:accordingly|randomly)\\. $"
+		), string[descriptorLength:]) or match((
+			"^The variable \\$[*0-9A-Za-z\\\\\\^_{}]+\\$ should be an element (?:of \\$\\\\(?:mathbb\\{G\\}_(?:1|2|T)|mathbb\\{Z\\}_r)\\$|in \\$s\\$), "
+			+ "but it is not, which has been generated (accordingly|randomly)\\. $"
+		), string[descriptorLength:]) or match((
+			"^The variable \\$[0-9A-Za-z\\\\_{}]+\\$ should be an integer or a ``bytes`` object, "
+			+ "but it is not, which has been (?:defaulted to .+|generated accordingly|generated randomly)\\. $"
+		), string[descriptorLength:]):
+			return True
+		else:
+			self.__generationDiagnostics["Function"].append("The statement {0} is not official. ".format(repr(string)))
+			return False
 	def generate(self:object) -> None:
 		if self.__flag >= 1:
-			self.__flag, self.__generationDiagnostics, self.__compilationDiagnostics, self.__compilationTimeConsumption = 1, [], None, None
+			self.__flag, self.__generationDiagnostics, self.__generationTimeConsumption, self.__compilationDiagnostics, self.__compilationTimeConsumption = (
+				1, {"":[], "Saver":[], "Function":[]}, None, None, None
+			)
 			startTime = perf_counter()
 			try:
 				with open(self.__schemeFilePath, "rb") as f:
@@ -148,47 +273,9 @@ class Builder:
 									and "format" == argument.value.func.attr.value and isinstance(argument.value.func.value, (ConcatenatedString, SimpleString))
 								):
 									string = argument.value.func.value.evaluated_value
-								if not (
-									string in (
-										"Options (not case-sensitive): ", 
-										"\t{0} [utf-8|utf-16|...]\t\tSpecify the encoding mode for CSV and TXT outputs. The default value is {1}. ", 
-										"\t{0}\t\tPrint this help document. ", (
-											"\t{0} [|.|./{1}.xlsx|./{1}.csv|...]\t\tSpecify the output file path, "
-											+ "leaving it empty for console output. The default value is {2}. "
-										), (
-											"\t{0} [s|ms|microsecond|ns|ps|0|3|6|9|12|...]\t\tSpecify the decimal place, "
-											+ "which should be a non-negative integer. The default value is {1}. "
-										), "\t{0} [1|2|5|10|20|50|100|...]\t\tSpecify the run count, which must be a positive integer. The default value is {1}. ", 
-										"\t{0}\t\tIndicate to confirm the overwriting of the existing output file. ", 
-										"Parser: The output file path passed looks like a folder, which would be connected with the default file name {0}. ", (
-											"Parser: The extension name of the output file path passed is one of the protected extension names, "
-											+ "which would be reset to the default extension {0}. "
-										), "Parser: The path {0} exists not to be a regular file. ", "Curve: ({0}, {1})", "run:", 
-										"Is the system valid? No. Failed to create the ``PairingGroup`` instance due to {0}. ", "Is the system valid? Yes. ", 
-										"Is the basic scheme correct? {0}. ", "Is the scheme correct? {0}. ", "Original:", "Decrypted:", "bys:", "ys:", "identities:", 
-										"Is the scheme correct (M == message)? {0}. ", "Is EKey Sanity? {0}. ", "Is DKey Sanity? {0}. ", 
-										"Is the tracing verified? {0}. ", "Is tracing 1 verified (M1 == message1)? {0}. ", 
-										"Is tracing 2 verified (M2 == message2)? {0}. ", "Time:", "Space:", 
-										"The execution environment of the Python Charm-Crypto framework is not handled correctly. ", 
-										"Please refer to https://github.com/JHUISI/charm if necessary. ", 
-										"The execution has started. ", "The experiments were interrupted by users. Saved results are retained. ", 
-										"The experiments were interrupted by {0}. Saved results are retained. ", 
-										"No experiments were conducted. ", "The execution has finished ({0}). ", 
-										"Please wait {0} second(s) for automatic exit, or exit manually, for example by pressing ``Ctrl + C`` ({1}). ", 
-										"\rThe countdown is {0} second(s). ", "", "Please press the enter key to exit ({0}). "
-									) or search((
-										"^This is the official implementation of the [-A-Z_a-z]+ cryptographic scheme in "
-										+ "Python programming language based on the Python charm library\\. $"
-									), string) or search((
-										"This is a possible implementation of the [-A-Z_a-z]+ cryptographic scheme in "
-										+ "Python programming language based on the Python charm library\\. "
-									), string) or search("^\\$[a-z]\\$:$", string)
-									or search("^Is the system valid\\? No\\. The parameter.+ should be .+ satisfying \\$.+\\$\\. $", string)
-								):
-									self.__generationDiagnostics.append("The statement {0} is not official. ".format(repr(string)))
+								self.__checkString(string)
 						elif isinstance(element, ClassDef) and "Saver" == element.name.value:
 							s, descriptor = [element], element.name.value + ": "
-							descriptorLength = len(descriptor)
 							while s:
 								ele = s.pop()
 								if isinstance(ele, Call) and isinstance(ele.func, Name) and "print" == ele.func.value:
@@ -201,34 +288,22 @@ class Builder:
 											and isinstance(argument.value.func.value, (ConcatenatedString, SimpleString))
 										):
 											string = argument.value.func.value.evaluated_value
-										if not string.startswith(element.name.value):
-											self.__generationDiagnostics.append("The statement {0} should start with {1}. ".format(
-												repr(string), repr(element.name.value)
-											))
-										elif string[descriptorLength:] not in (
-											"Failed to save the results to {0} since {1} is one of the protected extension names. ", "{0}", 
-											"Successfully saved the results to {0} in the {1} format. ", 
-											"Failed to save the results to {0} in the {1} format due to the following exception(s). \n\t{2}", 
-											"Successfully saved the results to {0} in the TXT format. ", 
-											"Failed to save the results to {0} due to the following exception(s). \n\t{1}", 
-											"Failed to initialize the directory for the output file path {0}. ", "The results are invalid. "
-										):
-											self.__generationDiagnostics.append("The statement {0} is not official. ".format(repr(string)))
+										self.__checkSaverString(string)
 								elif isinstance(ele, CSTNode):
 									s.extend(reversed(list(ele.children)))
-						elif isinstance(element, ClassDef) and element.name.value.startswith("Scheme"): # search("^class\\s+Scheme[0-9A-Z_a-z]*", line)
+						elif isinstance(element, ClassDef) and element.name.value.startswith("Scheme"): # match("^class\\s+Scheme[0-9A-Z_a-z]*", line)
 							f.write("\\section{" + element.name.value.replace("_", "\\_") + "}" + os.linesep * 2)
 							for item in element.body.body:
 								if isinstance(item, FunctionDef):
-									if "__init__" == item.name.value: # search("^\tdef\\s+__init__", line)
+									s, mode, functionName = [item], False, ""
+									if "__init__" == item.name.value: # match("^\tdef\\s+__init__", line)
 										if item.body.header.comment:
 											f.write(item.body.header.comment.value.lstrip("# ") + os.linesep * 2)
-									elif not item.name.value.startswith("_") and "getLengthOf" != item.name.value: # search("^\tdef\\s+[A-Za-z][0-9A-Z_a-z]*", line)
+										functionName = "Init"
+									elif not item.name.value.startswith("_") and "getLengthOf" != item.name.value: # match("^\tdef\\s+[A-Za-z][0-9A-Z_a-z]*", line)
 										if item.body.header.comment:
 											f.write("\\subsection{" + item.body.header.comment.value.lstrip("# ") + "}" + os.linesep * 2)
-									s, mode, functionName = [item], False, "Init" if "__init__" == item.name.value else item.name.value
-									descriptor = functionName + ": "
-									descriptorLength = len(descriptor)
+										functionName = item.name.value
 									while s:
 										ele = s.pop()
 										if isinstance(ele, (EmptyLine, TrailingWhitespace)):
@@ -287,36 +362,7 @@ class Builder:
 													and isinstance(argument.value.func.value, (ConcatenatedString, SimpleString))
 												):
 													string = argument.value.func.value.evaluated_value
-												if not string.startswith(descriptor):
-													self.__generationDiagnostics.append("The statement {0} should start with {1}. ".format(
-														repr(string), repr(descriptor)
-													))
-												elif not (
-													string[descriptorLength:] in (
-														(
-															"This scheme is only applicable to symmetric groups of prime orders. "
-															+ "The curve name has been defaulted to \"SS512\". "
-														), (
-															"The securtiy parameter should be a positive integer but it is not, "
-															+ "which has been defaulted to {0}. "
-														), (
-															"The ``BSetup`` procedure has not been called yet. The program will "
-															+ "call the ``BSetup`` first and finish the ``{0}`` subsequently. "
-														).format(functionName), (
-															"The ``Setup`` procedure has not been called yet. The program will "
-															+ "call the ``Setup`` first and finish the ``{0}`` subsequently. "
-														).format(functionName)
-													) or search(
-														(
-															"^The variable \\$.+\\$ should be an? .+ but it is not, "
-															+ "which has been generated (?:random|according)ly\\. $"
-														), string[descriptorLength:]
-													) or search(
-														"^The variable \\$.+\\$ has been generated accordingly\\. $", 
-														string[descriptorLength:]
-													)
-												):
-													self.__generationDiagnostics.append("The statement {0} is not official. ".format(repr(string)))
+												self.__checkFunctionString(string, functionName)
 										elif isinstance(ele, CSTNode):
 											s.extend(reversed(list(ele.children)))
 								elif isinstance(item, CSTNode):
@@ -350,8 +396,8 @@ class Builder:
 		return self.__flag
 	def getGenerationStatement(self:object) -> str:
 		if self.__flag >= 2:
-			if isinstance(self.__generationDiagnostics, (tuple, list, set)) and self.__generationDiagnostics:
-				warningCount = len(self.__generationDiagnostics)
+			if isinstance(self.__generationDiagnostics, dict) and any(self.__generationDiagnostics.values()):
+				warningCount = sum(len(warnings) for warnings in self.__generationDiagnostics.values())
 				return "Successfully generated the LaTeX source code {0} for {1}. The time consumption is {2:.9f} second(s). However, there {3} {4}. ".format(
 					repr(self.__schemeLaTeXFilePath), repr(self.__schemeFilePath), self.__generationTimeConsumption, 
 					("are {0} warnings" if warningCount > 1 else "is {0} warning").format(warningCount), self.__generationDiagnostics
@@ -391,17 +437,20 @@ class Builder:
 			return "Please call the ``generate`` method function before the ``compile`` method function for {0}. ".format(repr(self.__schemeFilePath))
 		else:
 			return "The file paths passed should be strings. "
+	@staticmethod
+	def getGenerationDiagnostics():
+		for warnings in Builder.__GenerationDiagnostics.values():
+			warnings.sort()
+		return Builder.__GenerationDiagnostics
 
 class Builders:
 	__DefaultFormatter, __DefaultSchemeFilePathPrompt, __DefaultGenerationPrompt, __DefaultCompilationPrompt = "%p%s%mLaTeX%s%m", "[F] ", "[G] ", "[C] "
-	def __init__(self:object, formatter:str = __DefaultFormatter, *paths:tuple) -> object:
+	def __init__(self:object, formatter:str = __DefaultFormatter, collectionMode:bool = False, *paths:tuple) -> object:
 		self.__formatter = formatter if isinstance(formatter, str) else Builders.__DefaultFormatter
+		self.__collectionMode = True == collectionMode
 		self.__filePaths = []
 		self.__builders = []
-		if paths:
-			self.updateFilePaths(*paths)
-		else:
-			self.updateFilePaths(".")
+		self.updateFilePaths(*paths if paths else ".")
 	def __format(self:object, _m:str = "", _n:str = "", _p:str = "", _s:str = os.sep, _x:str = ".py") -> str:
 		m, n, p = _m if isinstance(_m, str) else "", _n if isinstance(_n, str) else "", _p if isinstance(_p, str) else ""
 		s, x = _s if isinstance(_s, str) else os.sep, _x if isinstance(_x, str) else ".py"
@@ -460,12 +509,12 @@ class Builders:
 		for filePath in self.__filePaths[originalLength:]:
 			p, n = os.path.split(filePath)
 			m, x = os.path.splitext(n)
-			self.__builders.append(Builder(filePath, self.__format(m, n, p, os.sep, x)))
+			self.__builders.append(Builder(filePath, self.__format(m, n, p, os.sep, x), collectionMode = self.__collectionMode))
 		currentLength = len(self.__builders)
 		return currentLength - originalLength
 	def build(self:object, isSilent:bool = False) -> None:
 		successCount = 0
-		if isinstance(isSilent, bool) and isSilent:
+		if not self.__collectionMode and True == isSilent:
 			for builder in self.__builders:
 				builder.generate()
 				builder.compile()
@@ -480,6 +529,9 @@ class Builders:
 				print(Builders.__DefaultCompilationPrompt + builder.getCompilationStatement())
 				if builder.getFlag() >= 3:
 					successCount += 1
+				print()
+			if self.__collectionMode:
+				print("Collected generation diagnostics {0}. ".format(Builder.getGenerationDiagnostics()))
 				print()
 		return successCount
 	def __len__(self:object) -> int:
@@ -498,7 +550,7 @@ def main() -> int:
 		print("Please try to install the ``libcst`` library via ``pip install libcst``. ")
 		errorLevel = EOF
 	else:
-		builders = Builders(formatter, *argv[1:])
+		builders = Builders(formatter, False, *argv[1:])
 		totalCount = len(builders)
 		print("Gathered {0} to build. ".format(("{0} items" if totalCount > 1 else "{0} item").format(totalCount)))
 		if totalCount >= 1:

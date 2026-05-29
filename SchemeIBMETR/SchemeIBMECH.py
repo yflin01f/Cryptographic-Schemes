@@ -48,7 +48,7 @@ class Parser:
 		else:
 			return ""
 	def __printHelp(self:object) -> None:
-		print("This is a possible implementation of the IBMECH cryptographic scheme in Python programming language based on the Python charm library. ")
+		print("This is a possible implementation of the IBMECH cryptographic scheme in Python programming language based on the Python Charm-Crypto framework. ")
 		print()
 		print("Options (not case-sensitive): ")
 		print("\t{0} [utf-8|utf-16|...]\t\tSpecify the encoding mode for CSV and TXT outputs. The default value is {1}. ".format(self.__formatOption(Parser.__OptionEncoding), Parser.__DefaultEncoding))
@@ -568,7 +568,7 @@ class SchemeIBMECH:
 		self.__group = group if isinstance(group, PairingGroup) else PairingGroup("SS512", secparam = 512)
 		if self.__group.secparam < 1:
 			self.__group = PairingGroup(self.__group.groupType())
-			print("Init: The securtiy parameter should be a positive integer but it is not, which has been defaulted to {0}. ".format(self.__group.secparam))
+			print("Init: The securtiy parameter should be a positive integer, but it is not, which has been defaulted to {0}. ".format(self.__group.secparam))
 		self.__mpk = None
 		self.__msk = None
 		self.__flag = False # to indicate whether it has already set up
@@ -616,7 +616,7 @@ class SchemeIBMECH:
 			sigma = sender
 		else:
 			sigma = self.__group.random(ZR)
-			print("SKGen: The variable $\\sigma$ should be an element of $\\mathbb{Z}_r$ but it is not, which has been generated randomly. ")
+			print("SKGen: The variable $\\sigma$ should be an element of $\\mathbb{Z}_r$, but it is not, which has been generated randomly. ")
 		
 		# Unpack #
 		eta, d3, d4 = self.__msk[1], self.__msk[4], self.__msk[5]
@@ -636,7 +636,7 @@ class SchemeIBMECH:
 			rho = receiver
 		else:
 			rho = self.__group.random(ZR)
-			print("RKGen: The variable $\\rho$ should be an element of $\\mathbb{Z}_r$ but it is not, which has been generated randomly. ")
+			print("RKGen: The variable $\\rho$ should be an element of $\\mathbb{Z}_r$, but it is not, which has been generated randomly. ")
 		
 		# Unpack #
 		gTToThePowerOfEta = self.__mpk[1]
@@ -660,17 +660,17 @@ class SchemeIBMECH:
 			ek_sigma = eksigma
 		else:
 			ek_sigma = self.SKGen(self.__group.random(ZR))
-			print("Enc: The variable $\\textit{ek}_\\sigma$ should be a tuple containing 8 elements but it is not, which has been generated randomly. ")
+			print("Enc: The variable $\\textit{ek}_\\sigma$ should be a tuple containing 8 elements, but it is not, which has been generated randomly. ")
 		if isinstance(receiver, Element) and receiver.type == ZR: # type check
 			rcv = receiver
 		else:
 			rcv = self.__group.random(ZR)
-			print("Enc: The variable $\\textit{rcv}$ should be an element of $\\mathbb{Z}_r$ but it is not, which has been generated randomly. ")
+			print("Enc: The variable $\\textit{rcv}$ should be an element of $\\mathbb{Z}_r$, but it is not, which has been generated randomly. ")
 		if isinstance(message, Element) and message.type == GT: # type check
 			m = message
 		else:
 			m = self.__group.random(GT)
-			print("Enc: The variable $m$ should be an element of $\\mathbb{G}_T$ but it is not, which has been generated randomly. ")
+			print("Enc: The variable $m$ should be an element of $\\mathbb{G}_T$, but it is not, which has been generated randomly. ")
 		
 		# Unpack #
 		gTToThePowerOfAlpha, D1, D2 = self.__mpk[0], self.__mpk[2], self.__mpk[3]
@@ -695,17 +695,17 @@ class SchemeIBMECH:
 			dk_rho = dkrho
 		else:
 			dk_rho = self.RKGen(self.__group.random(ZR))
-			print("Dec: The variable $\\textit{dk}_\\rho$ should be a tuple containing 2 tuples and an element but it is not, which has been generated randomly. ")
+			print("Dec: The variable $\\textit{dk}_\\rho$ should be a tuple containing 2 tuples and an element, but it is not, which has been generated randomly. ")
 		if isinstance(sender, Element) and sender.type == ZR: # type check
 			snd = sender
 		else:
 			snd = self.__group.random(ZR)
-			print("Dec: The variable $\\textit{snd}$ should be an element of $\\mathbb{Z}_r$ but it is not, which has been generated randomly. ")
+			print("Dec: The variable $\\textit{snd}$ should be an element of $\\mathbb{Z}_r$, but it is not, which has been generated randomly. ")
 		if isinstance(cipherText, tuple) and len(cipherText) == 2 and isinstance(cipherText[0], tuple) and len(cipherText[0]) == 8 and all(isinstance(ele, Element) for ele in cipherText[0]) and isinstance(cipherText[1], Element): # hybrid check
 			ct = cipherText
 		else:
 			ct = self.Enc(self.SKGen(self.__group.random(ZR)), self.__group.random(ZR), self.__group.random(GT))
-			print("Dec: The variable $\textit{ct}$ should be a tuple containing a tuple and an element but it is not, which has been generated randomly. ")
+			print("Dec: The variable $\\textit{ct}$ should be a tuple containing a tuple and an element, but it is not, which has been generated randomly. ")
 		
 		# Unpack #
 		k1, k2, k3 = dk_rho
@@ -735,7 +735,7 @@ class SchemeIBMECH:
 
 def conductScheme(curveParameter:tuple|list|dict|str, run:int|None = None, isVerbose:bool = True) -> list:
 	# Begin #
-	curveName, securityParameter, runString = "N/A", 512, "N/A" # the default value of the security parameter in the Python charm library is 512
+	curveName, securityParameter, runString = "N/A", 512, "N/A" # the default value of the security parameter in the Python Charm-Crypto framework is 512
 	isSystemValid, isSchemeCorrect = False, False
 	timeSetup, timeSKGen, timeRKGen, timeEnc, timeDec = ("N/A", ) * 5
 	sizeZR, sizeG1, sizeG2, sizeGT = ("N/A", ) * 4

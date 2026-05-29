@@ -41,7 +41,7 @@ procedures = [("Setup", lambda p, j:Setup(p, j), 1, 10), ("KeyGen", lambda p, j:
 
 # Class #
 class PARS:
-	def __init__(self, n = DEFAULT_N, m = DEFAULT_M, q = DEFAULT_Q, **extra_pars):
+	def __init__(self:object, n = DEFAULT_N, m = DEFAULT_M, q = DEFAULT_Q, **extra_pars):
 		if isinstance(n, int) and n > 1:
 			self.__n = n
 		else:

@@ -48,7 +48,7 @@ class Parser:
 		else:
 			return ""
 	def __printHelp(self:object) -> None:
-		print("This is the official implementation of the HIB-ME cryptographic scheme in Python programming language based on the Python charm library. ")
+		print("This is the official implementation of the HIB-ME cryptographic scheme in Python programming language based on the Python Charm-Crypto framework. ")
 		print()
 		print("Options (not case-sensitive): ")
 		print("\t{0} [utf-8|utf-16|...]\t\tSpecify the encoding mode for CSV and TXT outputs. The default value is {1}. ".format(self.__formatOption(Parser.__OptionEncoding), Parser.__DefaultEncoding))
@@ -568,7 +568,7 @@ class SchemeHIBME:
 		self.__group = group if isinstance(group, PairingGroup) else PairingGroup("SS512", secparam = 512)
 		if self.__group.secparam < 1:
 			self.__group = PairingGroup(self.__group.groupType())
-			print("Init: The securtiy parameter should be a positive integer but it is not, which has been defaulted to {0}. ".format(self.__group.secparam))
+			print("Init: The securtiy parameter should be a positive integer, but it is not, which has been defaulted to {0}. ".format(self.__group.secparam))
 		self.__operand = (1 << self.__group.secparam) - 1 # use to cast binary strings
 		self.__l = SchemeHIBME.__DefaultL
 		self.__mpk = None
@@ -595,7 +595,7 @@ class SchemeHIBME:
 			self.__l = l
 		else:
 			self.__l = SchemeHIBME.__DefaultL
-			print("Setup: The variable $l$ should be a positive integer not smaller than $3$ but it is not, which has been defaulted to ${0}$. ".format(SchemeHIBME.__DefaultL))
+			print("Setup: The variable $l$ should be a positive integer not smaller than $3$, but it is not, which has been defaulted to ${0}$. ".format(SchemeHIBME.__DefaultL))
 		
 		# Scheme #
 		g = self.__group.init(G1, 1) # $g \gets 1_{\mathbb{G}_1}$
@@ -619,7 +619,7 @@ class SchemeHIBME:
 			HHat = lambda x:int.from_bytes(md5(self.__group.serialize(x)).digest(), byteorder = "big")
 		else:
 			HHat = lambda x:int.from_bytes(sha512(self.__group.serialize(x)).digest() * (((self.__group.secparam - 1) >> 9) + 1), byteorder = "big") & self.__operand # $\hat{H}: \mathbb{G}_T \to \{0, 1\}^\lambda$
-			print("Setup: An irregular security parameter ($\\lambda = {0}$) is specified. It is recommended to use 128, 160, 224, 256, 384, or 512 as the security parameter. ".format(self.__group.secparam))
+			print("Setup: An irregular security parameter ($\\lambda = {0}$) is specified. It is recommended to use 128, 160, 224, 256, 384, 512, or 1024 as the security parameter. ".format(self.__group.secparam))
 		g1 = g ** alpha # $g_1 \gets g^\alpha$
 		A = pair(g1, g2) # $A \gets e(g_1, g_2)$
 		gBar = g ** b1 # $\bar{g} \gets g^{b_1}$
@@ -642,7 +642,7 @@ class SchemeHIBME:
 		else:
 			ID_k = tuple(self.__group.random(ZR) for i in range(self.__l - 1))
 			print(																																														\
-				"EKGen: The variable $\\textit{{ID}}_k$ should be a tuple containing $k = \\|\\textit{{ID}}_k\\|$ elements of $\\mathbb{{Z}}_r$ where the integer $k \\in [2, {0}]$ but it is not, "	\
+				"EKGen: The variable $\\textit{{ID}}_k$ should be a tuple containing $k = \\|\\textit{{ID}}_k\\|$ elements of $\\mathbb{{Z}}_r$ where the integer $k \\in [2, {0}]$, but it is not, "	\
 				+ "which has been generated randomly with a length of ${1} - 1 = {0}$. ".format(self.__l - 1, self.__l)																					\
 			)
 		
@@ -677,7 +677,7 @@ class SchemeHIBME:
 				ek_ID_kMinus1 = self.EKGen(ID_k[:-1])
 				print(																																																						\
 					(																																																						\
-						"DerivedEKGen: The variable $\\textit{{ek}}_{{\\textit{{ID}}_{{k - 1}}}}$ should be a tuple containing a tuple with $k - 1 = {0}$ element(s) and two tuples with $l - k + 1 = {1}$ element(s) but it is not, "		\
+						"DerivedEKGen: The variable $\\textit{{ek}}_{{\\textit{{ID}}_{{k - 1}}}}$ should be a tuple containing a tuple with $k - 1 = {0}$ element(s) and two tuples with $l - k + 1 = {1}$ element(s), but it is not, "		\
 						+ "which has been generated accordingly. "																																											\
 					).format(len(ID_k) - 1, self.__l - len(ID_k) + 1)																																										\
 				)
@@ -685,7 +685,7 @@ class SchemeHIBME:
 			ID_k = tuple(self.__group.random(ZR) for i in range(self.__l - 1))
 			print(																																																	\
 				(																																																	\
-					"DerivedEKGen: The variable $\\textit{{ID}}_k$ should be a tuple containing $k = \\|\\textit{{ID}}_k\\|$ elements of $\\mathbb{{Z}}_r$ where the integer $k \\in [2, {0}]$ but it is not, "		\
+					"DerivedEKGen: The variable $\\textit{{ID}}_k$ should be a tuple containing $k = \\|\\textit{{ID}}_k\\|$ elements of $\\mathbb{{Z}}_r$ where the integer $k \\in [2, {0}]$, but it is not, "		\
 					+ "which has been generated randomly with a length of ${1} - 1 = {0}$. "																														\
 				).format(self.__l - 1, self.__l)																																									\
 			)
@@ -719,7 +719,7 @@ class SchemeHIBME:
 			ID_k = tuple(self.__group.random(ZR) for i in range(self.__l - 1))
 			print(																																															\
 				(																																															\
-					"DKGen: The variable $\\textit{{ID}}_k$ should be a tuple containing $k = \\|\\textit{{ID}}_k\\|$ elements of $\\mathbb{{Z}}_r$ where the integer $k \\in [2, {0}]$ but it is not, "	\
+					"DKGen: The variable $\\textit{{ID}}_k$ should be a tuple containing $k = \\|\\textit{{ID}}_k\\|$ elements of $\\mathbb{{Z}}_r$ where the integer $k \\in [2, {0}]$, but it is not, "	\
 					+ "which has been generated randomly with a length of ${1} - 1 = {0}$. "																												\
 				).format(self.__l - 1, self.__l)																																							\
 			)
@@ -770,14 +770,14 @@ class SchemeHIBME:
 				print(																																										\
 					(																																										\
 						"DerivedDKGen: The variable $\\textit{{dk}}_{{\\textit{{ID}}_{{k - 1}}}}$ should be a tuple containing a tuple with $(l - k + 1) \\times 4 + 5 = {0}$ elements, "	\
-						+ "a tuple with $k - 1 = {1}$ element(s), and two tuples with $l - k + 1 = {2}$ element(s) but it is not, which has been generated accordingly. "					\
+						+ "a tuple with $k - 1 = {1}$ element(s), and two tuples with $l - k + 1 = {2}$ element(s), but it is not, which has been generated accordingly. "					\
 					).format(((self.__l - len(ID_k) + 1) << 2) + 5, len(ID_k) - 1, self.__l - len(ID_k) + 1)																				\
 				)
 		else:
 			ID_k = tuple(self.__group.random(ZR) for i in range(self.__l - 1))
 			print(																																																	\
 				(																																																	\
-					"DerivedDKGen: The variable $\\textit{{ID}}_k$ should be a tuple containing $k = \\|\\textit{{ID}}_k\\|$ elements of $\\mathbb{{Z}}_r$ where the integer $k \\in [2, {0}]$ but it is not, "		\
+					"DerivedDKGen: The variable $\\textit{{ID}}_k$ should be a tuple containing $k = \\|\\textit{{ID}}_k\\|$ elements of $\\mathbb{{Z}}_r$ where the integer $k \\in [2, {0}]$, but it is not, "		\
 					+ "which has been generated randomly with a length of ${1} - 1 = {0}$. "																														\
 				).format(self.__l - 1, self.__l)																																									\
 			)
@@ -831,7 +831,7 @@ class SchemeHIBME:
 			else:
 				ek_ID_S = self.EKGen(ID_Snd)
 				print(
-					"Enc: The variable $\\textit{{ek}}_{{\\textit{{ID}}_S}}$ should be a tuple containing a tuple with $n = {0}$ elements and two tuples with $l - n = {1}$ element(s) but it is not, which has been generated accordingly. ".format(	\
+					"Enc: The variable $\\textit{{ek}}_{{\\textit{{ID}}_S}}$ should be a tuple containing a tuple with $n = {0}$ elements and two tuples with $l - n = {1}$ element(s), but it is not, which has been generated accordingly. ".format(	\
 						len(ID_Snd), self.__l - len(ID_Snd)																																																\
 					)																																																									\
 				)
@@ -839,7 +839,7 @@ class SchemeHIBME:
 			ID_Snd = tuple(self.__group.random(ZR) for i in range(self.__l - 1))
 			print(																																																					\
 				(																																																					\
-					"Enc: The variable $\\textit{{ID}}_\textit{{Snd}}$ should be a tuple containing $n = \\|\\textit{{ID}}_\\textit{{Snd}}\\|$ elements of $\\mathbb{{Z}}_r$ where the integer $n \\in [2, {0}]$ but it is not, "	\
+					"Enc: The variable $\\textit{{ID}}_\textit{{Snd}}$ should be a tuple containing $n = \\|\\textit{{ID}}_\\textit{{Snd}}\\|$ elements of $\\mathbb{{Z}}_r$ where the integer $n \\in [2, {0}]$, but it is not, "	\
 					+ "which has been generated randomly with a length of ${1} - 1 = {0}$. "																																		\
 				).format(self.__l - 1, self.__l)																																													\
 			)
@@ -851,7 +851,7 @@ class SchemeHIBME:
 			ID_Rev = tuple(self.__group.random(ZR) for i in range(self.__l - 1))
 			print(																																																					\
 				(																																																					\
-					"Enc: The variable $\\textit{{ID}}_\textit{{Rev}}$ should be a tuple containing $m = \\|\\textit{{ID}}_\\textit{{Rev}}\\|$ elements of $\\mathbb{{Z}}_r$ where the integer $m \\in [2, {0}]$ but it is not, "	\
+					"Enc: The variable $\\textit{{ID}}_\textit{{Rev}}$ should be a tuple containing $m = \\|\\textit{{ID}}_\\textit{{Rev}}\\|$ elements of $\\mathbb{{Z}}_r$ where the integer $m \\in [2, {0}]$, but it is not, "	\
 					+ "which has been generated randomly with a length of ${1} - 1 = {0}$. "																																		\
 				).format(self.__l - 1, self.__l)																																													\
 			)
@@ -865,7 +865,7 @@ class SchemeHIBME:
 				print("Enc: The passed message (bytes) is too long, which has been cast. ")
 		else:
 			M = int.from_bytes(b"SchemeHIBME", byteorder = "big") & self.__operand
-			print("Enc: The variable $M$ should be an integer or a ``bytes`` object but it is not, which has been defaulted to b\"SchemeHIBME\". ")
+			print("Enc: The variable $M$ should be an integer or a ``bytes`` object, but it is not, which has been defaulted to b\"SchemeHIBME\". ")
 		
 		# Unpack #
 		g, g3, gBar, gTilde, h, H1, H2, HHat, A = self.__mpk[0], self.__mpk[3], self.__mpk[4], self.__mpk[5], self.__mpk[8:-4], self.__mpk[-4], self.__mpk[-3], self.__mpk[-2], self.__mpk[-1]
@@ -923,14 +923,14 @@ class SchemeHIBME:
 				print(																																					\
 					(																																					\
 						"Dec: The variable $\\textit{dk}_{\\textit{ID}_R}$ should be a tuple containing a tuple with $(l - m) \\times 4 + 5 = {0}$ elements, "			\
-						+ "a tuple with $m - 1 = {1}$ element(s), and two tuples with $l - m = {2}$ element(s) but it is not, which has been generated accordingly. "	\
+						+ "a tuple with $m - 1 = {1}$ element(s), and two tuples with $l - m = {2}$ element(s), but it is not, which has been generated accordingly. "	\
 					).format(((self.__l - len(ID_Rev)) << 2) + 5, len(ID_Rev), self.__l - len(ID_Rev))																	\
 				)
 		else:
 			ID_Rev = tuple(self.__group.random(ZR) for i in range(self.__l - 1))
 			print(																																																					\
 				(																																																					\
-					"Dec: The variable $\\textit{{ID}}_\\textit{{Rev}}$ should be a tuple containing $m = \\|\\textit{{ID}}_\\textit{{Rev}}\\|$ elements of $\\mathbb{{Z}}_r$ where the integer $m \\in [2, {0}]$ but it is not, "	\
+					"Dec: The variable $\\textit{{ID}}_\\textit{{Rev}}$ should be a tuple containing $m = \\|\\textit{{ID}}_\\textit{{Rev}}\\|$ elements of $\\mathbb{{Z}}_r$ where the integer $m \\in [2, {0}]$, but it is not, "	\
 					+ "which has been generated randomly with a length of ${1} - 1 = {0}$. "																																		\
 				).format(self.__l - 1, self.__l)																																													\
 			)
@@ -942,7 +942,7 @@ class SchemeHIBME:
 			ID_Snd = tuple(self.__group.random(ZR) for i in range(self.__l - 1))
 			print(																																																					\
 				(																																																					\
-					"Dec: The variable $\\textit{{ID}}_\\textit{{Snd}}$ should be a tuple containing $n = \\|\\textit{{ID}}_\\textit{{Snd}}\\|$ elements of $\\mathbb{{Z}}_r$ where the integer $n \\in [2, {0}]$ but it is not, "	\
+					"Dec: The variable $\\textit{{ID}}_\\textit{{Snd}}$ should be a tuple containing $n = \\|\\textit{{ID}}_\\textit{{Snd}}\\|$ elements of $\\mathbb{{Z}}_r$ where the integer $n \\in [2, {0}]$, but it is not, "	\
 					+ "which has been generated randomly with a length of ${1} - 1 = {0}$. "																																		\
 				).format(self.__l - 1, self.__l)																																													\
 			)
@@ -950,7 +950,7 @@ class SchemeHIBME:
 			CT = cipherText
 		else:
 			CT = self.Enc(self.EKGen(ID_Snd), ID_Snd, ID_Rev, int.from_bytes(b"SchemeHIBME", byteorder = "big") & self.__operand)
-			print("Dec: The variable $\\textit{CT}$ should be a tuple containing an integer and 4 elements but it is not, which has been generated with $M$ set to b\"SchemeHIBME\". ")
+			print("Dec: The variable $\\textit{CT}$ should be a tuple containing an integer and 4 elements, but it is not, which has been generated randomly with $M$ set to b\"SchemeHIBME\". ")
 		
 		# Unpack #
 		H1, H2, HHat = self.__mpk[-4], self.__mpk[-3], self.__mpk[-2]
@@ -1006,7 +1006,7 @@ class SchemeHIBME:
 
 def conductScheme(curveParameter:tuple|list|dict|str, l:int = 30, m:int = 20, n:int = 10, run:int|None = None, isVerbose:bool = True) -> list:
 	# Begin #
-	curveName, securityParameter, lString, mString, nString, runString = "N/A", 512, "N/A", "N/A", "N/A", "N/A" # the default value of the security parameter in the Python charm library is 512
+	curveName, securityParameter, lString, mString, nString, runString = "N/A", 512, "N/A", "N/A", "N/A", "N/A" # the default value of the security parameter in the Python Charm-Crypto framework is 512
 	isSystemValid, isDeriverPassed, isSchemeCorrect = False, False, False
 	timeSetup, timeEKGen, timeDerivedEKGen, timeDKGen, timeDerivedDKGen, timeEnc, timeDec = ("N/A", ) * 7
 	sizeZR, sizeG1, sizeG2, sizeGT = ("N/A", ) * 4

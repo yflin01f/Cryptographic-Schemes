@@ -50,7 +50,7 @@ class Parser:
 		else:
 			return ""
 	def __printHelp(self:object) -> None:
-		print("This is the official implementation of the PBAC cryptographic scheme in Python programming language based on the Python charm library. ")
+		print("This is the official implementation of the PBAC cryptographic scheme in Python programming language based on the Python Charm-Crypto framework. ")
 		print()
 		print("Options (not case-sensitive): ")
 		print("\t{0} [utf-8|utf-16|...]\t\tSpecify the encoding mode for CSV and TXT outputs. The default value is {1}. ".format(self.__formatOption(Parser.__OptionEncoding), Parser.__DefaultEncoding))
@@ -574,7 +574,7 @@ class SchemePBAC:
 			print("Init: This scheme is only applicable to symmetric groups of prime orders. The curve name has been defaulted to \"SS512\". ")
 		if self.__group.secparam < 1:
 			self.__group = PairingGroup(self.__group.groupType())
-			print("Init: The securtiy parameter should be a positive integer but it is not, which has been defaulted to {0}. ".format(self.__group.secparam))
+			print("Init: The securtiy parameter should be a positive integer, but it is not, which has been defaulted to {0}. ".format(self.__group.secparam))
 		self.__operand = (1 << self.__group.secparam) - 1 # use to cast binary strings
 		self.__mpk = None
 		self.__msk = None
@@ -608,7 +608,7 @@ class SchemePBAC:
 			H4 = lambda x:int.from_bytes(md5(self.__group.serialize(x)).digest(), byteorder = "big")
 		else:
 			H4 = lambda x:int.from_bytes(sha512(self.__group.serialize(x)).digest() * ceil(self.__group.secparam / 512), byteorder = "big") & self.__operand # $H_4: \{0, 1\}^* \to \{0, 1\}^\lambda$
-			print("Setup: An irregular security parameter ($\\lambda = {0}$) is specified. It is recommended to use 128, 160, 224, 256, 384, or 512 as the security parameter. ".format(self.__group.secparam))
+			print("Setup: An irregular security parameter ($\\lambda = {0}$) is specified. It is recommended to use 128, 160, 224, 256, 384, 512, or 1024 as the security parameter. ".format(self.__group.secparam))
 		H5 = lambda x:self.__group.hash(x, G1) # $H_5: \{0, 1\}^* \to \mathbb{G}_1$
 		H6 = lambda x:self.__group.hash(x, G1) # $H_6: \{0, 1\}^* \to \mathbb{G}_1$
 		gHat = g ** s # $\hat{g} \gets g^s$
@@ -627,7 +627,7 @@ class SchemePBAC:
 			id_S = idS
 		else:
 			id_S = randbelow(1 << self.__group.secparam).to_bytes(ceil(self.__group.secparam / 8), byteorder = "big")
-			print("SKGen: The variable $\\textit{id}_S$ should be a ``bytes`` object but it is not, which has been generated randomly. ")
+			print("SKGen: The variable $\\textit{id}_S$ should be a ``bytes`` object, but it is not, which has been generated randomly. ")
 		
 		# Unpack #
 		H1 = self.__mpk[2]
@@ -647,7 +647,7 @@ class SchemePBAC:
 			id_R = idR
 		else:
 			id_R = randbelow(1 << self.__group.secparam).to_bytes(ceil(self.__group.secparam / 8), byteorder = "big")
-			print("RKGen: The variable $\\textit{id}_R$ should be a ``bytes`` object but it is not, which has been generated randomly. ")
+			print("RKGen: The variable $\\textit{id}_R$ should be a ``bytes`` object, but it is not, which has been generated randomly. ")
 		
 		# Unpack #
 		H2 = self.__mpk[3]
@@ -665,16 +665,16 @@ class SchemePBAC:
 		if not self.__flag:
 			print("Enc: The ``Setup`` procedure has not been called yet. The program will call the ``Setup`` first and finish the ``Enc`` subsequently. ")
 			self.Setup()
-		if isinstance(ekid1, Element): # type check
+		if isinstance(ekid1, Element) and ekid1.type == G1: # type check
 			ek_id_1 = ekid1
 		else:
 			ek_id_1 = self.SKGen(randbelow(1 << self.__group.secparam).to_bytes(ceil(self.__group.secparam / 8), byteorder = "big"))
-			print("Enc: The variable $\\textit{ek}_{\\textit{id}_1}$ should be an element but it is not, which has been generated randomly. ")
+			print("Enc: The variable $\\textit{ek}_{\\textit{id}_1}$ should be an element of $\\mathbb{G}_1$, but it is not, which has been generated randomly. ")
 		if isinstance(id2, bytes): # type check
 			id_2 = id2
 		else:
 			id_2 = randbelow(1 << self.__group.secparam).to_bytes(ceil(self.__group.secparam / 8), byteorder = "big")
-			print("Enc: The variable $\\textit{id}_2$ should be a ``bytes`` object but it is not, which has been generated randomly. ")
+			print("Enc: The variable $\\textit{id}_2$ should be a ``bytes`` object, but it is not, which has been generated randomly. ")
 		if isinstance(message, int) and message >= 0: # type check
 			m = message & self.__operand
 			if message != m:
@@ -685,7 +685,7 @@ class SchemePBAC:
 				print("Enc: The passed message (bytes) is too long, which has been cast. ")
 		else:
 			m = int.from_bytes(b"SchemePBAC", byteorder = "big") & self.__operand
-			print("Enc: The variable $m$ should be an integer or a ``bytes`` object but it is not, which has been defaulted to b\"SchemePBAC\". ")
+			print("Enc: The variable $m$ should be an integer or a ``bytes`` object, but it is not, which has been defaulted to b\"SchemePBAC\". ")
 		
 		# Unpack #
 		g, gHat, H2, H3, H4, H5 = self.__mpk[0], self.__mpk[1], self.__mpk[3], self.__mpk[4], self.__mpk[5], self.__mpk[6]
@@ -709,19 +709,19 @@ class SchemePBAC:
 			self.Setup()
 		if isinstance(id2, bytes): # type check:
 			id_2 = id2
-			if isinstance(ekid2, Element): # type check
+			if isinstance(ekid2, Element) and ekid2.type == G1: # type check
 				ek_id_2 = ekid2
 			else:
 				ek_id_2 = self.SKGen(id_2)
-				print("PKGen: The variable $\\textit{ek}_{\\textit{id}_2}$ should be an element but it is not, which has been generated accordingly. ")
+				print("PKGen: The variable $\\textit{ek}_{\\textit{id}_2}$ should be an element of $\\mathbb{G}_1$, but it is not, which has been generated accordingly. ")
 			if isinstance(dkid2, tuple) and len(dkid2) == 2 and all(isinstance(ele, Element) for ele in dkid2): # hybrid check
 				dk_id_2 = dkid2
 			else:
 				dk_id_2 = self.RKGen(id_2)
-				print("PKGen: The variable $\\textit{dk}_{\\textit{id}_2}$ should be a tuple containing 2 elements but it is not, which has been generated accordingly. ")
+				print("PKGen: The variable $\\textit{dk}_{\\textit{id}_2}$ should be a tuple containing 2 elements, but it is not, which has been generated accordingly. ")
 		else:
 			id_2 = randbelow(1 << self.__group.secparam).to_bytes(ceil(self.__group.secparam / 8), byteorder = "big")
-			print("PKGen: The variable $\\textit{id}_2$ should be a ``bytes`` object but it is not, which has been generated randomly. ")
+			print("PKGen: The variable $\\textit{id}_2$ should be a ``bytes`` object, but it is not, which has been generated randomly. ")
 			ek_id_2 = self.SKGen(id_2)
 			print("PKGen: The variable $\\textit{ek}_{\\textit{id}_2}$ has been generated accordingly. ")
 			dk_id_2 = self.RKGen(id_2)
@@ -730,12 +730,12 @@ class SchemePBAC:
 			id_1 = id1
 		else:
 			id_1 = randbelow(1 << self.__group.secparam).to_bytes(ceil(self.__group.secparam / 8), byteorder = "big")
-			print("PKGen: The variable $\\textit{id}_1$ should be a ``bytes`` object but it is not, which has been generated randomly. ")
+			print("PKGen: The variable $\\textit{id}_1$ should be a ``bytes`` object, but it is not, which has been generated randomly. ")
 		if isinstance(id3, bytes): # type check
 			id_3 = id3
 		else:
 			id_3 = randbelow(1 << self.__group.secparam).to_bytes(ceil(self.__group.secparam / 8), byteorder = "big")
-			print("PKGen: The variable $\\textit{id}_3$ should be a ``bytes`` object but it is not, which has been generated randomly. ")
+			print("PKGen: The variable $\\textit{id}_3$ should be a ``bytes`` object, but it is not, which has been generated randomly. ")
 		
 		# Unpack #
 		H2, H6 = self.__mpk[3], self.__mpk[7]
@@ -764,12 +764,12 @@ class SchemePBAC:
 				self.SKGen(id2Generated), self.RKGen(id2Generated), randbelow(1 << self.__group.secparam).to_bytes(ceil(self.__group.secparam / 8), byteorder = "big"), 	\
 				id2Generated, randbelow(1 << self.__group.secparam).to_bytes(ceil(self.__group.secparam / 8), byteorder = "big")											\
 			)
-			print("ProxyEnc: The variable $\\textit{rk}$ should be a tuple containing 2 ``bytes`` object and 2 tuples but it is not, which has been generated randomly. ")
+			print("ProxyEnc: The variable $\\textit{rk}$ should be a tuple containing 2 ``bytes`` object and 2 tuples, but it is not, which has been generated randomly. ")
 		if isinstance(cipherText, tuple) and len(cipherText) == 5 and all(isinstance(ele, Element) for ele in cipherText[:3]) and isinstance(cipherText[3], int) and isinstance(cipherText[4], Element): # hybrid check
 			C = cipherText
 		else:
 			C = self.Enc(self.SKGen(randbelow(1 << self.__group.secparam).to_bytes(ceil(self.__group.secparam / 8), byteorder = "big")), id2Generated, int.from_bytes(b"SchemePBAC", byteorder = "big"))
-			print("ProxyEnc: The variable $C$ should be a tuple containing 4 elements and an integer but it is not, which has been generated with $m$ set to b\"SchemePBAC\". ")
+			print("ProxyEnc: The variable $C$ should be a tuple containing 4 elements and an integer, but it is not, which has been generated randomly with $m$ set to b\"SchemePBAC\". ")
 		del id2Generated
 		
 		# Unpack #
@@ -801,22 +801,22 @@ class SchemePBAC:
 				dk_id_2 = dkid2
 			else:
 				dk_id_2 = self.RKGen(id_2)
-				print("Dec1: The variable $\\textit{dk}_{\\textit{id}_2}$ should be a tuple containing 2 elements but it is not, which has been generated accordingly. ")
+				print("Dec1: The variable $\\textit{dk}_{\\textit{id}_2}$ should be a tuple containing 2 elements, but it is not, which has been generated accordingly. ")
 		else:
 			id_2 = randbelow(1 << self.__group.secparam).to_bytes(ceil(self.__group.secparam / 8), byteorder = "big")
-			print("Dec1: The variable $\\textit{id}_2$ should be a ``bytes`` object but it is not, which has been generated randomly. ")
+			print("Dec1: The variable $\\textit{id}_2$ should be a ``bytes`` object, but it is not, which has been generated randomly. ")
 			dk_id_2 = self.RKGen(id_2)
 			print("Dec1: The variable $\\textit{dk}_{\\textit{id}_2}$ has been generated accordingly. ")
 		if isinstance(id1, bytes): # type check
 			id_1 = id1
 		else:
 			id_1 = randbelow(1 << self.__group.secparam).to_bytes(ceil(self.__group.secparam / 8), byteorder = "big")
-			print("Dec1: The variable $\\textit{id}_1$ should be a ``bytes`` object but it is not, which has been generated randomly. ")
+			print("Dec1: The variable $\\textit{id}_1$ should be a ``bytes`` object, but it is not, which has been generated randomly. ")
 		if isinstance(cipherText, tuple) and len(cipherText) == 5 and all(isinstance(ele, Element) for ele in cipherText[:3]) and isinstance(cipherText[3], int) and isinstance(cipherText[4], Element): # hybrid check
 			C = cipherText
 		else:
 			C = self.Enc(self.SKGen(randbelow(1 << self.__group.secparam).to_bytes(ceil(self.__group.secparam / 8), byteorder = "big")), id_2, int.from_bytes(b"SchemePBAC", byteorder = "big"))
-			print("Dec1: The variable $C$ should be a tuple containing 4 elements and an integer but it is not, which has been generated with $m$ set to b\"SchemePBAC\". ")
+			print("Dec1: The variable $C$ should be a tuple containing 4 elements and an integer, but it is not, which has been generated randomly with $m$ set to b\"SchemePBAC\". ")
 		
 		# Unpack #
 		g, H1, H3, H4, H5 = self.__mpk[0], self.__mpk[2], self.__mpk[4], self.__mpk[5], self.__mpk[6]
@@ -846,17 +846,17 @@ class SchemePBAC:
 				dk_id_3 = dkid3
 			else:
 				dk_id_3 = self.RKGen(id_3)
-				print("Dec2: The variable $\\textit{dk}_{\\textit{id}_3}$ should be a tuple containing 2 elements but it is not, which has been generated randomly. ")
+				print("Dec2: The variable $\\textit{dk}_{\\textit{id}_3}$ should be a tuple containing 2 elements, but it is not, which has been generated randomly. ")
 		else:
 			id_3 = randbelow(1 << self.__group.secparam).to_bytes(ceil(self.__group.secparam / 8), byteorder = "big")
-			print("Dec2: The variable $\\textit{id}_3$ should be a ``bytes`` object but it is not, which has been generated randomly. ")
+			print("Dec2: The variable $\\textit{id}_3$ should be a ``bytes`` object, but it is not, which has been generated randomly. ")
 			dk_id_3 = self.RKGen(id_3)
 			print("Dec2: The variable $\\textit{dk}_{\\textit{id}_3}$ has been generated accordingly. ")
 		if isinstance(id2, bytes): # type check
 			id_2 = id2
 		else:
 			id_2 = randbelow(1 << self.__group.secparam).to_bytes(ceil(self.__group.secparam / 8), byteorder = "big")
-			print("Dec2: The variable $\\textit{id}_2$ should be a ``bytes`` object but it is not, which has been generated randomly. ")
+			print("Dec2: The variable $\\textit{id}_2$ should be a ``bytes`` object, but it is not, which has been generated randomly. ")
 		if (																																							\
 			isinstance(cipherText, tuple) and len(cipherText) == 7 and isinstance(cipherText[0], bytes) and all(isinstance(ele, Element) for ele in cipherText[1:4])	\
 			and isinstance(cipherText[4], int) and isinstance(cipherText[5], bytes) and isinstance(cipherText[6], bytes)												\
@@ -866,7 +866,7 @@ class SchemePBAC:
 			return False
 		else:
 			CT = self.ProxyEnc(self.PKGen(self.SKGen(id_2), self.RKGen(id_2), id_1, id_2, id_3), self.Enc(self.SKGen(id_1), id_2, b"SchemePBAC"))
-			print("Dec2: The variable $\\textit{CT}$ should be a tuple containing 7 objects but it is not, which has been generated with $m$ set to b\"SchemePBAC\". ")
+			print("Dec2: The variable $\\textit{CT}$ should be a tuple containing 7 objects, but it is not, which has been generated randomly with $m$ set to b\"SchemePBAC\". ")
 		
 		# Unpack #
 		g, H1, H2, H3, H4, H6 = self.__mpk[0], self.__mpk[2], self.__mpk[3], self.__mpk[4], self.__mpk[5], self.__mpk[7]
@@ -904,7 +904,7 @@ class SchemePBAC:
 
 def conductScheme(curveParameter:tuple|list|dict|str, run:int|None = None, isVerbose:bool = True) -> list:
 	# Begin #
-	curveName, securityParameter, runString = "N/A", 512, "N/A" # the default value of the security parameter in the Python charm library is 512
+	curveName, securityParameter, runString = "N/A", 512, "N/A" # the default value of the security parameter in the Python Charm-Crypto framework is 512
 	isSystemValid, isProxyEncPassed, isDec1Passed, isDec2Passed = (False, ) * 4
 	timeSetup, timeSKGen, timeRKGen, timeEnc, timePKGen, timeProxyEnc, timeDec1, timeDec2 = ("N/A", ) * 8
 	sizeZR, sizeG1G2, sizeGT = ("N/A", ) * 3

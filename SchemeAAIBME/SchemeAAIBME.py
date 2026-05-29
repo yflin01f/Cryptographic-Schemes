@@ -50,7 +50,7 @@ class Parser:
 		else:
 			return ""
 	def __printHelp(self:object) -> None:
-		print("This is the official implementation of the AA-IB-ME cryptographic scheme in Python programming language based on the Python charm library. ")
+		print("This is the official implementation of the AA-IB-ME cryptographic scheme in Python programming language based on the Python Charm-Crypto framework. ")
 		print()
 		print("Options (not case-sensitive): ")
 		print("\t{0} [utf-8|utf-16|...]\t\tSpecify the encoding mode for CSV and TXT outputs. The default value is {1}. ".format(self.__formatOption(Parser.__OptionEncoding), Parser.__DefaultEncoding))
@@ -575,7 +575,7 @@ class SchemeAAIBME:
 			print("Init: This scheme is only applicable to symmetric groups of prime orders. The curve name has been defaulted to \"SS512\". ")
 		if self.__group.secparam < 1:
 			self.__group = PairingGroup(self.__group.groupType())
-			print("Init: The securtiy parameter should be a positive integer but it is not, which has been defaulted to {0}. ".format(self.__group.secparam))
+			print("Init: The securtiy parameter should be a positive integer, but it is not, which has been defaulted to {0}. ".format(self.__group.secparam))
 		self.__n = SchemeAAIBME.__DefaultN
 		self.__k = SchemeAAIBME.__DefaultK
 		self.__d = SchemeAAIBME.__DefaultD
@@ -660,14 +660,14 @@ class SchemeAAIBME:
 			ID_A = IDA
 		else:
 			ID_A = tuple(self.__group.random(ZR) for _ in range(self.__n))
-			print("EKGen: The variable $\\textit{ID}_A$ should be a tuple containing $n$ elements of $\\mathbb{Z}_r$ but it is not, which has been generated randomly. ")
+			print("EKGen: The variable $\\textit{ID}_A$ should be a tuple containing $n$ elements of $\\mathbb{Z}_r$, but it is not, which has been generated randomly. ")
 		if isinstance(_S, set) and len(_S) == self.__d and all(isinstance(ele, int) and 0 <= ele < self.__n for ele in _S):
 			S = _S
 		else:
 			S = list(range(self.__n))
 			shuffle(S)
 			S = set(S[:self.__d])
-			print("EKGen: The variable $S$ should be a set containing $d$ integers in $[0, n)$ but it is not, which has been generated randomly. ")
+			print("EKGen: The variable $S$ should be a set containing $d$ integers in $[0, n)$, but it is not, which has been generated randomly. ")
 		
 		# Unpack #
 		g3, uVec, TVec = self.__mpk[3], self.__mpk[10], self.__mpk[11]
@@ -697,14 +697,14 @@ class SchemeAAIBME:
 			ID_B = IDB
 		else:
 			ID_B = tuple(self.__group.random(ZR) for _ in range(self.__n))
-			print("DKGen: The variable $\\textit{ID}_B$ should be a tuple containing $n$ elements of $\\mathbb{Z}_r$ but it is not, which has been generated randomly. ")
+			print("DKGen: The variable $\\textit{ID}_B$ should be a tuple containing $n$ elements of $\\mathbb{Z}_r$, but it is not, which has been generated randomly. ")
 		if isinstance(_SPrime, set) and len(_SPrime) == self.__d and all(isinstance(ele, int) and 0 <= ele < self.__n for ele in _SPrime): # hybrid check
 			SPrime = _SPrime
 		else:
 			SPrime = list(range(self.__n))
 			shuffle(SPrime)
 			SPrime = set(SPrime[:self.__d])
-			print("DKGen: The variable $S'$ should be a set containing $d$ integers in $[0, n)$ but it is not, which has been generated randomly. ")
+			print("DKGen: The variable $S'$ should be a set containing $d$ integers in $[0, n)$, but it is not, which has been generated randomly. ")
 		
 		# Unpack #
 		g2, uVec, TVec = self.__mpk[2], self.__mpk[10], self.__mpk[11]
@@ -742,12 +742,12 @@ class SchemeAAIBME:
 				S = list(SPrimePrime)
 				shuffle(S)
 				S = set(S[:self.__d])
-				print("Enc: The variable $S$ should be a subset of $S''$ containing $d$ integers in $[0, n)$ but it is not, which has been generated accordingly. ")
+				print("Enc: The variable $S$ should be a subset of $S''$ containing $d$ integers in $[0, n)$, but it is not, which has been generated accordingly. ")
 		else:
 			SPrimePrime = list(range(self.__n))
 			shuffle(SPrimePrime)
 			SPrimePrime = set(SPrimePrime[:self.__k])
-			print("Enc: The variable $S''$ should be a set containing $k$ integers in $[0, n)$ but it is not, which has been generated randomly. ")
+			print("Enc: The variable $S''$ should be a set containing $k$ integers in $[0, n)$, but it is not, which has been generated randomly. ")
 			S = list(SPrimePrime)
 			shuffle(S)
 			S = set(S[:self.__d])
@@ -758,22 +758,22 @@ class SchemeAAIBME:
 				ek_ID_A_S = ekIDAS
 			else:
 				ek_ID_A_S = self.EKGen(ID_A, S)
-				print("Enc: The variable $\\textit{ek}_{\\textit{ID}_A}(S)$ should be a ``dict`` containing $d$ ``int``--``tuple`` pairs but it is not, which has been generated accordingly. ")
+				print("Enc: The variable $\\textit{ek}_{\\textit{ID}_A}(S)$ should be a ``dict`` containing $d$ ``int``--``tuple`` pairs, but it is not, which has been generated accordingly. ")
 		else:
 			ID_A = tuple(self.__group.random(ZR) for _ in range(self.__n))
-			print("Enc: The variable $\\textit{ID}_A$ should be a tuple containing $n$ elements of $\\mathbb{Z}_r$ but it is not, which has been generated randomly. ")
+			print("Enc: The variable $\\textit{ID}_A$ should be a tuple containing $n$ elements of $\\mathbb{Z}_r$, but it is not, which has been generated randomly. ")
 			ek_ID_A_S = self.EKGen(ID_A, S)
 			print("Enc: The variable $\\textit{ek}_{\\textit{ID}_A}$ has been generated accordingly. ")
 		if isinstance(IDB, tuple) and len(IDB) == self.__n and all(isinstance(ele, Element) and ele.type == ZR for ele in IDB): # hybrid check
 			ID_B = IDB
 		else:
 			ID_B = tuple(self.__group.random(ZR) for _ in range(self.__n))
-			print("Enc: The variable $\\textit{ID}_B$ should be a tuple containing $n$ elements of $\\mathbb{Z}_r$ but it is not, which has been generated randomly. ")
+			print("Enc: The variable $\\textit{ID}_B$ should be a tuple containing $n$ elements of $\\mathbb{Z}_r$, but it is not, which has been generated randomly. ")
 		if isinstance(message, Element) and message.type == GT: # type check
 			M = message
 		else:
 			M = self.__group.random(GT)
-			print("Enc: The variable $M$ should be an element of $\\mathbb{G}_T$ but it is not, which has been generated randomly. ")
+			print("Enc: The variable $M$ should be an element of $\\mathbb{G}_T$, but it is not, which has been generated randomly. ")
 		
 		# Unpack #
 		Y1, Y2, v1, v2, v3, v4, uVec, TVec, uPrimeVec, TPrimeVec, H1 = (																												\
@@ -832,12 +832,12 @@ class SchemeAAIBME:
 				SPrime = list(SPrimePrime)
 				shuffle(SPrime)
 				SPrime = set(SPrime[:self.__d])
-				print("Dec: The variable $S'$ should be a subset of $S''$ containing $d$ integers in $[0, n)$ but it is not, which has been generated accordingly. ")
+				print("Dec: The variable $S'$ should be a subset of $S''$ containing $d$ integers in $[0, n)$, but it is not, which has been generated accordingly. ")
 		else:
 			SPrimePrime = list(range(self.__n))
 			shuffle(SPrimePrime)
 			SPrimePrime = set(SPrimePrime[:self.__k])
-			print("Dec: The variable $S''$ should be a set containing $k$ integers in $[0, n)$ but it is not, which has been generated randomly. ")
+			print("Dec: The variable $S''$ should be a set containing $k$ integers in $[0, n)$, but it is not, which has been generated randomly. ")
 			SPrime = list(SPrimePrime)
 			shuffle(SPrime)
 			SPrime = set(SPrime[:self.__d])
@@ -851,17 +851,17 @@ class SchemeAAIBME:
 				dk_ID_B_SPrime = dkIDBSPrime
 			else:
 				dk_ID_B_SPrime = self.DKGen(ID_B, SPrime)
-				print("Dec: The variable $\\textit{dk}_{\\textit{ID}_B}(S)'$ should be a ``dict`` containing $d$ ``int``--``tuple`` pairs but it is not, which has been generated accordingly. ")
+				print("Dec: The variable $\\textit{dk}_{\\textit{ID}_B}(S)'$ should be a ``dict`` containing $d$ ``int``--``tuple`` pairs, but it is not, which has been generated accordingly. ")
 		else:
 			ID_B = tuple(self.__group.random(ZR) for _ in range(self.__n))
-			print("Dec: The variable $\\textit{ID}_A$ should be a tuple containing $n$ elements of $\\mathbb{Z}_r$ but it is not, which has been generated randomly. ")
+			print("Dec: The variable $\\textit{ID}_A$ should be a tuple containing $n$ elements of $\\mathbb{Z}_r$, but it is not, which has been generated randomly. ")
 			dk_ID_B_S_Prime = self.DKGen(ID_B, SPrime)
 			print("Dec: The variable $\\textit{dk}_{\\textit{ID}_B}(S)'$ has been generated accordingly. ")
 		if isinstance(IDA, tuple) and len(IDA) == self.__n and all(isinstance(ele, Element) and ele.type == ZR for ele in IDA): # hybrid check
 			ID_A = IDA
 		else:
 			ID_A = tuple(self.__group.random(ZR) for _ in range(self.__n))
-			print("Dec: The variable $\\textit{ID}_A$ should be a tuple containing $n$ elements of $\\mathbb{Z}_r$ but it is not, which has been generated randomly. ")
+			print("Dec: The variable $\\textit{ID}_A$ should be a tuple containing $n$ elements of $\\mathbb{Z}_r$, but it is not, which has been generated randomly. ")
 		if (																							\
 			isinstance(cipherText, tuple) and len(cipherText) == 11 and isinstance(cipherText[0], set)	\
 			and isinstance(cipherText[1], set) and isinstance(cipherText[2], Element)					\
@@ -875,7 +875,7 @@ class SchemeAAIBME:
 			S = set(S[:self.__d])
 			CT = self.Enc(self.EKGen(ID_A, S), ID_A, ID_B, SPrimePrime, S, self.__group.random(GT))
 			del S
-			print("Dec: The variable $\\textit{CT}$ should be a tuple containing 2 sets, 1 element, 5 $k$-pair dictionaries, and 3 $d$-pair dictionaries but it is not, which has been generated randomly. ")
+			print("Dec: The variable $\\textit{CT}$ should be a tuple containing 2 sets, 1 element, 5 $k$-pair dictionaries, and 3 $d$-pair dictionaries, but it is not, which has been generated randomly. ")
 		
 		# Unpack #
 		uPrimeVec, TPrimeVec, H1 = self.__mpk[12], self.__mpk[13], self.__mpk[14]
@@ -928,17 +928,17 @@ class SchemeAAIBME:
 			S = list(range(self.__n))
 			shuffle(S)
 			S = set(S[:self.__d])
-			print("EKeySanity: The variable $S$ should be a set containing $d$ integers in $[0, n)$ but it is not, which has been generated randomly. ")
+			print("EKeySanity: The variable $S$ should be a set containing $d$ integers in $[0, n)$, but it is not, which has been generated randomly. ")
 		if isinstance(IDA, tuple) and len(IDA) == self.__n and all(isinstance(ele, Element) and ele.type == ZR for ele in IDA): # hybrid check
 			ID_A = IDA
 			if isinstance(ekIDAS, dict) and len(ekIDAS) == self.__d and all(isinstance(ele, int) for ele in ekIDAS.keys()) and all(isinstance(ele, tuple) and len(ele) == 2 for ele in ekIDAS.values()): # hybrid check
 				ek_ID_A_S = ekIDAS
 			else:
 				ek_ID_A_S = self.EKGen(ID_A, S)
-				print("EKeySanity: The variable $\\textit{ek}_{\\textit{ID}_A}(S)$ should be a ``dict`` containing $d$ ``int``--``tuple`` pairs but it is not, which has been generated accordingly. ")
+				print("EKeySanity: The variable $\\textit{ek}_{\\textit{ID}_A}(S)$ should be a ``dict`` containing $d$ ``int``--``tuple`` pairs, but it is not, which has been generated accordingly. ")
 		else:
 			ID_A = tuple(self.__group.random(ZR) for _ in range(self.__n))
-			print("EKeySanity: The variable $\\textit{ID}_A$ should be a tuple containing $n$ elements of $\\mathbb{Z}_r$ but it is not, which has been generated randomly. ")
+			print("EKeySanity: The variable $\\textit{ID}_A$ should be a tuple containing $n$ elements of $\\mathbb{Z}_r$, but it is not, which has been generated randomly. ")
 			ek_ID_A_S = self.EKGen(ID_A, S)
 			print("EKeySanity: The variable $\\textit{ek}_{\\textit{ID}_A}$ has been generated accordingly. ")
 		
@@ -976,7 +976,7 @@ class SchemeAAIBME:
 			SPrime = list(range(self.__n))
 			shuffle(SPrime)
 			SPrime = set(SPrime[:self.__d])
-			print("DKeySanity: The variable $S'$ should be a set containing $d$ integers in $[0, n)$ but it is not, which has been generated randomly. ")
+			print("DKeySanity: The variable $S'$ should be a set containing $d$ integers in $[0, n)$, but it is not, which has been generated randomly. ")
 		if isinstance(IDB, tuple) and len(IDB) == self.__n and all(isinstance(ele, Element) and ele.type == ZR for ele in IDB): # hybrid check
 			ID_B = IDB
 			if (																															\
@@ -986,10 +986,10 @@ class SchemeAAIBME:
 				dk_ID_B_SPrime = dkIDBSPrime
 			else:
 				dk_ID_B_SPrime = self.DKGen(ID_B, SPrime)
-				print("DKeySanity: The variable $\\textit{dk}_{\\textit{ID}_B}(S')$ should be a ``dict`` containing $d$ ``int``--``tuple`` pairs but it is not, which has been generated accordingly. ")
+				print("DKeySanity: The variable $\\textit{dk}_{\\textit{ID}_B}(S')$ should be a ``dict`` containing $d$ ``int``--``tuple`` pairs, but it is not, which has been generated accordingly. ")
 		else:
 			ID_B = tuple(self.__group.random(ZR) for _ in range(self.__n))
-			print("DKeySanity: The variable $\\textit{ID}_B$ should be a tuple containing $n$ elements of $\\mathbb{Z}_r$ but it is not, which has been generated randomly. ")
+			print("DKeySanity: The variable $\\textit{ID}_B$ should be a tuple containing $n$ elements of $\\mathbb{Z}_r$, but it is not, which has been generated randomly. ")
 			dk_ID_B_SPrime = self.DKGen(ID_B, SPrime)
 			print("DKeySanity: The variable $\\textit{dk}_{\\textit{ID}_B}(S')$ has been generated accordingly. ")
 		
@@ -1025,17 +1025,17 @@ class SchemeAAIBME:
 			S = list(range(self.__n))
 			shuffle(S)
 			S = set(S[:self.__d])
-			print("Trace1: The variable $S$ should be a set containing $d$ integers in $[0, n)$ but it is not, which has been generated randomly. ")
+			print("Trace1: The variable $S$ should be a set containing $d$ integers in $[0, n)$, but it is not, which has been generated randomly. ")
 		if isinstance(IDA, tuple) and len(IDA) == self.__n and all(isinstance(ele, Element) and ele.type == ZR for ele in IDA): # hybrid check
 			ID_A = IDA
 			if isinstance(ekIDAS, dict) and len(ekIDAS) == self.__d and all(isinstance(ele, int) for ele in ekIDAS.keys()) and all(isinstance(ele, tuple) and len(ele) == 2 for ele in ekIDAS.values()): # hybrid check
 				ek_ID_A_S = ekIDAS
 			else:
 				ek_ID_A_S = self.EKGen(ID_A, S)
-				print("Trace1: The variable $\\textit{ek}_{\\textit{ID}_A}(S)$ should be a ``dict`` containing $d$ ``int``--``tuple`` pairs but it is not, which has been generated accordingly. ")
+				print("Trace1: The variable $\\textit{ek}_{\\textit{ID}_A}(S)$ should be a ``dict`` containing $d$ ``int``--``tuple`` pairs, but it is not, which has been generated accordingly. ")
 		else:
 			ID_A = tuple(self.__group.random(ZR) for _ in range(self.__n))
-			print("Trace1: The variable $\\textit{ID}_A$ should be a tuple containing $n$ elements of $\\mathbb{Z}_r$ but it is not, which has been generated randomly. ")
+			print("Trace1: The variable $\\textit{ID}_A$ should be a tuple containing $n$ elements of $\\mathbb{Z}_r$, but it is not, which has been generated randomly. ")
 			ek_ID_A_S = self.EKGen(ID_A, S)
 			print("Trace1: The variable $\\textit{ek}_{\\textit{ID}_A}$ has been generated accordingly. ")
 		
@@ -1073,17 +1073,17 @@ class SchemeAAIBME:
 			SPrime = list(range(self.__n))
 			shuffle(SPrime)
 			SPrime = set(SPrime[:self.__d])
-			print("Trace2: The variable $S'$ should be a set containing $d$ integers in $[0, n)$ but it is not, which has been generated randomly. ")
+			print("Trace2: The variable $S'$ should be a set containing $d$ integers in $[0, n)$, but it is not, which has been generated randomly. ")
 		if isinstance(IDB, tuple) and len(IDB) == self.__n and all(isinstance(ele, Element) and ele.type == ZR for ele in IDB): # hybrid check
 			ID_B = IDB
 			if isinstance(dkIDBSPrime, dict) and len(dkIDBSPrime) == self.__d and all(isinstance(ele, int) for ele in dkIDBSPrime.keys()) and all(isinstance(ele, tuple) and len(ele) == 5 for ele in dkIDBSPrime.values()): # hybrid check
 				dk_ID_B_SPrime = dkIDBSPrime
 			else:
 				dk_ID_B_SPrime = self.DKGen(ID_B, SPrime)
-				print("Trace2: The variable $\\textit{dk}_{\\textit{ID}_B}(S')$ should be a ``dict`` containing $d$ ``int``--``tuple`` pairs but it is not, which has been generated accordingly. ")
+				print("Trace2: The variable $\\textit{dk}_{\\textit{ID}_B}(S')$ should be a ``dict`` containing $d$ ``int``--``tuple`` pairs, but it is not, which has been generated accordingly. ")
 		else:
 			ID_B = tuple(self.__group.random(ZR) for _ in range(self.__n))
-			print("Trace2: The variable $\\textit{ID}_B$ should be a tuple containing $n$ elements of $\\mathbb{Z}_r$ but it is not, which has been generated randomly. ")
+			print("Trace2: The variable $\\textit{ID}_B$ should be a tuple containing $n$ elements of $\\mathbb{Z}_r$, but it is not, which has been generated randomly. ")
 			dk_ID_B_SPrime = self.DKGen(ID_B, SPrime)
 			print("Trace2: The variable $\\textit{dk}_{\\textit{ID}_B}(S')$ has been generated accordingly. ")
 		
@@ -1129,7 +1129,7 @@ class SchemeAAIBME:
 
 def conductScheme(curveParameter:tuple|list|dict|str, n:int = 30, k:int = 20, d:int = 10, run:int|None = None, isVerbose:bool = True) -> list:
 	# Begin #
-	curveName, securityParameter, nString, kString, dString, runString = "N/A", 512, "N/A", "N/A", "N/A", "N/A" # the default value of the security parameter in the Python charm library is 512
+	curveName, securityParameter, nString, kString, dString, runString = "N/A", 512, "N/A", "N/A", "N/A", "N/A" # the default value of the security parameter in the Python Charm-Crypto framework is 512
 	isSystemValid, isSchemeCorrect, isEKeySanity, isDKeySanity, isTracing1Verified, isTracing2Verified = (False, ) * 6
 	timeSetup, timeEKGen, timeDKGen, timeEnc, timeDec, timeEKeySanity, timeDKeySanity, timeTrace1, timeTrace2 = ("N/A", ) * 9
 	sizeZR, sizeG1G2, sizeGT = ("N/A", ) * 3

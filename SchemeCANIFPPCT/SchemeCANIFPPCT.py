@@ -48,7 +48,7 @@ class Parser:
 		else:
 			return ""
 	def __printHelp(self:object) -> None:
-		print("This is the official implementation of the CA-NI-FPPCT cryptographic scheme in Python programming language based on the Python charm library. ")
+		print("This is the official implementation of the CA-NI-FPPCT cryptographic scheme in Python programming language based on the Python Charm-Crypto framework. ")
 		print()
 		print("Options (not case-sensitive): ")
 		print("\t{0} [utf-8|utf-16|...]\t\tSpecify the encoding mode for CSV and TXT outputs. The default value is {1}. ".format(self.__formatOption(Parser.__OptionEncoding), Parser.__DefaultEncoding))
@@ -564,19 +564,19 @@ class Saver:
 
 class SchemeCANIFPPCT:
 	__DefaultN, __DefaultM = 30, 10
-	def __init__(self, group:None|PairingGroup = None) -> object: # This scheme is applicable to symmetric and asymmetric groups of prime orders. 
+	def __init__(self:object, group:None|PairingGroup = None) -> object: # This scheme is applicable to symmetric and asymmetric groups of prime orders. 
 		self.__group = group if isinstance(group, PairingGroup) else PairingGroup("SS512", secparam = 512)
 		if self.__group.secparam < 1:
 			self.__group = PairingGroup(self.__group.groupType())
-			print("Init: The securtiy parameter should be a positive integer but it is not, which has been defaulted to {0}. ".format(self.__group.secparam))
+			print("Init: The securtiy parameter should be a positive integer, but it is not, which has been defaulted to {0}. ".format(self.__group.secparam))
 		self.__n = SchemeCANIFPPCT.__DefaultN
 		self.__m = SchemeCANIFPPCT.__DefaultM
 		self.__bpk = None
 		self.__bsk = None
-		self.__bFlag = False
+		self.__bFlag = False # to indicate whether it has already set up
 		self.__mpk = None
 		self.__msk = None
-		self.__flag = False
+		self.__flag = False # to indicate whether it has already set up
 	def __computeCoefficients(self:object, roots:tuple|list, k:Element|int|float|None = None) -> tuple:
 		flag = False
 		if isinstance(roots, (tuple, list)) and roots:
@@ -687,17 +687,17 @@ class SchemeCANIFPPCT:
 			TP_i = TPi
 		else:
 			TP_i = randbelow(1 << self.__group.secparam).to_bytes((self.__group.secparam + 7) >> 3, byteorder = "big")
-			print("BEncryption: The variable $\\textit{TP}_i$ should be a ``bytes`` object but it is not, which has been generated randomly. ")
+			print("BEncryption: The variable $\\textit{TP}_i$ should be a ``bytes`` object, but it is not, which has been generated randomly. ")
 		if isinstance(_s, (tuple, list)) and len(_s) == self.__n and all(isinstance(ele, Element) and ele.type == ZR for ele in _s): # hybrid check
 			s = _s
 			if si in s:
 				s_i = si
 			else:
 				s_i = s[randbelow(self.__n)]
-				print("BEncryption: The variable $s_i$ should be an element in $s$ but it is not, which has been generate randomly. ")
+				print("BEncryption: The variable $s_i$ should be an element in $s$, but it is not, which has been generated randomly. ")
 		else:
 			s = tuple(self.__group.random(ZR) for _ in range(self.__n))
-			print("BEncryption: The variable $s$ should be a tuple or a list containing $n$ elements of \\mathbb{Z}_r but it is not, which has been generated randomly. ")
+			print("BEncryption: The variable $s$ should be a tuple or a list containing $n$ elements of \\mathbb{Z}_r, but it is not, which has been generated randomly. ")
 			s_i = s[randbelow(self.__n)]
 			print("BEncryption: The variable $s_i$ has been generated accordingly. ")
 		
@@ -726,12 +726,12 @@ class SchemeCANIFPPCT:
 			QTP_i = QTPi
 		else:
 			QTP_i = randbelow(1 << self.__group.secparam).to_bytes((self.__group.secparam + 7) >> 3, byteorder = "big")
-			print("BTrapdoorGen: The variable $\\textit{QTP}_i$ should be a ``bytes`` object but it is not, which has been generated randomly. ")
+			print("BTrapdoorGen: The variable $\\textit{QTP}_i$ should be a ``bytes`` object, but it is not, which has been generated randomly. ")
 		if isinstance(bskIDi, Element) and bskIDi.type == ZR: # type check
 			bsk_ID_i = bskIDi
 		else:
 			bsk_ID_i = self.BKGen(self.__group.random(ZR))
-			print("BTrapdoorGen: The variable $\\textit{bsk}_{\\textit{ID}_i}$ should be an element of $\\mathbb{Z}_r$ but it is not, which has been generated randomly. ")
+			print("BTrapdoorGen: The variable $\\textit{bsk}_{\\textit{ID}_i}$ should be an element of $\\mathbb{Z}_r$, but it is not, which has been generated randomly. ")
 		
 		# Unpack #
 		g1, H1, v1, v2 = self.__bpk[0], self.__bpk[1], self.__bpk[4], self.__bpk[5]
@@ -763,7 +763,7 @@ class SchemeCANIFPPCT:
 				sk_ID_i, ek_ID_i, s, s[randbelow(self.__n)]																\
 			)
 			del ek_ID_i
-			print("BQuery: The variable $\textit{BCT}_{\textit{TP}_i}$ should be a tuple containing 2 tuples but it is not, which has been generated randomly. ")
+			print("BQuery: The variable $\\textit{BCT}_{\\textit{TP}_i}$ should be a tuple containing 2 tuples, but it is not, which has been generated randomly. ")
 		if isinstance(btrapdoori, tuple) and len(btrapdoori) == 5 and all(isinstance(ele, Element) for ele in btrapdoori): # hybrid check
 			btrapdoor_i = btrapdoori
 		else:
@@ -771,7 +771,7 @@ class SchemeCANIFPPCT:
 				randbelow(1 << self.__group.secparam).to_bytes((self.__group.secparam + 7) >> 3, byteorder = "big"), 	\
 				self.BKGen(self.__group.random(ZR))[0] if sk_ID_i is None else sk_ID_i								\
 			)
-			print("BQuery: The variable $\textit{btrapdoor}_i$ should be a tuple containing 5 elements but it is not, which has been generated randomly. ")
+			print("BQuery: The variable $\\textit{btrapdoor}_i$ should be a tuple containing 5 elements, but it is not, which has been generated randomly. ")
 		del sk_ID_i
 		
 		# Unpack #
@@ -831,7 +831,7 @@ class SchemeCANIFPPCT:
 			L = _L
 		else:
 			L = []
-			print("KGen: The variable $L$ should be a list but it is not, which has been initialized as an empty list. ")
+			print("KGen: The variable $L$ should be a list, but it is not, which has been initialized as an empty list. ")
 		
 		# Unpack #
 		g1, H4 = self.__mpk[0], self.__mpk[6]
@@ -857,26 +857,26 @@ class SchemeCANIFPPCT:
 			TP_i = TPi
 		else:
 			TP_i = randbelow(1 << self.__group.secparam).to_bytes((self.__group.secparam + 7) >> 3, byteorder = "big")
-			print("Encryption: The variable $\\textit{TP}_i$ should be a ``bytes`` object but it is not, which has been generated randomly. ")
+			print("Encryption: The variable $\\textit{TP}_i$ should be a ``bytes`` object, but it is not, which has been generated randomly. ")
 		if isinstance(skIDi, Element) and skIDi.type == ZR: # type check
 			sk_ID_i = skIDi
 		else:
 			sk_ID_i = self.KGen(self.__group.random(ZR), [])[0]
-			print("Encryption: The variable $\\textit{sk}_{\\textit{ID}_i}$ should be an element of $\\mathbb{Z}_r$ but it is not, which has been generated randomly. ")
+			print("Encryption: The variable $\\textit{sk}_{\\textit{ID}_i}$ should be an element of $\\mathbb{Z}_r$, but it is not, which has been generated randomly. ")
 		if isinstance(ekIDi, tuple) and len(ekIDi) == 2 and all(isinstance(ele, Element) for ele in ekIDi): # hybrid check
 			ek_ID_i = ekIDi
 		else:
-			print("Encryption: The variable $\\textit{ek}_{\\textit{ID}_i}$ should be a tuple containing 2 elements but it is not, which has been generated randomly. ")
+			print("Encryption: The variable $\\textit{ek}_{\\textit{ID}_i}$ should be a tuple containing 2 elements, but it is not, which has been generated randomly. ")
 		if isinstance(_s, (tuple, list)) and len(_s) == self.__n and all(isinstance(ele, Element) and ele.type == ZR for ele in _s): # hybrid check
 			s = _s
 			if si in s:
 				s_i = si
 			else:
 				s_i = s[randbelow(self.__n)]
-				print("Encryption: The variable $s_i$ should be an element in $s$ but it is not, which has been generate randomly. ")
+				print("Encryption: The variable $s_i$ should be an element in $s$, but it is not, which has been generated randomly. ")
 		else:
 			s = tuple(self.__group.random(ZR) for _ in range(self.__n))
-			print("Encryption: The variable $s$ should be a tuple or a list containing $n$ elements of \\mathbb{Z}_r but it is not, which has been generated randomly. ")
+			print("Encryption: The variable $s$ should be a tuple or a list containing $n$ elements of \\mathbb{Z}_r, but it is not, which has been generated randomly. ")
 			s_i = s[randbelow(self.__n)]
 			print("Encryption: The variable $s_i$ has been generated accordingly. ")
 		
@@ -917,12 +917,12 @@ class SchemeCANIFPPCT:
 			QTP_i = QTPi
 		else:
 			QTP_i = randbelow(1 << self.__group.secparam).to_bytes((self.__group.secparam + 7) >> 3, byteorder = "big")
-			print("TrapdoorGen: The variable $\\textit{QTP}_i$ should be a ``bytes`` object but it is not, which has been generated randomly. ")
+			print("TrapdoorGen: The variable $\\textit{QTP}_i$ should be a ``bytes`` object, but it is not, which has been generated randomly. ")
 		if isinstance(skIDi, Element) and skIDi.type == ZR: # type check
 			sk_ID_i = skIDi
 		else:
 			sk_ID_i = self.KGen(self.__group.random(ZR), [])
-			print("TrapdoorGen: The variable $\\textit{sk}_{\\textit{ID}_i}$ should be an element of $\\mathbb{Z}_r$ but it is not, which has been generated randomly. ")
+			print("TrapdoorGen: The variable $\\textit{sk}_{\\textit{ID}_i}$ should be an element of $\\mathbb{Z}_r$, but it is not, which has been generated randomly. ")
 		
 		# Unpack #
 		g1, g2, g3, H1 = self.__mpk[0], self.__mpk[1], self.__mpk[2], self.__mpk[3]
@@ -948,7 +948,7 @@ class SchemeCANIFPPCT:
 			s = _s
 		else:
 			s = tuple(self.__group.random(ZR) for _ in range(self.__n))
-			print("Query: The variable $s$ should be a tuple or a list containing $n$ elements of \\mathbb{Z}_r but it is not, which has been generated randomly. ")
+			print("Query: The variable $s$ should be a tuple or a list containing $n$ elements of \\mathbb{Z}_r, but it is not, which has been generated randomly. ")
 		sk_ID_i = None
 		if isinstance(CTTPi, tuple) and len(CTTPi) == 10 and all(isinstance(ele, Element) for ele in CTTPi): # hybrid check
 			CT_TP_i = CTTPi
@@ -959,7 +959,7 @@ class SchemeCANIFPPCT:
 				sk_ID_i, ek_ID_i, s, s[randbelow(self.__n)]																\
 			)
 			del ek_ID_i
-			print("Query: The variable $\textit{CT}_{\textit{TP}_i}$ should be a tuple containing 10 elements but it is not, which has been generated randomly. ")
+			print("Query: The variable $\\textit{CT}_{\\textit{TP}_i}$ should be a tuple containing 10 elements, but it is not, which has been generated randomly. ")
 		if isinstance(trapdoori, tuple) and len(trapdoori) == 5 and all(isinstance(ele, Element) for ele in trapdoori):
 			trapdoor_i = trapdoori
 		else:
@@ -967,7 +967,7 @@ class SchemeCANIFPPCT:
 				randbelow(1 << self.__group.secparam).to_bytes((self.__group.secparam + 7) >> 3, byteorder = "big"), 	\
 				self.KGen(self.__group.random(ZR), [])[0] if sk_ID_i is None else sk_ID_i								\
 			)
-			print("Query: The variable $\textit{trapdoor}_i$ should be a tuple containing 5 elements but it is not, which has been generated randomly. ")
+			print("Query: The variable $\\textit{trapdoor}_i$ should be a tuple containing 5 elements, but it is not, which has been generated randomly. ")
 		del sk_ID_i
 		
 		# Unpack #
@@ -996,12 +996,12 @@ class SchemeCANIFPPCT:
 				randbelow(1 << self.__group.secparam).to_bytes((self.__group.secparam + 7) >> 3, byteorder = "big"), 	\
 				*self.KGen(self.__group.random(ZR), []), s, s[randbelow(self.__n)]										\
 			)
-			print("Trace: The variable $\textit{CT}_{\textit{TP}_i}$ should be a tuple containing 10 elements but it is not, which has been generated randomly. ")
+			print("Trace: The variable $\\textit{CT}_{\\textit{TP}_i}$ should be a tuple containing 10 elements, but it is not, which has been generated randomly. ")
 		if isinstance(_L, list): # type check
 			L = _L
 		else:
 			L = []
-			print("Trace: The variable $L$ should be a list but it is not, which has been initialized as an empty list. ")
+			print("Trace: The variable $L$ should be a list, but it is not, which has been initialized as an empty list. ")
 		
 		# Unpack #
 		H4 = self.__mpk[6]

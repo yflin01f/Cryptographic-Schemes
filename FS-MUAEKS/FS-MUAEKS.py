@@ -38,7 +38,7 @@ parameters_dict = {} # {"n":16, "m":256, "q":16} # {"n":16, "m":256, "q":16, "l_
 
 # Class #
 class PARS:
-	def __init__(self, n = DEFAULT_N, m = DEFAULT_M, q = DEFAULT_Q, l_S = DEFAULT_LS, l_R = DEFAULT_LR, **extra_pars):
+	def __init__(self:object, n = DEFAULT_N, m = DEFAULT_M, q = DEFAULT_Q, l_S = DEFAULT_LS, l_R = DEFAULT_LR, **extra_pars):
 		if isinstance(n, int) and n > 0:
 			self.__n = n
 		else:

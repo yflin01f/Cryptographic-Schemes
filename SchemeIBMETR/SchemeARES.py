@@ -48,7 +48,7 @@ class Parser:
 		else:
 			return ""
 	def __printHelp(self:object) -> None:
-		print("This is a possible implementation of the ARES cryptographic scheme in Python programming language based on the Python charm library. ")
+		print("This is a possible implementation of the ARES cryptographic scheme in Python programming language based on the Python Charm-Crypto framework. ")
 		print()
 		print("Options (not case-sensitive): ")
 		print("\t{0} [utf-8|utf-16|...]\t\tSpecify the encoding mode for CSV and TXT outputs. The default value is {1}. ".format(self.__formatOption(Parser.__OptionEncoding), Parser.__DefaultEncoding))
@@ -572,7 +572,7 @@ class SchemeARES:
 			print("Init: This scheme is only applicable to symmetric groups of prime orders. The curve name has been defaulted to \"SS512\". ")
 		if self.__group.secparam < 1:
 			self.__group = PairingGroup(self.__group.groupType())
-			print("Init: The securtiy parameter should be a positive integer but it is not, which has been defaulted to {0}. ".format(self.__group.secparam))
+			print("Init: The securtiy parameter should be a positive integer, but it is not, which has been defaulted to {0}. ".format(self.__group.secparam))
 		self.__mpk = None
 		self.__msk = None
 		self.__flag = False # to indicate whether it has already set up
@@ -604,7 +604,7 @@ class SchemeARES:
 			Id = identity
 		else:
 			Id = self.__group.random(ZR)
-			print("Extract: The variable $\\textit{Id}$ should be an element of $\\mathbb{Z}_r$ but it is not, which has been generated randomly. ")
+			print("Extract: The variable $\\textit{Id}$ should be an element of $\\mathbb{Z}_r$, but it is not, which has been generated randomly. ")
 		
 		# Unpack #
 		g, g0, g1 = self.__mpk[1], self.__mpk[2], self.__mpk[3]
@@ -630,7 +630,7 @@ class SchemeARES:
 			Id = identity
 		else:
 			Id = self.__group.random(ZR)
-			print("TSK: The variable $\\textit{Id}$ should be an element of $\\mathbb{Z}_r$ but it is not, which has been generated randomly. ")
+			print("TSK: The variable $\\textit{Id}$ should be an element of $\\mathbb{Z}_r$, but it is not, which has been generated randomly. ")
 		
 		# Unpack #
 		g, g0, g1 = self.__mpk[1], self.__mpk[2], self.__mpk[3]
@@ -656,12 +656,12 @@ class SchemeARES:
 			Id = identity
 		else:
 			Id = self.__group.random(ZR)
-			print("Encrypt: The variable $\\textit{Id}$ should be an element of $\\mathbb{Z}_r$ but it is not, which has been generated randomly. ")
+			print("Encrypt: The variable $\\textit{Id}$ should be an element of $\\mathbb{Z}_r$, but it is not, which has been generated randomly. ")
 		if isinstance(message, Element) and message.type == GT: # type check
 			M = message
 		else:
 			M = self.__group.random(GT)
-			print("Encrypt: The variable $M$ should be an element of $\\mathbb{G}_T$ but it is not, which has been generated randomly. ")
+			print("Encrypt: The variable $M$ should be an element of $\\mathbb{G}_T$, but it is not, which has been generated randomly. ")
 		
 		# Unpack #
 		Omega, g0, g1, v1, v2, v3, v4 = self.__mpk[0], self.__mpk[2], self.__mpk[3], self.__mpk[4], self.__mpk[5], self.__mpk[6], self.__mpk[7]
@@ -687,12 +687,12 @@ class SchemeARES:
 			Pvk_Id = PvkId
 		else:
 			Pvk_Id = self.Extract(self.__group.random(ZR))
-			print("Decrypt: The variable $\\textit{Pvk}_\\textit{Id}$ should be a tuple containing 5 elements but it is not, which has been generated randomly. ")
+			print("Decrypt: The variable $\\textit{Pvk}_\\textit{Id}$ should be a tuple containing 5 elements, but it is not, which has been generated randomly. ")
 		if isinstance(cipherText, tuple) and len(cipherText) == 6 and all(isinstance(ele, Element) for ele in cipherText): # hybrid check
 			CT = cipherText
 		else:
 			CT = self.Encrypt(self.__group.random(ZR), self.__group.random(ZR))
-			print("Decrypt: The variable $\\textit{CT}$ should be a tuple containing 6 elements but it is not, which has been generated randomly. ")
+			print("Decrypt: The variable $\\textit{CT}$ should be a tuple containing 6 elements, but it is not, which has been generated randomly. ")
 		
 		# Unpack #
 		d0, d1, d2, d3, d4 = Pvk_Id
@@ -712,12 +712,12 @@ class SchemeARES:
 			Pvk_Id = PvkId
 		else:
 			Pvk_Id = self.Extract(self.__group.random(ZR))
-			print("TVerify: The variable $\\textit{Pvk}_\\textit{Id}$ should be a tuple containing 5 elements but it is not, which has been generated randomly. ")
+			print("TVerify: The variable $\\textit{Pvk}_\\textit{Id}$ should be a tuple containing 5 elements, but it is not, which has been generated randomly. ")
 		if isinstance(cipherText, tuple) and len(cipherText) == 6 and all(isinstance(ele, Element) for ele in cipherText): # hybrid check
 			CT = cipherText
 		else:
 			CT = self.Encrypt(self.__group.random(ZR), self.__group.random(ZR))
-			print("TVerify: The variable $\\textit{CT}$ should be a tuple containing 6 elements but it is not, which has been generated randomly. ")
+			print("TVerify: The variable $\\textit{CT}$ should be a tuple containing 6 elements, but it is not, which has been generated randomly. ")
 		
 		# Unpack #
 		d0, d1, d2, d3, d4 = Pvk_Id
@@ -747,7 +747,7 @@ class SchemeARES:
 
 def conductScheme(curveParameter:tuple|list|dict|str, run:int|None = None, isVerbose:bool = True) -> list:
 	# Begin #
-	curveName, securityParameter, runString = "N/A", 512, "N/A" # the default value of the security parameter in the Python charm library is 512
+	curveName, securityParameter, runString = "N/A", 512, "N/A" # the default value of the security parameter in the Python Charm-Crypto framework is 512
 	isSystemValid, isSchemeCorrect, isTracingVerified = (False, ) * 3
 	timeSetup, timeExtract, timeTSK, timeEncrypt, timeDecrypt, timeTVerify = ("N/A", ) * 6
 	sizeZR, sizeG1G2, sizeGT = ("N/A", ) * 3

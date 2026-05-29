@@ -47,7 +47,7 @@ class Parser:
 		else:
 			return ""
 	def __printHelp(self:object) -> None:
-		print("This is the official implementation of the AnonymousME cryptographic scheme (``Anonymous Hierarchical Identity-based Encryption``) in Python programming language based on the Python charm library. ")
+		print("This is the official implementation of the AnonymousME cryptographic scheme (``Anonymous Hierarchical Identity-based Encryption``) in Python programming language based on the Python Charm-Crypto framework. ")
 		print()
 		print("Options (not case-sensitive): ")
 		print("\t{0} [utf-8|utf-16|...]\t\tSpecify the encoding mode for CSV and TXT outputs. The default value is {1}. ".format(self.__formatOption(Parser.__OptionEncoding), Parser.__DefaultEncoding))
@@ -563,11 +563,11 @@ class Saver:
 
 class SchemeAnonymousME:
 	__DefaultL = 30
-	def __init__(self, group:None|PairingGroup = None) -> object: # This scheme is applicable to symmetric and asymmetric groups of prime orders. 
+	def __init__(self:object, group:None|PairingGroup = None) -> object: # This scheme is applicable to symmetric and asymmetric groups of prime orders. 
 		self.__group = group if isinstance(group, PairingGroup) else PairingGroup("SS512", secparam = 512)
 		if self.__group.secparam < 1:
 			self.__group = PairingGroup(self.__group.groupType())
-			print("Init: The securtiy parameter should be a positive integer but it is not, which has been defaulted to {0}. ".format(self.__group.secparam))
+			print("Init: The securtiy parameter should be a positive integer, but it is not, which has been defaulted to {0}. ".format(self.__group.secparam))
 		self.__l = SchemeAnonymousME.__DefaultL
 		self.__mpk = None
 		self.__msk = None
@@ -593,7 +593,7 @@ class SchemeAnonymousME:
 			self.__l = l
 		else:
 			self.__l = SchemeAnonymousME.__DefaultL
-			print("Setup: The variable $l$ should be a positive integer not smaller than $3$ but it is not, which has been defaulted to ${0}$. ".format(SchemeAnonymousME.__DefaultL))
+			print("Setup: The variable $l$ should be a positive integer not smaller than $3$, but it is not, which has been defaulted to ${0}$. ".format(SchemeAnonymousME.__DefaultL))
 		
 		# Scheme #
 		g = self.__group.init(G1, 1) # $g \gets 1_{\mathbb{G}_1}$
@@ -622,7 +622,7 @@ class SchemeAnonymousME:
 			ID_k = tuple(self.__group.random(ZR) for i in range(self.__l - 1))
 			print(																																															\
 				(																																															\
-					"KGen: The variable $\\textit{{ID}}_k$ should be a tuple containing $k = \\|\\textit{{ID}}_k\\|$ elements of $\\mathbb{{Z}}_r$ where the integer $k \\in [2, {0}]$ but it is not, "		\
+					"KGen: The variable $\\textit{{ID}}_k$ should be a tuple containing $k = \\|\\textit{{ID}}_k\\|$ elements of $\\mathbb{{Z}}_r$ where the integer $k \\in [2, {0}]$, but it is not, "		\
 					+ "which has been generated randomly with a length of ${1} - 1 = {0}$. "																												\
 				).format(self.__l - 1, self.__l)																																							\
 			)
@@ -663,7 +663,7 @@ class SchemeAnonymousME:
 				sk_ID_kMinus1 = self.KGen(ID_k[:-1])
 				print(
 					(
-						"DerivedKGen: The variable $\\textit{{sk}}_{{\\textit{{ID}}_{{k - 1}}}}$ should be a tuple containing $(l - k + 1) \\times 4 + 5 = {0}$ elements but it is not, "
+						"DerivedKGen: The variable $\\textit{{sk}}_{{\\textit{{ID}}_{{k - 1}}}}$ should be a tuple containing $(l - k + 1) \\times 4 + 5 = {0}$ elements, but it is not, "
 						+ "which has been generated accordingly. "
 					).format(((self.__l - len(ID_k) + 1) << 2) + 5)
 				)
@@ -671,7 +671,7 @@ class SchemeAnonymousME:
 			ID_k = tuple(self.__group.random(ZR) for i in range(self.__l - 1))
 			print(																																																\
 				(																																																\
-					"DerivedKGen: The variable $\\textit{{ID}}_k$ should be a tuple containing $k = \\|\\textit{{ID}}_k\\|$ elements of $\\mathbb{{Z}}_r$ where the integer $k \\in [2, {0}]$ but it is not, "	\
+					"DerivedKGen: The variable $\\textit{{ID}}_k$ should be a tuple containing $k = \\|\\textit{{ID}}_k\\|$ elements of $\\mathbb{{Z}}_r$ where the integer $k \\in [2, {0}]$, but it is not, "	\
 					+ "which has been generated randomly with a length of ${1} - 1 = {0}$. "																													\
 				).format(self.__l - 1, self.__l)																																								\
 			)
@@ -713,7 +713,7 @@ class SchemeAnonymousME:
 			ID_k = tuple(self.__group.random(ZR) for i in range(self.__l - 1))
 			print(																																					\
 				(																																					\
-					"Enc: The variable $\\textit{{ID}}_k$ should be a tuple containing $k = \\|\\textit{{ID}}_k\\|$ elements of $\\mathbb{{Z}}_r$ where the integer $k \\in [2, {0}]$ but it is not, "	\
+					"Enc: The variable $\\textit{{ID}}_k$ should be a tuple containing $k = \\|\\textit{{ID}}_k\\|$ elements of $\\mathbb{{Z}}_r$ where the integer $k \\in [2, {0}]$, but it is not, "	\
 					+ "which has been generated randomly with a length of ${1} - 1 = {0}$. "																						\
 				).format(self.__l - 1, self.__l)																																\
 			)
@@ -721,7 +721,7 @@ class SchemeAnonymousME:
 			M = message
 		else:
 			M = self.__group.random(GT)
-			print("Enc: The variable $M$ should be an element of $\\mathbb{G}_T$ but it is not, which has been generated randomly. ")
+			print("Enc: The variable $M$ should be an element of $\\mathbb{G}_T$, but it is not, which has been generated randomly. ")
 		
 		# Unpack #
 		g1, g2, g3, gBar, gTilde, h = self.__mpk[1], self.__mpk[2], self.__mpk[3], self.__mpk[4], self.__mpk[5], self.__mpk[8:]
@@ -747,12 +747,12 @@ class SchemeAnonymousME:
 			sk_ID_k = skIDk
 		else:
 			sk_ID_k = self.KGen(tuple(self.__group.random(ZR) for i in range(self.__l - 1)))
-			print("Dec: The variable $\\textit{{ID}}_k$ should be a tuple containing $k = \\|\\textit{{ID}}_k\\|$ elements where the integer $k \\in [9, {0}]$ but it is not, which has been generated randomly with a length of $9$. ".format(5 + ((self.__l - 1) << 2)))
+			print("Dec: The variable $\\textit{{ID}}_k$ should be a tuple containing $k = \\|\\textit{{ID}}_k\\|$ elements where the integer $k \\in [9, {0}]$, but it is not, which has been generated randomly with a length of $9$. ".format(5 + ((self.__l - 1) << 2)))
 		if isinstance(cipherText, tuple) and len(cipherText) == 4 and all(isinstance(ele, Element) for ele in cipherText):# hybrid check
 			CT = cipherText
 		else:
 			CT = self.Enc(tuple(self.__group.random(ZR) for i in range(self.__l - 1)), self.__group.random(GT))
-			print("Dec: The variable $\\textit{CT}$ should be a tuple containing 4 elements but it is not, which has been generated with $M \\in \\mathbb{G}_T$ generated randomly. ")
+			print("Dec: The variable $\\textit{CT}$ should be a tuple containing 4 elements, but it is not, which has been generated randomly with $M \\in \\mathbb{G}_T$ generated randomly. ")
 		
 		# Unpack #
 		A, B, C, D = CT
@@ -782,7 +782,7 @@ class SchemeAnonymousME:
 
 def conductScheme(curveParameter:tuple|list|dict|str, l:int = 30, k:int = 10, run:int|None = None, isVerbose:bool = True) -> list:
 	# Begin #
-	curveName, securityParameter, lString, kString, runString = "N/A", 512, "N/A", "N/A", "N/A" # the default value of the security parameter in the Python charm library is 512
+	curveName, securityParameter, lString, kString, runString = "N/A", 512, "N/A", "N/A", "N/A" # the default value of the security parameter in the Python Charm-Crypto framework is 512
 	isSystemValid, isDeriverPassed, isSchemeCorrect = False, False, False
 	timeSetup, timeKGen, timeDerivedKGen, timeEnc, timeDec = ("N/A", ) * 5
 	sizeZR, sizeG1, sizeG2, sizeGT = ("N/A", ) * 4

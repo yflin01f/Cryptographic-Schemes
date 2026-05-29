@@ -49,7 +49,7 @@ class Parser:
 		else:
 			return ""
 	def __printHelp(self:object) -> None:
-		print("This is the official implementation of the IBMEMR cryptographic scheme in Python programming language based on the Python charm library. ")
+		print("This is the official implementation of the IBMEMR cryptographic scheme in Python programming language based on the Python Charm-Crypto framework. ")
 		print()
 		print("Options (not case-sensitive): ")
 		print("\t{0} [utf-8|utf-16|...]\t\tSpecify the encoding mode for CSV and TXT outputs. The default value is {1}. ".format(self.__formatOption(Parser.__OptionEncoding), Parser.__DefaultEncoding))
@@ -574,7 +574,7 @@ class SchemeIBMEMR:
 			print("Init: This scheme is only applicable to symmetric groups of prime orders. The curve name has been defaulted to \"SS512\". ")
 		if self.__group.secparam < 1:
 			self.__group = PairingGroup(self.__group.groupType())
-			print("Init: The securtiy parameter should be a positive integer but it is not, which has been defaulted to {0}. ".format(self.__group.secparam))
+			print("Init: The securtiy parameter should be a positive integer, but it is not, which has been defaulted to {0}. ".format(self.__group.secparam))
 		self.__operand = (1 << self.__group.secparam) - 1 # use to cast binary strings
 		self.__d = SchemeIBMEMR.__DefaultD
 		self.__mpk = None
@@ -646,7 +646,7 @@ class SchemeIBMEMR:
 			self.__d = d
 		else:
 			self.__d = SchemeIBMEMR.__DefaultD
-			print("Setup: The variable $d$ should be a positive integer but it is not, which has been defaulted to ${0}$. ".format(SchemeIBMEMR.__DefaultD))
+			print("Setup: The variable $d$ should be a positive integer, but it is not, which has been defaulted to ${0}$. ".format(SchemeIBMEMR.__DefaultD))
 		self.__seed = seed % self.__d if isinstance(seed, int) else randbelow(self.__d)
 		
 		# Scheme #
@@ -668,7 +668,7 @@ class SchemeIBMEMR:
 			HHat = lambda x:int.from_bytes(md5(self.__group.serialize(x)).digest(), byteorder = "big")
 		else:
 			HHat = lambda x:int.from_bytes(sha512(self.__group.serialize(x)).digest() * (((self.__group.secparam - 1) >> 9) + 1), byteorder = "big") & self.__operand # $\hat{H}: \mathbb{G}_T \to \{0, 1\}^\lambda$
-			print("Setup: An irregular security parameter ($\\lambda = {0}$) is specified. It is recommended to use 128, 160, 224, 256, 384, or 512 as the security parameter. ".format(self.__group.secparam))
+			print("Setup: An irregular security parameter ($\\lambda = {0}$) is specified. It is recommended to use 128, 160, 224, 256, 384, 512, or 1024 as the security parameter. ".format(self.__group.secparam))
 		H3 = lambda x:self.__group.hash(x, ZR) # $H_3: \{0, 1\}^* \to \mathbb{Z}_r$
 		H4 = lambda x:self.__group.hash(self.__group.serialize(x), ZR) # $H_4: \mathbb{G}_T \to \mathbb{Z}_r$
 		H5 = lambda x:self.__group.hash(x, G1) # $H_5: \{0, 1\}^* \to \mathbb{G}_1$
@@ -694,7 +694,7 @@ class SchemeIBMEMR:
 			id_S = idS
 		else:
 			id_S = self.__group.random(ZR)
-			print("EKGen: The variable $\\textit{id}_S$ should be an element of $\\mathbb{Z}_r$ but it is not, which has been generated randomly. ")
+			print("EKGen: The variable $\\textit{id}_S$ should be an element of $\\mathbb{Z}_r$, but it is not, which has been generated randomly. ")
 		
 		# Unpack #
 		H1 = self.__mpk[9]
@@ -714,7 +714,7 @@ class SchemeIBMEMR:
 			id_R = idR
 		else:
 			id_R = self.__group.random(ZR)
-			print("DKGen: The variable $\\textit{id}_R$ should be an element of $\\mathbb{Z}_r$ but it is not, which has been generated randomly. ")
+			print("DKGen: The variable $\\textit{id}_R$ should be an element of $\\mathbb{Z}_r$, but it is not, which has been generated randomly. ")
 		
 		# Unpack #
 		g, g0, g1, H2 = self.__mpk[1], self.__mpk[2], self.__mpk[3], self.__mpk[10]
@@ -737,7 +737,7 @@ class SchemeIBMEMR:
 			id_R = idR
 		else:
 			id_R = self.__group.random(ZR)
-			print("TDKGen: The variable $\\textit{id}_R$ should be an element of $\\mathbb{Z}_r$ but it is not, which has been generated randomly. ")
+			print("TDKGen: The variable $\\textit{id}_R$ should be an element of $\\mathbb{Z}_r$, but it is not, which has been generated randomly. ")
 		
 		# Unpack #
 		g, g0, g1, H2 = self.__mpk[1], self.__mpk[2], self.__mpk[3], self.__mpk[10]
@@ -755,16 +755,16 @@ class SchemeIBMEMR:
 		if not self.__flag:
 			print("Enc: The ``Setup`` procedure has not been called yet. The program will call the ``Setup`` first and finish the ``Enc`` subsequently. ")
 			self.Setup()
-		if isinstance(ekidS, Element): # type check
+		if isinstance(ekidS, Element) and ekidS.type == G1: # type check
 			ek_id_S = ekidS
 		else:
 			ek_id_S = self.EKGen(self.__group.random(ZR))
-			print("Enc: The variable $\\textit{ek}_{\\textit{id}_S}$ should be an element but it is not, which has been generated randomly. ")
+			print("Enc: The variable $\\textit{ek}_{\\textit{id}_S}$ should be an element of $\\mathbb{G}_1$, but it is not, which has been generated randomly. ")
 		if isinstance(idR, Element) and idR.type == ZR: # type check
 			id_R = idR
 		else:
 			id_R = self.__group.random(ZR)
-			print("Enc: The variable $\\textit{id}_R$ should be an element of $\\mathbb{Z}_r$ but it is not, which has been generated randomly. ")
+			print("Enc: The variable $\\textit{id}_R$ should be an element of $\\mathbb{Z}_r$, but it is not, which has been generated randomly. ")
 		if isinstance(message, int) and message >= 0: # type check
 			m = message & self.__operand
 			if message != m:
@@ -775,7 +775,7 @@ class SchemeIBMEMR:
 				print("Enc: The passed message (bytes) is too long, which has been cast. ")
 		else:
 			m = int.from_bytes(b"SchemeIBMEMR", byteorder = "big")
-			print("Enc: The variable $m$ should be an integer or a ``bytes`` object but it is not, which has been defaulted to b\"SchemeIBMEMR\". ")
+			print("Enc: The variable $m$ should be an integer or a ``bytes`` object, but it is not, which has been defaulted to b\"SchemeIBMEMR\". ")
 		
 		# Unpack #
 		g, g0, g1, v1, v2, v3, v4, H2, H3, H4, H5, HHat = self.__mpk[1], self.__mpk[2], self.__mpk[3], self.__mpk[4], self.__mpk[5], self.__mpk[6], self.__mpk[7], self.__mpk[10], self.__mpk[11], self.__mpk[12], self.__mpk[13], self.__mpk[14]
@@ -823,17 +823,17 @@ class SchemeIBMEMR:
 				dk_id_R = dkidR
 			else:
 				dk_id_R = self.DKGen(id_R)
-				print("Dec: The variable $\\textit{dk}_{\\textit{id}_R}$ should be a tuple containing 3 elements but it is not, which has been generated accordingly. ")
+				print("Dec: The variable $\\textit{dk}_{\\textit{id}_R}$ should be a tuple containing 3 elements, but it is not, which has been generated accordingly. ")
 		else:
 			id_R = self.__group.random(ZR)
-			print("Dec: The variable $\\textit{id}_R$ should be an element of $\\mathbb{Z}_r$ but it is not, which has been generated randomly. ")
+			print("Dec: The variable $\\textit{id}_R$ should be an element of $\\mathbb{Z}_r$, but it is not, which has been generated randomly. ")
 			dk_id_R = self.DKGen(id_R)
 			print("Dec: The variable $\\textit{dk}_{\\textit{id}_R}$ has been generated accordingly. ")
 		if isinstance(idS, Element) and idS.type == ZR: # type check
 			id_S = idS
 		else:
 			id_S = self.__group.random(ZR)
-			print("Dec: The variable $\\textit{id}_S$ should be an element of $\\mathbb{Z}_r$ but it is not, which has been generated randomly. ")
+			print("Dec: The variable $\\textit{id}_S$ should be an element of $\\mathbb{Z}_r$, but it is not, which has been generated randomly. ")
 		if (																																																										\
 			isinstance(cipherText, tuple) and len(cipherText) == 9 and all(isinstance(ele, Element) for ele in cipherText[:3]) and isinstance(cipherText[3], int) and isinstance(cipherText[4], Element) and isinstance(cipherText[5], Element)		\
 			and all(isinstance(ele, tuple) and len(ele) >= 1 and all(isinstance(sEle, Element) and sEle.type == ZR for sEle in ele) for ele in cipherText[6:]) and len(cipherText[6]) == len(cipherText[7]) == len(cipherText[8])					\
@@ -841,7 +841,7 @@ class SchemeIBMEMR:
 			ct = cipherText
 		else:
 			ct = self.Enc(self.EKGen(id_S), id_R, int.from_bytes(b"SchemeIBMEMR", byteorder = "big"))
-			print("Dec: The variable $\\textit{ct}$ should be a tuple containing 9 objects but it is not, which has been generated with $m$ set to b\"SchemeIBMEMR\". ")
+			print("Dec: The variable $\\textit{ct}$ should be a tuple containing 9 objects, but it is not, which has been generated randomly with $m$ set to b\"SchemeIBMEMR\". ")
 		
 		# Unpack #
 		g, H1, H2, H3, H4, H5, HHat = self.__mpk[1], self.__mpk[9], self.__mpk[10], self.__mpk[11], self.__mpk[12], self.__mpk[13], self.__mpk[14]
@@ -881,12 +881,12 @@ class SchemeIBMEMR:
 			ct = cipherText
 		else:
 			ct = self.Enc(self.EKGen(self.__group.random(ZR)), self.__group.random(ZR), int.from_bytes(b"SchemeIBMEMR", byteorder = "big"))
-			print("ReceiverVerify: The variable $\\textit{ct}$ should be a tuple containing 9 objects but it is not, which has been generated with $m$ set to b\"SchemeIBMEMR\". ")
+			print("ReceiverVerify: The variable $\\textit{ct}$ should be a tuple containing 9 objects, but it is not, which has been generated randomly with $m$ set to b\"SchemeIBMEMR\". ")
 		if isinstance(tdidR, tuple) and len(tdidR) == 2 and isinstance(tdidR[0], Element) and isinstance(tdidR[1], Element):
 			td_id_R = tdidR
 		else:
 			td_id_R = self.TDKGen(self.__group.random(ZR))
-			print("ReceiverVerify: The variable $\\textit{td}_{\textit{id}_R}$ should be a tuple containing 2 elements but it is not, which has been generated randomly. ")
+			print("ReceiverVerify: The variable $\\textit{td}_{\\textit{id}_R}$ should be a tuple containing 2 elements, but it is not, which has been generated randomly. ")
 		
 		# Unpack #
 		g, H4, H5 = self.__mpk[1], self.__mpk[12], self.__mpk[13]
@@ -926,7 +926,7 @@ class SchemeIBMEMR:
 
 def conductScheme(curveParameter:tuple|list|dict|str, d:int = 30, run:int|None = None, isVerbose:bool = True) -> list:
 	# Begin #
-	curveName, securityParameter, dString, runString = "N/A", 512, "N/A", "N/A" # the default value of the security parameter in the Python charm library is 512
+	curveName, securityParameter, dString, runString = "N/A", 512, "N/A", "N/A" # the default value of the security parameter in the Python Charm-Crypto framework is 512
 	isSystemValid, isSchemeCorrect, isTracingVerified = False, False, False
 	timeSetup, timeEKGen, timeDKGen, timeTDKGen, timeEnc, timeDec, timeReceiverVerify = ("N/A", ) * 7
 	sizeZR, sizeG1G2, sizeGT = ("N/A", ) * 3

@@ -48,7 +48,7 @@ class Parser:
 		else:
 			return ""
 	def __printHelp(self:object) -> None:
-		print("This is a possible implementation of the IBBME cryptographic scheme in Python programming language based on the Python charm library. ")
+		print("This is a possible implementation of the IBBME cryptographic scheme in Python programming language based on the Python Charm-Crypto framework. ")
 		print()
 		print("Options (not case-sensitive): ")
 		print("\t{0} [utf-8|utf-16|...]\t\tSpecify the encoding mode for CSV and TXT outputs. The default value is {1}. ".format(self.__formatOption(Parser.__OptionEncoding), Parser.__DefaultEncoding))
@@ -568,7 +568,7 @@ class SchemeIBBME:
 		self.__group = group if isinstance(group, PairingGroup) else PairingGroup("SS512", secparam = 512)
 		if self.__group.secparam < 1:
 			self.__group = PairingGroup(self.__group.groupType())
-			print("Init: The securtiy parameter should be a positive integer but it is not, which has been defaulted to {0}. ".format(self.__group.secparam))
+			print("Init: The securtiy parameter should be a positive integer, but it is not, which has been defaulted to {0}. ".format(self.__group.secparam))
 		self.__operand = (1 << self.__group.secparam) - 1 # use to cast binary strings
 		self.__l = SchemeIBBME.__DefaultL
 		self.__mpk = None
@@ -638,7 +638,7 @@ class SchemeIBBME:
 			self.__l = l
 		else:
 			self.__l = SchemeIBBME.__DefaultL
-			print("Setup: The variable $l$ should be a positive integer but it is not, which has been defaulted to ${0}$. ".format(SchemeIBBME.__DefaultL))
+			print("Setup: The variable $l$ should be a positive integer, but it is not, which has been defaulted to ${0}$. ".format(SchemeIBBME.__DefaultL))
 		
 		# Scheme #
 		g, v = self.__group.random(G1), self.__group.random(G1) # generate $g, v \in \mathbb{G}_1$ randomly
@@ -672,7 +672,7 @@ class SchemeIBBME:
 			idStar = _idStar
 		else:
 			idStar = randbelow(1 << self.__group.secparam).to_bytes((self.__group.secparam + 7) >> 3, byteorder = "big")
-			print("EKGen: The variable $\textit{id}^*$ should be a ``bytes`` object but it is not, which has been generated randomly. ")
+			print("EKGen: The variable $\\textit{id}^*$ should be a ``bytes`` object, but it is not, which has been generated randomly. ")
 		
 		# Unpack #
 		H1 = self.__mpk[17]
@@ -692,7 +692,7 @@ class SchemeIBBME:
 			identity = _identity
 		else:
 			identity = randbelow(1 << self.__group.secparam).to_bytes((self.__group.secparam + 7) >> 3, byteorder = "big")
-			print("DKGen: The variable $\textit{id}$ should be a ``bytes`` object but it is not, which has been generated randomly. ")
+			print("DKGen: The variable $\\textit{id}$ should be a ``bytes`` object, but it is not, which has been generated randomly. ")
 		
 		# Unpack #
 		h, hToThePowerOfR1, hToThePowerOfR2, hToThePowerOfT1, hToThePowerOfT2, H0, H2 = self.__mpk[7], self.__mpk[8], self.__mpk[9], self.__mpk[10], self.__mpk[11], self.__mpk[16], self.__mpk[18]
@@ -726,17 +726,17 @@ class SchemeIBBME:
 			S = _S
 		else:
 			S = tuple(randbelow(1 << self.__group.secparam).to_bytes((self.__group.secparam + 7) >> 3, byteorder = "big") for _ in range(self.__l))
-			print("Enc: The variable $S$ should be a tuple containing $n = \\|S\\|$ ``bytes`` objects where the integer $n \\in [1, {0}]$ but it is not, which has been generated randomly with a length of $l = {0}$. ".format(self.__l))
+			print("Enc: The variable $S$ should be a tuple containing $n = \\|S\\|$ ``bytes`` objects where the integer $n \\in [1, {0}]$, but it is not, which has been generated randomly with a length of $l = {0}$. ".format(self.__l))
 		if isinstance(ekidStar, Element) and ekidStar.type == G1: # type check
 			ek_idStar = ekidStar
 		else:
 			ek_idStar = self.EKGen(randbelow(1 << self.__group.secparam).to_bytes((self.__group.secparam + 7) >> 3, byteorder = "big"))
-			print("Enc: The variable $\textit{ek}_{\textit{id}^*}$ should be an element of $\\mathbb{G}_1$ but it is not, which has been generated randomly. ")
+			print("Enc: The variable $\\textit{ek}_{\\textit{id}^*}$ should be an element of $\\mathbb{G}_1$, but it is not, which has been generated randomly. ")
 		if isinstance(message, Element) and message.type == GT: # type check
 			m = message
 		else:
 			m = self.__group.random(GT)
-			print("Enc: The variable $m$ should be an element of $\\mathbb{G}_T$ but it is not, which has been generated randomly. ")
+			print("Enc: The variable $m$ should be an element of $\\mathbb{G}_T$, but it is not, which has been generated randomly. ")
 		
 		# Unpack #
 		v, vToThePowerOfRho, g, gToThePowerOfB, R, T, eGHToThePowerOfBeta, H0, H2, H3 = self.__mpk[0], self.__mpk[1], self.__mpk[2], self.__mpk[3], self.__mpk[4], self.__mpk[5], self.__mpk[6], self.__mpk[16], self.__mpk[18], self.__mpk[19]
@@ -769,22 +769,22 @@ class SchemeIBBME:
 			S = _S
 		else:
 			S = tuple(randbelow(1 << self.__group.secparam).to_bytes((self.__group.secparam + 7) >> 3, byteorder = "big") for _ in range(self.__l))
-			print("Dec: The variable $S$ should be a tuple containing $n = \\|S\\|$ ``bytes`` objects where the integer $n \\in [1, {0}]$ but it is not, which has been generated randomly with a length of $l = {0}$. ".format(self.__l))
+			print("Dec: The variable $S$ should be a tuple containing $n = \\|S\\|$ ``bytes`` objects where the integer $n \\in [1, {0}]$, but it is not, which has been generated randomly with a length of $l = {0}$. ".format(self.__l))
 		if isinstance(dkidi, tuple) and len(dkidi) == 9 and all(isinstance(ele, Element) for ele in dkidi[:6]) and all(isinstance(ele, tuple) for ele in dkidi[6:]): # hybrid check
 			dk_id_i = dkidi
 		else:
 			dk_id_i = self.DKGen(randbelow(1 << self.__group.secparam).to_bytes((self.__group.secparam + 7) >> 3, byteorder = "big"))
-			print("Dec: The variable $\\textit{dk}_{\textit{id}_i}$ should be a tuple containing 6 elements and 3 tuples but it is not, which has been generated randomly. ")
+			print("Dec: The variable $\\textit{dk}_{\\textit{id}_i}$ should be a tuple containing 6 elements and 3 tuples, but it is not, which has been generated randomly. ")
 		if isinstance(_idStar, bytes): # type check
 			idStar = _idStar
 		else:
 			idStar = randbelow(1 << self.__group.secparam).to_bytes((self.__group.secparam + 7) >> 3, byteorder = "big")
-			print("Dec: The variable $\textit{id}^*$ should be a ``bytes`` object but it is not, which has been generated randomly. ")
+			print("Dec: The variable $\\textit{id}^*$ should be a ``bytes`` object, but it is not, which has been generated randomly. ")
 		if isinstance(cipherText, tuple) and len(cipherText) == 8 and all(isinstance(ele, Element) for ele in cipherText[:6]) and isinstance(cipherText[-2], tuple) and isinstance(cipherText[-1], tuple): # hybrid check
 			ct = cipherText
 		else:
 			ct = self.Enc(S, self.EKGen(idStar), self.__group.random(GT))
-			print("Dec: The variable $\\textit{ct}$ should be a tuple containing 6 elements and 2 tuples but it is not, which has been generated randomly. ")
+			print("Dec: The variable $\\textit{ct}$ should be a tuple containing 6 elements and 2 tuples, but it is not, which has been generated randomly. ")
 		
 		# Unpack #
 		H0, H1, H3 = self.__mpk[16], self.__mpk[17], self.__mpk[19]
@@ -827,7 +827,7 @@ class SchemeIBBME:
 
 def conductScheme(curveParameter:tuple|list|dict|str, l:int = 30, n:int = 10, _seed:int|None = None, run:int|None = None, isVerbose:bool = True) -> list:
 	# Begin #
-	curveName, securityParameter, lString, nString, runString = "N/A", 512, "N/A", "N/A", "N/A" # the default value of the security parameter in the Python charm library is 512
+	curveName, securityParameter, lString, nString, runString = "N/A", 512, "N/A", "N/A", "N/A" # the default value of the security parameter in the Python Charm-Crypto framework is 512
 	isSystemValid, isSchemeCorrect = False, False
 	timeSetup, timeEKGen, timeDKGen, timeEnc, timeDec = ("N/A", ) * 5
 	sizeZR, sizeG1, sizeG2, sizeGT = ("N/A", ) * 4

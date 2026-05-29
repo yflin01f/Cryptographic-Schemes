@@ -50,7 +50,7 @@ class Parser:
 		else:
 			return ""
 	def __printHelp(self:object) -> None:
-		print("This is a possible implementation of the IBPME cryptographic scheme in Python programming language based on the Python charm library. ")
+		print("This is a possible implementation of the IBPME cryptographic scheme in Python programming language based on the Python Charm-Crypto framework. ")
 		print()
 		print("Options (not case-sensitive): ")
 		print("\t{0} [utf-8|utf-16|...]\t\tSpecify the encoding mode for CSV and TXT outputs. The default value is {1}. ".format(self.__formatOption(Parser.__OptionEncoding), Parser.__DefaultEncoding))
@@ -569,7 +569,7 @@ class SchemeIBPME:
 		self.__group = group if isinstance(group, PairingGroup) else PairingGroup("SS512", secparam = 512)
 		if self.__group.secparam < 1:
 			self.__group = PairingGroup(self.__group.groupType())
-			print("Init: The securtiy parameter should be a positive integer but it is not, which has been defaulted to {0}. ".format(self.__group.secparam))
+			print("Init: The securtiy parameter should be a positive integer, but it is not, which has been defaulted to {0}. ".format(self.__group.secparam))
 		self.__operand = (1 << self.__group.secparam) - 1 # use to cast binary strings
 		self.__mpk = None
 		self.__msk = None
@@ -618,7 +618,7 @@ class SchemeIBPME:
 		H3 = lambda x:self.__group.hash(self.__group.serialize(x), ZR) # $H_3: \mathbb{G}_T \to \mathbb{Z}_r$
 		H4 = lambda x1, x2 = b"", x3 = b"":self.__hash(x1, x2, x3, self.__group.secparam) # $H_4: \{0, 1\}^\lambda \times \mathbb{G}_T^2 \times \mathbb{G}_1^2 \to \{0, 1\}^\lambda$
 		if self.__group.secparam not in (128, 160, 224, 256, 384, 512):
-			print("Setup: An irregular security parameter ($\\lambda = {0}$) is specified. It is recommended to use 128, 160, 224, 256, 384, or 512 as the security parameter. ".format(self.__group.secparam))
+			print("Setup: An irregular security parameter ($\\lambda = {0}$) is specified. It is recommended to use 128, 160, 224, 256, 384, 512, or 1024 as the security parameter. ".format(self.__group.secparam))
 		H5 = lambda x1, x2 = b"", x3 = b"", x4 = b"", x5 = b"":self.__hash(x1, x2, x3, x4, x5, self.__group.secparam) # $H_5: \{0, 1\}^\lambda \times \mathbb{G}_T^2 \times \mathbb{G}_1^2 \to \{0, 1\}^\lambda$
 		H6 = lambda x:self.__hash(x, self.__group.secparam * 3) # $H_6: \mathbb{G}_T \to \{0, 1\}^{3\lambda}$
 		H7 = lambda x:self.__hash(x, self.__group.secparam << 1) # $H_7: \mathbb{G}_T \to \{0, 1\}^{2\lambda}$
@@ -637,7 +637,7 @@ class SchemeIBPME:
 			sigma = snd
 		else:
 			sigma = randbelow(1 << self.__group.secparam).to_bytes(ceil(self.__group.secparam / 8), byteorder = "big")
-			print("SKGen: The variable $\\sigma$ should be a ``bytes`` object but it is not, which has been generated randomly. ")
+			print("SKGen: The variable $\\sigma$ should be a ``bytes`` object, but it is not, which has been generated randomly. ")
 		
 		# Unpack #
 		H1 = self.__mpk[8]
@@ -657,7 +657,7 @@ class SchemeIBPME:
 			rho = rcv
 		else:
 			rho = randbelow(1 << self.__group.secparam).to_bytes(ceil(self.__group.secparam / 8), byteorder = "big")
-			print("RKGen: The variable $\\rho$ should be a ``bytes`` object but it is not, which has been generated randomly. ")
+			print("RKGen: The variable $\\rho$ should be a ``bytes`` object, but it is not, which has been generated randomly. ")
 		
 		# Unpack #
 		H2 = self.__mpk[9]
@@ -679,12 +679,12 @@ class SchemeIBPME:
 			dk_rho = dkrho
 		else:
 			dk_rho = self.RKGen(randbelow(1 << self.__group.secparam).to_bytes(ceil(self.__group.secparam / 8), byteorder = "big"))
-			print("PKGen: The variable $\\textit{dk}_\\rho$ should be a tuple containing 2 elements but it is not, which has been generated randomly. ")
+			print("PKGen: The variable $\\textit{dk}_\\rho$ should be a tuple containing 2 elements, but it is not, which has been generated randomly. ")
 		if isinstance(snd, bytes): # type check
 			sigma = snd
 		else:
 			sigma = randbelow(1 << self.__group.secparam).to_bytes(ceil(self.__group.secparam / 8), byteorder = "big")
-			print("PKGen: The variable $\\sigma$ should be a ``bytes`` object but it is not, which has been generated randomly. ")
+			print("PKGen: The variable $\\sigma$ should be a ``bytes`` object, but it is not, which has been generated randomly. ")
 		
 		# Unpack #
 		gHat, fHat, hHat, H, H1, H3 = self.__mpk[1], self.__mpk[5], self.__mpk[6], self.__mpk[7], self.__mpk[8], self.__mpk[10]
@@ -704,16 +704,16 @@ class SchemeIBPME:
 		if not self.__flag:
 			print("Enc: The ``Setup`` procedure has not been called yet. The program will call the ``Setup`` first and finish the ``Enc`` subsequently. ")
 			self.Setup()
-		if isinstance(eksigma, Element): # type check
+		if isinstance(eksigma, Element) and eksigma.type == G1: # type check
 			ek_sigma = eksigma
 		else:
 			ek_sigma = self.SKGen(randbelow(1 << self.__group.secparam).to_bytes(ceil(self.__group.secparam / 8), byteorder = "big"))
-			print("Enc: The variable $\\textit{ek}_\\sigma$ should be an element but it is not, which has been generated randomly. ")
+			print("Enc: The variable $\\textit{ek}_\\sigma$ should be an element of $\\mathbb{G}_1$, but it is not, which has been generated randomly. ")
 		if isinstance(rcv, bytes): # type check
 			rho = rcv
 		else:
 			rho = randbelow(1 << self.__group.secparam).to_bytes(ceil(self.__group.secparam / 8), byteorder = "big")
-			print("Enc: The variable $\\rho$ should be a ``bytes`` object but it is not, which has been generated randomly. ")
+			print("Enc: The variable $\\rho$ should be a ``bytes`` object, but it is not, which has been generated randomly. ")
 		if isinstance(message, int) and message >= 0: # type check
 			m = message & self.__operand
 			if message != m:
@@ -724,7 +724,7 @@ class SchemeIBPME:
 				print("Enc: The passed message (bytes) is too long, which has been cast. ")
 		else:
 			m = int.from_bytes(b"SchemeIBPME", byteorder = "big") & self.__operand
-			print("Enc: The variable $m$ should be an integer or a ``bytes`` object but it is not, which has been defaulted to b\"SchemeIBPME\". ")
+			print("Enc: The variable $m$ should be an integer or a ``bytes`` object, but it is not, which has been defaulted to b\"SchemeIBPME\". ")
 		
 		# Unpack #
 		g, g1, f, h, H, H2, H3, H4, H5, H6 = self.__mpk[0], self.__mpk[2], self.__mpk[3], self.__mpk[4], self.__mpk[7], self.__mpk[9], self.__mpk[10], self.__mpk[11], self.__mpk[12], self.__mpk[13]
@@ -754,7 +754,7 @@ class SchemeIBPME:
 				self.RKGen(randbelow(1 << self.__group.secparam).to_bytes(ceil(self.__group.secparam / 8), byteorder = "big")), 	\
 				randbelow(1 << self.__group.secparam).to_bytes(ceil(self.__group.secparam / 8), byteorder = "big")					\
 			)
-			print("ProxyDec: The variable $\\textit{pdk}$ should be a tuple containing 2 elements but it is not, which has been generated randomly. ")
+			print("ProxyDec: The variable $\\textit{pdk}$ should be a tuple containing 2 elements, but it is not, which has been generated randomly. ")
 		if isinstance(cipher, tuple) and len(cipher) == 3 and all(isinstance(ele, Element) for ele in cipher[:2]) and isinstance(cipher[2], int): # hybrid check
 			C = cipher
 		else:
@@ -762,7 +762,7 @@ class SchemeIBPME:
 				self.SKGen(randbelow(1 << self.__group.secparam).to_bytes(ceil(self.__group.secparam / 8), byteorder = "big")), 	\
 				randbelow(1 << self.__group.secparam).to_bytes(ceil(self.__group.secparam / 8), byteorder = "big"), b"SchemeIBPME"	\
 			)
-			print("ProxyDec: The variable $C$ should be a tuple containing 2 elements and an integer but it is not, which has been generated with $m$ set to b\"SchemeIBPME\". ")
+			print("ProxyDec: The variable $C$ should be a tuple containing 2 elements and an integer, but it is not, which has been generated randomly with $m$ set to b\"SchemeIBPME\". ")
 		
 		# Unpack #
 		H5, H6, H7 = self.__mpk[12], self.__mpk[13], self.__mpk[14]
@@ -794,12 +794,12 @@ class SchemeIBPME:
 			dk_rho = dkrho
 		else:
 			dk_rho = self.RKGen(randbelow(1 << self.__group.secparam).to_bytes(ceil(self.__group.secparam / 8), byteorder = "big"))
-			print("Dec1: The variable $\\textit{dk}_\\rho$ should be a tuple containing 2 elements but it is not, which has been generated randomly. ")
+			print("Dec1: The variable $\\textit{dk}_\\rho$ should be a tuple containing 2 elements, but it is not, which has been generated randomly. ")
 		if isinstance(snd, bytes): # type check
 			sigma = snd
 		else:
 			sigma = randbelow(1 << self.__group.secparam).to_bytes(ceil(self.__group.secparam / 8), byteorder = "big")
-			print("Dec1: The variable $\\sigma$ should be a ``bytes`` object but it is not, which has been generated randomly. ")
+			print("Dec1: The variable $\\sigma$ should be a ``bytes`` object, but it is not, which has been generated randomly. ")
 		if isinstance(cipher, tuple) and len(cipher) == 3 and all(isinstance(ele, Element) for ele in cipher[:2]) and isinstance(cipher[2], int): # hybrid check
 			C = cipher
 		else:
@@ -807,7 +807,7 @@ class SchemeIBPME:
 				self.SKGen(randbelow(1 << self.__group.secparam).to_bytes(ceil(self.__group.secparam / 8), byteorder = "big")), 	\
 				randbelow(1 << self.__group.secparam).to_bytes(ceil(self.__group.secparam / 8), byteorder = "big"), b"SchemeIBPME"	\
 			)
-			print("Dec1: The variable $C$ should be a tuple containing 2 elements and an integer but it is not, which has been generated with $m$ set to b\"SchemeIBPME\". ")
+			print("Dec1: The variable $C$ should be a tuple containing 2 elements and an integer, but it is not, which has been generated randomly with $m$ set to b\"SchemeIBPME\". ")
 		
 		# Unpack #
 		H1, H3, H4, H5, H6 = self.__mpk[8], self.__mpk[10], self.__mpk[11], self.__mpk[12], self.__mpk[13]
@@ -838,12 +838,12 @@ class SchemeIBPME:
 			dk_rho = dkrho
 		else:
 			dk_rho = self.RKGen(randbelow(1 << self.__group.secparam).to_bytes(ceil(self.__group.secparam / 8), byteorder = "big"))
-			print("Dec2: The variable $\\textit{dk}_\\rho$ should be a tuple containing 2 elements but it is not, which has been generated randomly. ")
+			print("Dec2: The variable $\\textit{dk}_\\rho$ should be a tuple containing 2 elements, but it is not, which has been generated randomly. ")
 		if isinstance(snd, bytes): # type check
 			sigma = snd
 		else:
 			sigma = randbelow(1 << self.__group.secparam).to_bytes(ceil(self.__group.secparam / 8), byteorder = "big")
-			print("Dec2: The variable $\\sigma$ should be a ``bytes`` object but it is not, which has been generated randomly. ")
+			print("Dec2: The variable $\\sigma$ should be a ``bytes`` object, but it is not, which has been generated randomly. ")
 		if isinstance(cipherText, tuple) and len(cipherText) == 2 and isinstance(cipherText[0], Element) and isinstance(cipherText[1], int): # hybrid check
 			CT = cipherText
 		elif isinstance(cipherText, bool):
@@ -858,7 +858,7 @@ class SchemeIBPME:
 					randbelow(1 << self.__group.secparam).to_bytes(ceil(self.__group.secparam / 8), byteorder = "big"), b"SchemeIBPME"	\
 				)																														\
 			)
-			print("Dec2: The variable $\\textit{CT}$ should be a tuple containing an element and an integer but it is not, which has been generated with $m$ set to b\"SchemeIBPME\". ")
+			print("Dec2: The variable $\\textit{CT}$ should be a tuple containing an element and an integer, but it is not, which has been generated randomly with $m$ set to b\"SchemeIBPME\". ")
 		
 		# Unpack #
 		H1, H3, H4, H7 = self.__mpk[8], self.__mpk[10], self.__mpk[11], self.__mpk[14]
@@ -903,7 +903,7 @@ class SchemeIBPME:
 
 def conductScheme(curveParameter:tuple|list|dict|str, run:int|None = None, isVerbose:bool = True) -> list:
 	# Begin #
-	curveName, securityParameter, runString = "N/A", 512, "N/A" # the default value of the security parameter in the Python charm library is 512
+	curveName, securityParameter, runString = "N/A", 512, "N/A" # the default value of the security parameter in the Python Charm-Crypto framework is 512
 	isSystemValid, isProxyDecPassed, isDec1Passed, isDec2Passed = False, False, False, False
 	timeSetup, timeSKGen, timeRKGen, timePKGen, timeEnc, timeProxyDec, timeDec1, timeDec2 = ("N/A", ) * 8
 	sizeZR, sizeG1, sizeG2, sizeGT = ("N/A", ) * 4
