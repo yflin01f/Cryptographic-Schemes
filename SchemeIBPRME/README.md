@@ -8,9 +8,9 @@ This is the official implementation of the IBPRME cryptographic scheme in Python
 
 ### ``SchemeIBME.py`` (soft link)
 
-This is a possible implementation of the IBME cryptographic scheme (``Match me if you can: Matchmaking encryption and its applications``) in Python programming language based on the Python Charm-Crypto framework, referring to the official implementation from [https://github.com/xuehuan-yang/PSME/blob/main/src/04_ibme/04_ibme.py](https://github.com/xuehuan-yang/PSME/blob/main/src/04_ibme/04_ibme.py). 
+This is a possible implementation of the IBME cryptographic scheme in Python programming language based on the Python Charm-Crypto framework, referring to the official implementation from [https://github.com/xuehuan-yang/PSME/blob/main/src/04_ibme/04_ibme.py](https://github.com/xuehuan-yang/PSME/blob/main/src/04_ibme/04_ibme.py). 
 
-```
+```bibtex
 @inproceedings{ateniese2019match,
   title={Match me if you can: Matchmaking encryption and its applications},
   author={Ateniese, Giuseppe and Francati, Danilo and Nunez, David and Venturi, Daniele},
@@ -23,9 +23,9 @@ This is a possible implementation of the IBME cryptographic scheme (``Match me i
 
 ### ``SchemeIBMECH.py`` (soft link)
 
-This is a possible implementation of the IBMECH cryptographic scheme (``Identity-Based Matchmaking Encryption from Standard Assumptions``) in Python programming language based on the Python Charm-Crypto framework, referring to the official implementation from [https://github.com/xuehuan-yang/PSME/blob/main/src/02_ibmech/02_ibmech_v2.py](https://github.com/xuehuan-yang/PSME/blob/main/src/02_ibmech/02_ibmech_v2.py). 
+This is a possible implementation of the IBMECH cryptographic scheme in Python programming language based on the Python Charm-Crypto framework, referring to the official implementation from [https://github.com/xuehuan-yang/PSME/blob/main/src/02_ibmech/02_ibmech_v2.py](https://github.com/xuehuan-yang/PSME/blob/main/src/02_ibmech/02_ibmech_v2.py). 
 
-```
+```bibtex
 @inproceedings{chen2022identity,
   title={Identity-based matchmaking encryption from standard assumptions},
   author={Chen, Jie and Li, Yu and Wen, Jinming and Weng, Jian},
@@ -38,9 +38,9 @@ This is a possible implementation of the IBMECH cryptographic scheme (``Identity
 
 ### ``SchemeIBPME.py``
 
-This is a possible implementation of the IBPME cryptographic scheme (``Identity-based proxy matchmaking encryption for cloud-based anonymous messaging systems``) in Python programming language based on the Python Charm-Crypto framework. 
+This is a possible implementation of the IBPME cryptographic scheme in Python programming language based on the Python Charm-Crypto framework. 
 
-```
+```bibtex
 @article{yan2023identity,
   title={Identity-based proxy matchmaking encryption for cloud-based anonymous messaging systems},
   author={Yan, Zhen and Qu, Haipeng and Zhang, Xiaoshuai and Xu, Jian-Liang and Lin, Xi-Jun},

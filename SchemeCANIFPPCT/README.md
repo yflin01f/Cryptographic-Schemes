@@ -6,7 +6,7 @@ This is the category of the proposed CA-NI-FPPCT cryptographic scheme, whose bas
 
 This is the official implementation of the CA-NI-FPPCT cryptographic scheme in Python programming language based on the Python Charm-Crypto framework. 
 
-```
+```bibtex
 @article{wu2025non,
   title={Non-interactive set intersection for privacy-preserving contact tracing},
   author={Wu, Axin and Yang, Yuer and Wen, Jinghang and Zhang, Yu and Zhao, Qiuxia},
@@ -17,6 +17,8 @@ This is the official implementation of the CA-NI-FPPCT cryptographic scheme in P
   publisher={Elsevier}
 }
 ```
+
+We would like to express our sincere gratitude to everyone who has cited this work. Readers who wish to cite this work may use the BibTeX entry above. 
 
 ### ``SchemeCANIPSI.py``
 

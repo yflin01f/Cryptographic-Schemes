@@ -1,7 +1,7 @@
 import os
 from sys import argv, exit
 try:
-	from libcst import Attribute, CSTNode, Call, ClassDef, ConcatenatedString, EmptyLine, FunctionDef, Name, SimpleString, TrailingWhitespace, parse_module
+	from libcst import Add, Attribute, BinaryOperation, CSTNode, Call, ClassDef, ConcatenatedString, EmptyLine, FunctionDef, Name, SimpleString, TrailingWhitespace, parse_module
 except:
 	Attribute, CSTNode, Call, ClassDef, ConcatenatedString, EmptyLine, FunctionDef, Name, SimpleString, TrailingWhitespace, parse_module = (None, ) * 11
 from getpass import getpass
@@ -134,8 +134,10 @@ class Builder:
 			return True
 		elif string in (
 			"", "\t{0}\t\tDisable the verbose console outputs. ", "\t{0}\t\tIndicate to confirm the overwriting of the existing output file. ", 
-			"\t{0}\t\tPrint this help document. ", "\t{0} [1|2|5|10|20|50|100|...]\t\tSpecify the run count, which must be a positive integer. The default value is {1}. ", 
-			"\t{0} [s|ms|microsecond|ns|ps|0|3|6|9|12|...]\t\tSpecify the decimal place, which should be a non-negative integer. The default value is {1}. ", 
+			"\t{0}\t\tPrint this help document. ", "\t{0} [1|2|5|10|20|50|100|...]\t\tSpecify the run count, which must be a positive integer. The default value is {1}. ", (
+				"\t{0} [0|0.1|1|10|...|inf]\t\tSpecify the waiting time before exiting, which should be non-negative. "
+				+ "Passing inf requires users to manually press the enter key before exiting. The default value is {0}. "
+			), "\t{0} [s|ms|microsecond|ns|ps|0|3|6|9|12|...]\t\tSpecify the decimal place, which should be a non-negative integer. The default value is {1}. ", 
 			"\t{0} [utf-8|utf-16|...]\t\tSpecify the encoding mode for CSV and TXT outputs. The default value is {1}. ", 
 			"\t{0} [|.|./{1}.xlsx|./{1}.csv|...]\t\tSpecify the output file path, leaving it empty for console output. The default value is {2}. ", 
 			"\rThe countdown is {0} second(s). ", "$d$:", "$k$:", "$l$:", "$m$:", "$n$:", "Curve: ({0}, {1})", "Dec1:", "Dec2:", "Decrypted:", "Derived:", "Is DKey Sanity? {0}. ", 
@@ -154,8 +156,7 @@ class Builder:
 			"No experiments were conducted. ", "Options (not case-sensitive): ", "Original:", 
 			"Parser: The extension name of the output file path passed is one of the protected extension names, which would be reset to the default extension {0}. ", 
 			"Parser: The output file path passed looks like a folder, which would be connected with the default file name {0}. ", 
-			"Parser: The path {0} exists not to be a regular file. ", "Please press the enter key to exit ({0}). ", 
-			"Please refer to https://github.com/JHUISI/charm if necessary. ", 
+			"Parser: The path {0} exists not to be a regular file. ", "Please press the enter key to exit ({0}). ", "Please refer to https://github.com/JHUISI/charm if necessary. ", 
 			"Please wait {0} second(s) for automatic exit, or exit manually, for example by pressing ``Ctrl + C`` ({1}). ", "Space:", 
 			"The execution environment of the Python Charm-Crypto framework is not handled correctly. ", "The execution has finished ({0}). ", 
 			"The execution has started. ", "The experiments were interrupted by users. Saved results are retained. ", "The experiments were interrupted by {0}. Saved results are retained. ", 
@@ -226,23 +227,23 @@ class Builder:
 			"The securtiy parameter should be a positive integer, but it is not, which has been defaulted to {0}. ", 
 			"The variable $L$ should be a list, but it is not, which has been initialized as an empty list. ", 
 			"This scheme is only applicable to symmetric groups of prime orders. The curve name has been defaulted to \"SS512\". "
-		) or match("^The variable \\$[ \'(),\\-0-9A-Za-z\\\\_{}]+\\$ has been generated accordingly\\. $", string[descriptorLength:]) or match(
-			"^The variable \\$[*0-9A-Za-z\\\\\\^_{}]+\\$ should be (?:a ``bytes`` object|an integer), but it is not, which has been generated (?:accordingly|randomly)\\. $", 
-		string[descriptorLength:]) or match(
-			"^The variable \\$[A-Za-z\\\\_{}]+\\$ should be a positive integer( not smaller than \\$[0-9]\\$)?, but it is not, which has been defaulted to .+\\. $", 
-		string[descriptorLength:]) or match((
+		) or match("^The variable \\$[ \'(),\\-0-9A-Za-z\\\\_{}]+\\$ has been generated accordingly\\. $", string[descriptorLength:]) or match((
 			"^The variable \\$[ \'*,0-9A-Za-z\\\\\\^_{|}]+\\$ should be a (?:set|subset of \\$[\'A-Z]+\\$|tuple( or a list)?) containing .+, but it is not, "
 			+ "which has been generated (?:accordingly|randomly|randomly with (?:\\$[A-Za-z]\\$ set to .+|a length of \\$.+\\$|\\$M \\\\in \\\\mathbb{G}_T\\$ generated randomly))\\. $"
 		), string[descriptorLength:]) or match((
 			"^The variable \\$[\'()A-Za-z\\\\_{}]+\\$ should be a ``dict`` containing \\$[a-z]\\$ ``[a-z]+``--``[a-z]+`` pairs, "
 			+ "but it is not, which has been generated (?:accordingly|randomly)\\. $"
-		), string[descriptorLength:]) or match((
+		), string[descriptorLength:]) or match(
+			"^The variable \\$[*0-9A-Za-z\\\\\\^_{}]+\\$ should be (?:a ``bytes`` object|an integer), but it is not, which has been generated (?:accordingly|randomly)\\. $", 
+		string[descriptorLength:]) or match((
 			"^The variable \\$[*0-9A-Za-z\\\\\\^_{}]+\\$ should be an element (?:of \\$\\\\(?:mathbb\\{G\\}_(?:1|2|T)|mathbb\\{Z\\}_r)\\$|in \\$s\\$), "
 			+ "but it is not, which has been generated (accordingly|randomly)\\. $"
 		), string[descriptorLength:]) or match((
 			"^The variable \\$[0-9A-Za-z\\\\_{}]+\\$ should be an integer or a ``bytes`` object, "
 			+ "but it is not, which has been (?:defaulted to .+|generated accordingly|generated randomly)\\. $"
-		), string[descriptorLength:]):
+		), string[descriptorLength:]) or match(
+			"^The variable \\$[A-Za-z\\\\_{}]+\\$ should be a positive integer( not smaller than \\$[0-9]\\$)?, but it is not, which has been defaulted to .+\\. $", 
+		string[descriptorLength:]):
 			return True
 		else:
 			self.__generationDiagnostics["Function"].append("The statement {0} is not official. ".format(repr(string)))
@@ -272,6 +273,9 @@ class Builder:
 									and "format" == argument.value.func.attr.value and isinstance(argument.value.func.value, (ConcatenatedString, SimpleString))
 								):
 									self.__checkString(argument.value.func.value.evaluated_value)
+								elif isinstance(argument.value, BinaryOperation) and isinstance(argument.value.operator, Add):
+									if isinstance(argument.value.left, Call) and isinstance(argument.value.right, Call):
+										self.__checkString(argument.value.left.func.value.evaluated_value + argument.value.right.func.value.evaluated_value)
 						elif isinstance(element, ClassDef) and "Saver" == element.name.value:
 							s, descriptor = [element], element.name.value + ": "
 							while s:
@@ -286,6 +290,12 @@ class Builder:
 											and isinstance(argument.value.func.value, (ConcatenatedString, SimpleString))
 										):
 											self.__checkSaverString(argument.value.func.value.evaluated_value)
+										elif isinstance(argument.value, BinaryOperation) and isinstance(argument.value.operator, Add):
+											if isinstance(argument.value.left, Call) and isinstance(argument.value.right, Call):
+												self.__checkSaverString(
+													argument.value.left.func.value.evaluated_value
+													+ argument.value.right.func.value.evaluated_value
+												)
 								elif isinstance(ele, CSTNode):
 									s.extend(reversed(list(ele.children)))
 						elif isinstance(element, ClassDef) and element.name.value.startswith("Scheme"): # match("^class\\s+Scheme[0-9A-Z_a-z]*", line)
@@ -359,6 +369,15 @@ class Builder:
 													and isinstance(argument.value.func.value, (ConcatenatedString, SimpleString))
 												):
 													self.__checkFunctionString(argument.value.func.value.evaluated_value, functionName)
+												elif isinstance(argument.value, BinaryOperation) and isinstance(argument.value.operator, Add):
+													if isinstance(argument.value.left, Call) and isinstance(argument.value.right, Call):
+														self.__checkFunctionString(
+															(
+																argument.value.left.func.value.evaluated_value
+																+ argument.value.right.func.value.evaluated_value
+															), 
+															functionName
+														)
 										elif isinstance(ele, CSTNode):
 											s.extend(reversed(list(ele.children)))
 								elif isinstance(item, CSTNode):

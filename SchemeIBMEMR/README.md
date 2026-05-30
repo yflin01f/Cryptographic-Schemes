@@ -8,9 +8,9 @@ This is the official implementation of the IBMEMR cryptographic scheme in Python
 
 ### ``SchemeIBME.py`` (soft link)
 
-This is a possible implementation of the IBME cryptographic scheme (``Match me if you can: Matchmaking encryption and its applications``) in Python programming language based on the Python Charm-Crypto framework, referring to the official implementation from [https://github.com/xuehuan-yang/PSME/blob/main/src/04_ibme/04_ibme.py](https://github.com/xuehuan-yang/PSME/blob/main/src/04_ibme/04_ibme.py). 
+This is a possible implementation of the IBME cryptographic scheme in Python programming language based on the Python Charm-Crypto framework, referring to the official implementation from [https://github.com/xuehuan-yang/PSME/blob/main/src/04_ibme/04_ibme.py](https://github.com/xuehuan-yang/PSME/blob/main/src/04_ibme/04_ibme.py). 
 
-```
+```bibtex
 @inproceedings{ateniese2019match,
   title={Match me if you can: Matchmaking encryption and its applications},
   author={Ateniese, Giuseppe and Francati, Danilo and Nunez, David and Venturi, Daniele},
@@ -23,7 +23,7 @@ This is a possible implementation of the IBME cryptographic scheme (``Match me i
 
 ### ``SchemeIBBME.py``
 
-This is a possible implementation of the IBBME cryptographic scheme (``Privacy-Aware and Security-Enhanced Efficient Matchmaking Encryption``) in Python programming language based on the Python Charm-Crypto framework, referring to the official implementation from [https://github.com/xuehuan-yang/PSME/blob/main/src/00_aibbme/00_aibbme.py](https://github.com/xuehuan-yang/PSME/blob/main/src/00_aibbme/00_aibbme.py). 
+This is a possible implementation of the IBBME cryptographic scheme in Python programming language based on the Python Charm-Crypto framework, referring to the official implementation from [https://github.com/xuehuan-yang/PSME/blob/main/src/00_aibbme/00_aibbme.py](https://github.com/xuehuan-yang/PSME/blob/main/src/00_aibbme/00_aibbme.py). 
 
 ```
 @article{sun2023privacy,

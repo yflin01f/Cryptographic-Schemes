@@ -22,9 +22,9 @@ This is a possible implementation of the Fuzzy-ME cryptographic scheme in Python
 
 ### ``SchemeIBMECH.py``
 
-This is a possible implementation of the IBMECH cryptographic scheme (``Identity-Based Matchmaking Encryption from Standard Assumptions``) in Python programming language based on the Python Charm-Crypto framework, referring to the official implementation from [https://github.com/xuehuan-yang/PSME/blob/main/src/02_ibmech/02_ibmech_v2.py](https://github.com/xuehuan-yang/PSME/blob/main/src/02_ibmech/02_ibmech_v2.py). 
+This is a possible implementation of the IBMECH cryptographic scheme in Python programming language based on the Python Charm-Crypto framework, referring to the official implementation from [https://github.com/xuehuan-yang/PSME/blob/main/src/02_ibmech/02_ibmech_v2.py](https://github.com/xuehuan-yang/PSME/blob/main/src/02_ibmech/02_ibmech_v2.py). 
 
-```
+```bibtex
 @inproceedings{chen2022identity,
   title={Identity-based matchmaking encryption from standard assumptions},
   author={Chen, Jie and Li, Yu and Wen, Jinming and Weng, Jian},

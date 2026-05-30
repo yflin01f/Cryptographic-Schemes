@@ -918,7 +918,7 @@ def main() -> int:
 			print()
 			
 			# Parameters #
-			curveParameters = ("MNT159", "MNT201", "MNT224", "BN254", ("SS512", 512), ("SS1024", 1024))
+			curveParameters = ("MNT159", "MNT201", "MNT224", "BN254", ("SS512", 512), ("SS1024", 512), ("SS1024", 1024))
 			queries = ("curveParameter", "secparam", "l", "k", "runCount")
 			validators = ("isSystemValid", "isDeriverPassed", "isSchemeCorrect")
 			metrics = (																			\
@@ -926,6 +926,8 @@ def main() -> int:
 				"elementOfZR (B)", "elementOfG1 (B)", "elementOfG2 (B)", "elementOfGT (B)", 	\
 				"mpk (B)", "msk (B)", "SK (B)", "SK' (B)", "CT (B)"								\
 			)
+			getValidatorJudges = lambda x:x
+			getMetricJudges = lambda x:x
 			
 			# Scheme #
 			columns, qLength, results = queries + validators + metrics, len(queries), []
@@ -964,9 +966,11 @@ def main() -> int:
 			except BaseException as e:
 				print()
 				print("The experiments were interrupted by {0}. Saved results are retained. ".format(repr(e)))
-			errorLevel = EXIT_SUCCESS if results and all(all(																							\
-				tuple(r == runCount for r in result[qLength:qvLength]) + tuple(isinstance(r, (float, int)) and r > 0 for r in result[qvLength:length])	\
-			) for result in results) else EXIT_FAILURE
+			errorLevel = EXIT_SUCCESS if results and all(											\
+				all(r == runCount for r in getValidatorJudges(result))								\
+				and all(isinstance(r, (float, int)) and r > 0 for r in getMetricJudges(result))		\
+				for result in results																\
+			) else EXIT_FAILURE
 	elif EXIT_SUCCESS == flag:
 		errorLevel = flag
 		parser.disableConsoleEchoes()
