@@ -18,7 +18,15 @@ Consequently, when $n$ grows with the variables $l$ and $m$ fixed, the curve in 
 
 ### ``SchemeAnonymousME.py``
 
-This is the official implementation of the AnonymousME cryptographic scheme (``Anonymous Hierarchical Identity-based Encryption``) in Python programming language based on the Python Charm-Crypto framework. 
+This is the official implementation of the AnonymousME cryptographic scheme in Python programming language based on the Python Charm-Crypto framework. 
+
+```
+@misc{wu2024anonymous,
+  title = {Anonymous Hierarchical Identity-based Encryption},
+  author = {Axin Wu},
+  year = {2024},
+}
+```
 
 #### Discussion
 

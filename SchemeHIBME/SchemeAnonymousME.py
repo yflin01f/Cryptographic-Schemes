@@ -47,7 +47,7 @@ class Parser:
 		else:
 			return ""
 	def __printHelp(self:object) -> None:
-		print("This is the official implementation of the AnonymousME cryptographic scheme (``Anonymous Hierarchical Identity-based Encryption``) in Python programming language based on the Python Charm-Crypto framework. ")
+		print("This is the official implementation of the AnonymousME cryptographic scheme in Python programming language based on the Python Charm-Crypto framework. ")
 		print()
 		print("Options (not case-sensitive): ")
 		print("\t{0} [utf-8|utf-16|...]\t\tSpecify the encoding mode for CSV and TXT outputs. The default value is {1}. ".format(self.__formatOption(Parser.__OptionEncoding), Parser.__DefaultEncoding))

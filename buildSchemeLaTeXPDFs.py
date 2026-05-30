@@ -166,10 +166,9 @@ class Builder:
 			"This is a possible implementation of the IBME cryptographic scheme in Python programming language based on the Python Charm-Crypto framework. ", 
 			"This is a possible implementation of the IBMECH cryptographic scheme in Python programming language based on the Python Charm-Crypto framework. ", 
 			"This is a possible implementation of the IBPME cryptographic scheme in Python programming language based on the Python Charm-Crypto framework. ", 
-			"This is the official implementation of the AA-IB-ME cryptographic scheme in Python programming language based on the Python Charm-Crypto framework. ", (
-				"This is the official implementation of the AnonymousME cryptographic scheme (``Anonymous Hierarchical Identity-based Encryption``) "
-				+ "in Python programming language based on the Python Charm-Crypto framework. "
-			), "This is the official implementation of the CA-NI-FPPCT cryptographic scheme in Python programming language based on the Python Charm-Crypto framework. ", 
+			"This is the official implementation of the AA-IB-ME cryptographic scheme in Python programming language based on the Python Charm-Crypto framework. ", 
+			"This is the official implementation of the AnonymousME cryptographic scheme in Python programming language based on the Python Charm-Crypto framework. ", 
+			"This is the official implementation of the CA-NI-FPPCT cryptographic scheme in Python programming language based on the Python Charm-Crypto framework. ", 
 			"This is the official implementation of the HIB-ME cryptographic scheme in Python programming language based on the Python Charm-Crypto framework. ", 
 			"This is the official implementation of the IBMEMR cryptographic scheme in Python programming language based on the Python Charm-Crypto framework. ", 
 			"This is the official implementation of the IBMETR cryptographic scheme in Python programming language based on the Python Charm-Crypto framework. ", 
@@ -267,13 +266,12 @@ class Builder:
 						if isinstance(element, Call) and isinstance(element.func, Name) and "print" == element.func.value:
 							for argument in element.args:
 								if isinstance(argument.value, (ConcatenatedString, SimpleString)):
-									string = argument.value.evaluated_value
+									self.__checkString(argument.value.evaluated_value)
 								elif (
 									isinstance(argument.value, Call) and isinstance(argument.value.func, Attribute)
 									and "format" == argument.value.func.attr.value and isinstance(argument.value.func.value, (ConcatenatedString, SimpleString))
 								):
-									string = argument.value.func.value.evaluated_value
-								self.__checkString(string)
+									self.__checkString(argument.value.func.value.evaluated_value)
 						elif isinstance(element, ClassDef) and "Saver" == element.name.value:
 							s, descriptor = [element], element.name.value + ": "
 							while s:
@@ -281,14 +279,13 @@ class Builder:
 								if isinstance(ele, Call) and isinstance(ele.func, Name) and "print" == ele.func.value:
 									for argument in ele.args:
 										if isinstance(argument.value, (ConcatenatedString, SimpleString)):
-											string = argument.value.evaluated_value
+											self.__checkSaverString(argument.value.evaluated_value)
 										elif (
 											isinstance(argument.value, Call) and isinstance(argument.value.func, Attribute)
 											and "format" == argument.value.func.attr.value
 											and isinstance(argument.value.func.value, (ConcatenatedString, SimpleString))
 										):
-											string = argument.value.func.value.evaluated_value
-										self.__checkSaverString(string)
+											self.__checkSaverString(argument.value.func.value.evaluated_value)
 								elif isinstance(ele, CSTNode):
 									s.extend(reversed(list(ele.children)))
 						elif isinstance(element, ClassDef) and element.name.value.startswith("Scheme"): # match("^class\\s+Scheme[0-9A-Z_a-z]*", line)
@@ -355,14 +352,13 @@ class Builder:
 										elif isinstance(ele, Call) and isinstance(ele.func, Name) and "print" == ele.func.value:
 											for argument in ele.args:
 												if isinstance(argument.value, (ConcatenatedString, SimpleString)):
-													string = argument.value.evaluated_value
+													self.__checkFunctionString(argument.value.evaluated_value, functionName)
 												elif (
 													isinstance(argument.value, Call) and isinstance(argument.value.func, Attribute)
 													and "format" == argument.value.func.attr.value
 													and isinstance(argument.value.func.value, (ConcatenatedString, SimpleString))
 												):
-													string = argument.value.func.value.evaluated_value
-												self.__checkFunctionString(string, functionName)
+													self.__checkFunctionString(argument.value.func.value.evaluated_value, functionName)
 										elif isinstance(ele, CSTNode):
 											s.extend(reversed(list(ele.children)))
 								elif isinstance(item, CSTNode):
