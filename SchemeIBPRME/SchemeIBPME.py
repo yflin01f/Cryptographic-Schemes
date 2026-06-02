@@ -1046,7 +1046,7 @@ def main() -> int:
 			print()
 			
 			# Parameters #
-			curveParameters = ("MNT159", "MNT201", "MNT224", "BN254", ("SS512", 512), ("SS1024", 512), ("SS1024", 1024))
+			curveParameters = ("MNT201", "MNT224", "BN254", ("SS1024", 512), ("SS1024", 1024))
 			queries = ("curveParameter", "secparam", "runCount")
 			validators = ("isSystemValid", "isProxyDecPassed", "isDec1Passed", "isDec2Passed")
 			metrics = (																									\

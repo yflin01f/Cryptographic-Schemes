@@ -24,8 +24,8 @@ To test the Python charm environment initially, try to execute ``from charm.tool
 
 Here are the statements related to inputs and outputs, where the default round count is ``100`` and the default output file path corresponds to the Python file path. 
 
-- If a scheme is applicable to symmetric and asymmetric groups of prime orders, curve types and security parameters in tuple ``("MNT159", "MNT201", "MNT224", "BN254", ("SS512", 512), ("SS1024", 512), ("SS1024", 1024))`` will be tested. 
-- If a scheme is only applicable to symmetric groups of prime orders, curve types and security parameters in tuple ``(("SS512", 128), ("SS512", 160), ("SS512", 224), ("SS512", 256), ("SS512", 384), ("SS512", 512), ("SS1024", 512), ("SS1024", 1024))`` will be tested. 
+- If a scheme is applicable to symmetric and asymmetric groups of prime orders, curve types and security parameters in tuple ``("MNT201", "MNT224", "BN254", ("SS1024", 512), ("SS1024", 1024))`` will be tested. 
+- If a scheme is only applicable to symmetric groups of prime orders, curve types and security parameters in tuple ``(("SS1024", 128), ("SS1024", 160), ("SS1024", 224), ("SS1024", 256), ("SS1024", 384), ("SS1024", 512), ("SS1024", 1024))`` will be tested. 
 - The output files in the three-line table or plain text form should contain the input parameters, correctness-related counts, procedure time consumption, program memory consumption, storing sizes of elements from different fields, and storing sizes of important variables. 
 - Users should only modify the ``# Begin #`` part in the ``main`` function if they just want to test different parameters. 
 

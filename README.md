@@ -2,7 +2,7 @@
 
 This repository serves as a systematic collection of multiple cryptographic schemes, along with their baselines. 
 
-All programming and experiments are conducted under the Ubuntu (24.04.1 LTS) operating system. 
+All programming and experiments are conducted under the Ubuntu (24.04.4 LTS) operating system. 
 
 Most of the cryptographic schemes here are pairing-based, which are implemented based on the PBC library and its variants. 
 
