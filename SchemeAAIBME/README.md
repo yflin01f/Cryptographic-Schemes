@@ -20,7 +20,7 @@ This is a possible implementation of the Fuzzy-IB-ME cryptographic scheme in Pyt
 
 This is a possible implementation of the Fuzzy-ME cryptographic scheme in Python programming language based on the Python Charm-Crypto framework. 
 
-### ``SchemeIBMECH.py``
+### ``SchemeIBMECH.py`` (soft link)
 
 This is a possible implementation of the IBMECH cryptographic scheme in Python programming language based on the Python Charm-Crypto framework, referring to the official implementation from [https://github.com/xuehuan-yang/PSME/blob/main/src/02_ibmech/02_ibmech_v2.py](https://github.com/xuehuan-yang/PSME/blob/main/src/02_ibmech/02_ibmech_v2.py). 
 

@@ -2,16 +2,808 @@
 
 This repository serves as a systematic collection of multiple cryptographic schemes, along with their baselines. 
 
-All programming and experiments are conducted under the Ubuntu (24.04.4 LTS) operating system. 
+We are currently merging cryptographic schemes from our other repositories. Cryptographic schemes are gathered as follows. 
+
+- [SchemeAAIBME](./SchemeAAIBME/)
+  - [SchemeAAIBME.java](./SchemeAAIBME/SchemeAAIBME.java)
+  - [SchemeAAIBME.py](./SchemeAAIBME/SchemeAAIBME.py)
+  - [SchemeFuzzyIBME.java](./SchemeAAIBME/SchemeFuzzyIBME.java)
+  - [SchemeFuzzyME.java](./SchemeAAIBME/SchemeFuzzyME.java)
+  - [SchemeFuzzyME.py](./SchemeAAIBME/SchemeFuzzyME.py)
+  - [SchemeIBMECH.py](./SchemeAAIBME/SchemeIBMECH.py) -> [SchemeIBMECH.py](./SchemeIBMETR/SchemeIBMECH.py)
+- [SchemeCANIFPPCT](./SchemeCANIFPPCT/)
+  - [SchemeCANIFPPCT.py](./SchemeCANIFPPCT/SchemeCANIFPPCT.py)
+- [SchemeHIBME](./SchemeHIBME/)
+  - [SchemeAnonymousME.py](./SchemeHIBME/SchemeAnonymousME.py)
+  - [SchemeHIBME.py](./SchemeHIBME/SchemeHIBME.py)
+- [SchemeIBMEMR](./SchemeIBMEMR/)
+  - [SchemeIBBME.py](./SchemeIBMEMR/SchemeIBBME.py)
+  - [SchemeIBME.py](./SchemeIBMEMR/SchemeIBME.py) -> [SchemeIBME.py](./SchemeIBMETR/SchemeIBME.py)
+  - [SchemeIBMEMR.py](./SchemeIBMEMR/SchemeIBMEMR.py)
+- [SchemeIBMETR](./SchemeIBMETR/)
+  - [SchemeAIBE.py](./SchemeIBMETR/SchemeAIBE.py)
+  - [SchemeARES.py](./SchemeIBMETR/SchemeARES.py)
+  - [SchemeIBME.py](./SchemeIBMETR/SchemeIBME.py)
+  - [SchemeIBMECH.py](./SchemeIBMETR/SchemeIBMECH.py)
+  - [SchemeIBMETR.py](./SchemeIBMETR/SchemeIBMETR.py)
+- [SchemeIBPRME](./SchemeIBPRME/)
+  - [SchemeIBME.py](./SchemeIBPRME/SchemeIBME.py) -> [SchemeIBME.py](./SchemeIBMETR/SchemeIBME.py)
+  - [SchemeIBMECH.py](./SchemeIBPRME/SchemeIBMECH.py) -> [SchemeIBMECH.py](./SchemeIBMETR/SchemeIBMECH.py)
+  - [SchemeIBPME.py](./SchemeIBPRME/SchemeIBPME.py)
+  - [SchemeIBPRME.py](./SchemeIBPRME/SchemeIBPRME.py)
+  - [SchemePBAC.py](./SchemeIBPRME/SchemePBAC.py)
+- [SchemeVLPSICA](./SchemeVLPSICA/)
+  - [SchemeVLPSICA.py](./SchemeVLPSICA/SchemeVLPSICA.py)
+- [FS-MUAEKS](./FS-MUAEKS/)
+  - [FS-MUAEKS.py](./FS-MUAEKS/FS-MUAEKS.py)
+- [LB-PEAKS](./LB-PEAKS/)
+  - [LB-PEAKS.py](./LB-PEAKS/LB-PEAKS.py)
 
 Most of the cryptographic schemes here are pairing-based, which are implemented based on the PBC library and its variants. 
 
-| Programming language | Library |
+| Programming language | Dependency |
 | - | - |
-| C/C++ | PBC |
-| Python (3.x) | [charm](https://github.com/JHUISI/charm) |
+| C/C++ | [PBC](https://crypto.stanford.edu/pbc/download.html) |
+| Python (3.12 or above) | [Python Charm-Crypto framework](https://github.com/JHUISI/charm) |
 | Java | JPBC |
 
-We are currently merging cryptographic schemes from our other repositories. 
+All programming and experiments are conducted under the Ubuntu (24.04.4 LTS) operating system. 
 
-Thanks to [Department of Computer Science](https://www.cs.hku.hk/), [The University of Hong Kong](https://www.hku.hk/). 
+## 1. Python
+
+For most of the cryptographic schemes here, especially those whose names start with "Scheme", Python implementations are highly recommended. 
+Please deploy Python 3.12 or above and the Python Charm-Crypto framework correctly. It is highly recommended to keep both Python and the Python Charm-Crypto framework up to date. 
+
+This section will first introduce the implementation and computation details. Subsequently, converting the official Python scripts to LaTeX sources will be presented. 
+Eventually, measurements and git issues will be discussed. 
+
+### 1.1 Implementation details
+
+To start with, the Python environments must be resolved. As installing Python directly via the system's package manager 
+(e.g., ``sudo apt install python3``, ``sudo apt-get install python3``, ``sudo yum install python3``, ``sudo dnf install python3``, and ``pkg install python3``) 
+will cause the management of Python libraries from the Python pip to be taken over by the system's package manager, we strongly recommend manually installing the latest Python. 
+Taking the installation of the latest Python on the latest Ubuntu as an example, here is a possible set of shell commands to finish the manual installation, 
+where ``apt-get update`` can be executed as ``apt-get update && apt-get upgrade -y`` if on a fresh operating system. 
+If it is suspected that the system already includes a system-wide Python and it is highly desirable to remove it entirely, 
+please be aware of the risks and execute ``apt purge --auto-remove python3`` before proceeding with the following shell commands. 
+
+
+```shell
+apt-get update
+apt-get install -y clang gh git make wget
+major="$(curl -s https://www.python.org/ftp/python/ | grep -oP 'href="\K[0-9]+\.[0-9]+(\.[0-9]+)?(?=/")' | sort -V | tail -n 1)"
+minor="$(curl -s "https://www.python.org/ftp/python/${major}/" | grep -oP 'href="\KPython-[0-9]+\.[0-9]+(\.[0-9]+[a-z0-9]*)?\.tgz' | sort -V | tail -n 1)"
+wget -c "https://www.python.org/ftp/python/${major}/${minor}"
+tar -xf "${minor}"
+cd "${minor%.tgz}"
+PREFIX="/usr/local"
+./configure --prefix=${PREFIX} --enable-optimizations --with-ensurepip=install
+make -j$(nproc)
+make install
+ln -s "${PREFIX}/bin/python3" "${PREFIX}/bin/python"
+ln -s "${PREFIX}/bin/python" "${PREFIX}/bin/py"
+ln -s "${PREFIX}/bin/pip3" "${PREFIX}/bin/pip"
+cat > ~/.config/pip/pip.conf << "EOF"
+[global]
+root-user-action = ignore
+EOF
+python -m pip install --upgrade pip
+python -m pip install wheel
+```
+
+Subsequently, please follow [the official tutorial](https://github.com/JHUISI/charm) or the [``runPython`` workflow](./.github/workflows/runPython.yml) to deploy the Python Charm-Crypto framework. 
+A possible Python Charm-Crypto framework environment configuration tutorial for WSL on Windows in Chinese can be viewed at [tutorials_zh-CN](./tutorials_zh-CN.md) if necessary. 
+If you are a Chinese beginner of the Python Charm-Crypto framework, the subsequent content in this file may be helpful. 
+
+To test the Python Charm-Crypto framework environment initially, please try to execute ``from charm.toolbox.pairinggroup import PairingGroup, G1, G2, GT, ZR, pair, pc_element as Element`` in Python, 
+which is also essentially how all of the Python scripts based on the Python Charm-Crypto framework in this repository import the Python Charm-Crypto framework. 
+
+Here are the statements related to inputs and outputs, where the default round count is ``10`` and the default output file path corresponds to the Python file path. 
+The [``runPython`` workflow](./.github/workflows/runPython.yml) workflow will execute the schemes that are pre-selected as default in manual trigger mode when a pull request or a push occurs. 
+
+- If a scheme is applicable to symmetric and asymmetric groups of prime orders, curve types and security parameters in tuple ``("MNT201", "MNT224", "BN254", ("SS512", 512), ("SS1024", 512))`` will be tested. 
+- If a scheme is only applicable to symmetric groups of prime orders, curve types and security parameters in tuple ``(("SS512", 128), ("SS512", 256), ("SS512", 384), ("SS512", 512), ("SS1024", 512))`` will be tested. 
+- The output files in the three-line table or plain text form should contain the input parameters, correctness-related counts, procedure time consumption, program memory consumption, storing sizes of elements from different fields, and storing sizes of important variables. 
+- Users should only modify the ``# Begin #`` part in the ``main`` function if they just want to test different parameters. 
+
+We have already noticed that MNT159, SS512, and SS1024 have been warned due to their inadequate security. While MNT159 has been removed from all our Python scripts, 
+we can hardly remove SS512 and SS1024 since, after all, there are no other curves supporting the $e(g_l, g_r), g_l, g_r \in \mathbb{G}_1$ operation in the Python Charm-Crypto framework. 
+Therefore, we have to keep using SS512 and SS1024 currently. 
+
+The rules of exit codes are as follows. 
+
+- For all the Python scripts here, an ``EXIT_SUCCESS`` ($0$) signal will be returned to its parent process if some results are obtained and all the results pass all the tests. 
+- For all the Python scripts here, an ``EXIT_FAILURE`` ($1$) signal will be returned to its parent process if no results are obtained or any of the results fail any of the tests. 
+- For all the Python scripts here, an ``EOF`` ($-1$) signal will be returned to its parent process if the program lacks any of the necessary libraries. 
+
+Regarding command-line arguments, please pass the argument ``-h`` to the Python scripts to view the details. 
+
+The following commands can be useful for executing one-stop testing. 
+
+- On non-Windows operating systems
+  - Execute ``find . -maxdepth 1 -type f -name "*.py" -exec python {} Y 0 \;`` after navigating into (``cd``) the specified directory in a terminal to run all the Python scripts in that directory if a category of Python scripts is to be executed. 
+  - Execute ``find . -mindepth 2 -maxdepth 2 -type f -name "*.py" -exec python {} Y 0 \;`` after navigating into (``cd``) the root directory of this repository in a terminal to execute all the Python scripts in this repository if all categories of Python scripts are to be executed. 
+  - Add `` > /dev/null`` (or even `` > /dev/null 2>&1``) to the end of the commands, or use a screen if the printing affects the computation of the time consumption. 
+- On Windows operating systems
+  - Execute ``for %f in (*.py) do python "%f" Y 0`` after navigating into (``cd /d``) the specified directory in a terminal to run all the Python scripts in that directory if a category of Python scripts is to be executed. 
+  - Execute ``for /r %f in (*.py) do python "%f" Y 0`` after navigating into (``cd /d``) the root directory of this repository in a terminal to execute all the Python scripts in this repository if all categories of Python scripts are to be executed. 
+  - Add `` > NUL 2>&1`` to the end of the command lines if the printing affects the computation of the time consumption in a terminal. 
+
+To enhance robustness, type checks will be performed in each scheme procedure, whether or not they are explicitly required in the paper. 
+Actually, type checks are forcibly conducted during the compilation stage in compiled languages (e.g., C, C++, and Java). 
+
+The Python scripts here are designed to try their best to avoid the console window flashing by when they are launched via a double-click. 
+In a real production environment, users may not necessarily open a terminal first to receive the standard output stream or error output stream left behind after the crash. 
+Thus, scheme procedures are surrounded by the ``try--except KeyboardInterrupt--except BaseException as e`` structure to catch as many base exceptions as possible. 
+If debugging is needed, ``except BaseException as e`` can be commented out, and the detailed base exceptions can be left on the terminal for analysis. 
+
+On non-Windows operating systems, input to the terminal during script execution will be directly echoed to the screen, causing output chaos. 
+Therefore, most of the Python scripts here will disable echoing when experiments start and restore it when they enter the exit procedure. 
+Users can interrupt the experiments by ``Ctrl+C`` during execution. Base exceptions caused by the keyboard interruption will be handled, and the Python scripts will enter the exit procedure normally. 
+If, unfortunately, echoing is not restored after the Python scripts exit naturally or unexpectedly due to uncaught exceptions or other reasons, please execute ``stty echo``. 
+
+For Linux users who wish to search for a specified string throughout all categories of Python scripts in a local clone of this repository, 
+the Linux command ``find . -mindepth 2 -type f -name "*.py" -exec grep -H --color=always -E "${stringsToBeSearched}" {} \;`` 
+after navigating into (``cd``) the root directory of this repository should be fine. 
+Using ``sed`` or other Linux commands equipped with ``find`` and its ``--exec`` is also helpful for batch editing. 
+
+### 1.2 Computation details
+
+Normally, all the objects during the algebraic operations should belong to the ``Element`` type. 
+However, most academic papers introduce other types but do not consider type conversion in a friendly way. 
+A variable is treated as equivalent in different types, which can simultaneously complete all the pairing operations and all other operations from all other types like $||$ and $\oplus$. 
+Actually, this is incorrect. 
+
+Meanwhile, most scholars believe that the design of the schemes is the most important aspect, rendering the engineering implementations perfunctory, 
+not to mention that they will not consider the security verification and the type conversion. These details are actually time-consuming in actual programming and fatal during applications. 
+
+Nowadays, many published implementations cannot run directly after they are downloaded. 
+
+- Some of them are just due to outdated dependencies (V). 
+- Some require feasible environment configurations or debugging (V). 
+- Some are abstracted or interactive to let users specify values for important parameters before running due to programmability (V). 
+- Some are modified not to run conveniently since their authors still want to benefit from them and publish more future papers, but have to make them open-source (X). 
+- Some are modified maliciously since their authors do not want the experiments re-implemented, where the results would be found to be fakes (X). 
+- Some are fakes in either the methodologies designed or the practical implementations, or in both. (X)
+- Some are inconsistent with or unrelated to the content of the paper (X). 
+- Some even contain grammar errors (X). 
+
+Anyway, re-implementing baselines is always a wise choice. Converting the baseline implementations using the aligned styles is also necessary, 
+even though they can be downloaded and run directly. Therefore, we would like to offer as many computation details as possible here. 
+
+#### 1.2.1 Type conversion
+
+The rules of type conversion are as follows. 
+
+- From ``int`` to ``bytes``: ``x.to_bytes(digitCount, byteorder = "big")`` (``digitCount`` is the byte length)
+- From ``bytes`` to ``int``: ``int.from_bytes(x, byteorder = "big")``
+- From ``Element`` to ``bytes``: pairingGroup.serialize(x)`` (``pairingGroup`` is an instance of ``PairingGroup``)
+- From ``bytes`` to ``Element``: ``pairingGroup.hash(x, elementType)`` (``pairingGroup`` is an instance of ``PairingGroup`` while ``elementType`` can be ``ZR`` or ``G1`` only)
+- Objects to be concatenated (Not matrix concatenation): Convert the objects to ``bytes`` to perform concatenation
+- Objects to be $\oplus$: Convert the objects to ``int`` to perform $\oplus$
+
+Among these conversion rules, only the following cases are equivalent. 
+
+- For either an integer or a ``bytes`` object, converting to the other type, performing finite operations, and then converting back to the original type is equivalent to performing the same finite operations on the original type only when a specific byte length is fixed, and the operation does not overflow that length. 
+- Only when there are no additional operations, serializing and deserializing elements in the same group can produce the same elements as the original ones. 
+
+#### 1.2.2 Series data type
+
+Vectors, arrays, or lists in theory are stored as Python ``tuple`` objects in practice. This can help
+
+- Avoid modifying variables inside a class from outside the class as much as possible; 
+- Make the memory computation of an object of a series datum type as exact as possible (though no practical memory computation from the engineering aspect is officially embedded in the scripts here); 
+- Reduce the time consumption since the index lookup is faster compared with the key-value pair one (especially in large dictionaries); and 
+- Perform fair comparisons without using third-party libraries like the ``ndarray`` from the ``numpy`` library for matrix acceleration computation. 
+
+#### 1.2.3 Hash functions
+
+When there are hash functions, the following rules will be applied. 
+
+- Some hash functions are designed to hash an element, integer, ``bytes``, etc. (of any bit length (``\| x \| = $\{0, 1\}^*$``)) into a bit array whose length is related to the security parameter $\lambda$ like ``$\{0, 1\}^\lambda$`` and ``$\{0, 1\}^{2\lambda}$``. We use some commonly seen hash functions like ``SHA512`` to accomplish the hashing after converting the objects to ``bytes`` (if necessary). 
+- Some hash functions are designed to hash an integer, a ``bytes``, etc. (of any bit length (``\| x \| = $\{0, 1\}^*$``)) into an element of ``ZR`` or ``G1``. We use the ``hash`` from the ``PairingGroup`` to accomplish the hashing after converting the objects to ``bytes`` (if necessary). 
+- The ``int`` object instead of any series datum type storing $\lambda$ ``bool`` value(s) is designed to store the bit array and accomplish the $\oplus$ operation to accelerate the $\oplus$ operation and reduce memory consumption.
+- The bit arrays will be aligned to the right by being filled with 0's (``b"\0"`` or ``0b0``) on the left when they are of different lengths. As ``int`` objects are used for storing bit arrays and performing the $\oplus$ operation for binary strings, this will be done automatically during the ``int ^ int``. 
+- The message input to the ``Enc`` function can be an ``int`` or a ``bytes`` object, where the overflowed values will be cast by performing the ``&`` operation on the message and the operand indicating the maximum value of the limited count of bits.
+- The ``str`` object is not accepted as a possible form of the message input to the ``Enc`` function since encoding and decoding are not what should be considered in these scripts. 
+- The statement ``int.from_bytes(x, byteorder = "big")`` will be used to convert the ``bytes`` object into the ``int`` object if a ``bytes`` object is passed as the message for encryption. 
+- The output of the ``Dec`` function is an ``int`` object. 
+
+The following lines can handle the $\hat{H}$, which hashes an element to a ``bytes`` object with a length of $\lambda$ stored as an integer. 
+
+```
+if 512 == self.__group.secparam:
+	HHat = lambda x:int.from_bytes(sha512(self.__group.serialize(x)).digest(), byteorder = "big")
+elif 384 == self.__group.secparam:
+	HHat = lambda x:int.from_bytes(sha384(self.__group.serialize(x)).digest(), byteorder = "big")
+elif 256 == self.__group.secparam:
+	HHat = lambda x:int.from_bytes(sha256(self.__group.serialize(x)).digest(), byteorder = "big")
+elif 224 == self.__group.secparam:
+	HHat = lambda x:int.from_bytes(sha224(self.__group.serialize(x)).digest(), byteorder = "big")
+elif 160 == self.__group.secparam:
+	HHat = lambda x:int.from_bytes(sha1(self.__group.serialize(x)).digest(), byteorder = "big")
+elif 128 == self.__group.secparam:
+	HHat = lambda x:int.from_bytes(md5(self.__group.serialize(x)).digest(), byteorder = "big")
+else:
+	HHat = lambda x:int.from_bytes(sha512(self.__group.serialize(x)).digest() * (((self.__group.secparam - 1) >> 9) + 1), byteorder = "big") & self.__operand # $\hat{H}: \mathbb{G}_T \to \{0, 1\}^\lambda$
+	print("Setup: An irregular security parameter ($\\lambda = {0}$) is specified. It is recommended to use 128, 160, 224, 256, 384, or 512 as the security parameter. ".format(self.__group.secparam))
+```
+
+#### 1.2.4 Product
+
+Since Python does not have a built-in product function, the product function will be executed as follows. 
+
+```
+def __product(self:object, elements:object) -> Element:
+	try:
+		if isinstance(elements, (tuple, list)):
+			result = elements[0]
+			for element in elements[1:]:
+				result *= element
+		else:
+			it = iter(elements)
+			result = next(it)
+			for element in it:
+				result *= element
+		return result if isinstance(result, Element) else self.__group.init(ZR, result)
+	except Exception:
+		return self.__group.init(ZR, 1)
+```
+
+Without considering the space complexity, index-based access is typically faster than iterator-based iteration. Thus, we have separated ``tuple`` and ``list`` from other iterable objects. 
+
+#### 1.2.5 Coefficient computation
+
+The ``computeCoefficients`` function is used to compute the coefficients of the expanded version of the expression $F(x) = (x - x_1)(x - x_2)\cdots(x - x_n) + k$ in the field of $\mathbb{R}$. 
+In other words, given the multiset $X = \lbrace x_1, x_2, \cdots, x_n\rbrace$ whose size is $n = \|x\|$, 
+we need to design an algorithm in the ``computeCoefficients`` function to compute $\vec{c} \gets \lbrace c_0, c_1, c_2, \cdots, c_n\rbrace$ 
+satisfying $F(x) = (x - x_1)(x - x_2)\cdots(x - x_n) + k = c_0 + \sum\limits_{i = 1}^n c_i x^i, \forall x \in \mathbb{R}$. 
+When the translation factor $k = 0$, $x_1, x_2, \cdots, x_n$ are the $n$ roots of the equation $F(x) = 0$. 
+These roots can be in different orders and can have the same value. In the expanded version of the expression, $c_0$ represents the constant term. 
+Each of the remaining coefficients $c_1, c_2, \cdots, c_n$ has a subscript equal to the degree of the term it corresponds to. 
+Additionally, we have $\|\vec{c}\| = n + 1 = \|X\|$ to help verify the coefficient computation. 
+
+In the numpy library, this can be handled by two application programming interfaces (APIs). 
+One is the ``Polynomial`` API (``from numpy.polynomial import Polynomial``), the newer solution that outputs the coefficients from the constant term to the highest-order term. 
+The other is the ``poly`` API (``from numpy import poly``), the earlier solution that outputs the coefficients from the highest-order term to the constant term. The usage examples are shown as follows. 
+In real-world computation, people tend to write the terms or the coefficients from the highest-degree term to the constant term when writing polynomials. 
+For example, people would like to write $F(x) = x^3 - 10x^2 + 31 -30$ instead of $F(x) = -30 + 31 - 10x^2 + x^3$. 
+However, in cryptographic schemes and computer programming, to achieve higher computation and storage efficiency, 
+scholars and engineers would like to arrange them from the constant term to the highest-degree term when computing coefficients or $F(x)$. 
+For instance, ``sum(c[i] * x ** i for i in range(n + 1))`` with ``c = [-30, 31, -10, 1]`` would be better than ``sum(c[i] * x ** (n - i) for i in range(n + 1))`` with ``c = [1, -10, 31, -30]``. 
+After all, the latter Python statement would require more human thinking and computational consumption. 
+
+```
+>>> from numpy.polynomial import Polynomial
+>>> Polynomial.fromroots([2, 3, 5]).coef
+array([-30.,  31., -10.,   1.])
+>>> from numpy import poly
+>>> poly([2, 3, 5])
+array([  1., -10.,  31., -30.])
+>>> poly([2, 3, 5])[::-1]
+array([-30.,  31., -10.,   1.])
+>>>
+```
+
+Anyway, although the numpy library provides such functions, we still have the following concerns. These force us to implement them manually. 
+
+- As we mentioned above, using third-party libraries can lead to unfair time computations for comparison purposes. 
+- The two APIs are adapted to different Python and numpy versions, which can cause compatibility issues, errors, or warnings. 
+- Rearranging the coefficients from the constant term to the highest degree term for ``poly`` requires an additional step for reversal after computation. 
+- We need to maintain the type of all the coefficients the same as that of the roots passed, while the two APIs output floats for integer roots by default. 
+- Computation errors can occur since the ``0`` and ``1`` in Pairing algebraic operations are not the real ``0`` and ``1``, respectively, in some versions of the Python Charm-Crypto framework library. 
+
+Here, we come to talk about manual computation. By expanding the expression directly as follows, we can resolve the coefficients by the method of undetermined coefficients in the simplest way. 
+
+$$F(x) = (x - x_1)(x - x_2)\cdots(x - x_n) + k = x^n - \left(\sum\limits_{i = 1}^n x_i\right) x^{n - 1} + \left(\sum\limits_{1 \leqslant i < j \leqslant n} x_i x_j \right) x^{n - 2} - \cdots + \left((-1)^n \prod\limits_{i = 1}^n x_i\right) + k = c_0 + \sum\limits_{i = 1}^n c_i x^i$$
+
+That is, we can get $\vec{c} = (c_0, c_1, \cdots, c_n)$ according to the following system of equations. 
+
+$$
+\left\lbrace\begin{align}
+	c_n &= 1, \\
+	c_{n - 1} &= -\sum\limits_{i = 1}^n x_i, \\
+	c_{n - 2} &= \sum\limits_{1 \leqslant i < j \leqslant n} x_i x_j, \\
+	~&\vdots\\
+	c_0 &= \left((-1)^n \prod\limits_{i = 1}^n x_i\right) + k. \\
+\end{align}\right.
+$$
+
+Here come the issues of the computing methodology above. If we directly compute the coefficients as the system of equations shown above, that is, to calculate the first-order sum, second-order sum, $\cdots$, 
+and finally the highest-order sum based on the $\mathrm{C}_n^1, \mathrm{C}_n^2, \cdots, \mathrm{C}_n^n$ combinations of all the roots, 
+it will take plenty of extra computing power to achieve the combinations in addition to the $n$ sum operations, 
+whose overall time complexity is $O(\mathrm{C}_n^1 + \mathrm{C}_n^2 + \cdots + \mathrm{C}_n^n + n) = O(2^n - 1 + n) = O(2^n - 1 + n)$. 
+This can cause large time consumption when the number of roots is large. That is to say, the time complexity increases explosively with the number of roots. 
+The more roots there are, the greater the increase in time complexity will be for each additional root. 
+Anyway, we need to design an efficient algorithm to calculate the polynomial coefficients from the polynomial roots. 
+
+To begin with, we need to look at a simple example with $k = 0$ first. For $n = 3$ and $X = \lbrace 2, 3, 5\rbrace$, we have the following calculation process to iterate to avoid combinatorial multiplication, where performing negation means taking the negation of every other coefficient from the second-highest-degree term to the constant term. 
+
+| Coefficients ($\uparrow$) | $c_0$ | $c_1$ | $c_2$ | $c_3$ | | Coefficients ($\downarrow$) | $c'_0$ | $c'_1$ | $c'_2$ | $c'_3$ |
+| - | - | - | - | - | - | - | - | - | - | - |
+| Initial $\vec{c} \gets (0, 0, 0, 1)$ | $0$ | $0$ | $0$ | $1$ | | Initial $\vec{c}' \gets (1, 0, 0, 0)$ | $1$ | $0$ | $0$ | $0$ |
+| $c_2 \gets c_2 + x_1 c_3$ | $0$ | $0$ | $2$ | $1$ | | $c'_1 \gets c'_1 + x_1 c'_0$ | $1$ | $2$ | $0$ | $0$ |
+| $c_1 \gets c_1 + x_2 c_2$ | $0$ | $6$ | $2$ | $1$ | | $c'_2 \gets c'_2 + x_2 c'_1$ | $1$ | $2$ | $6$ | $0$ |
+| $c_2 \gets c_2 + x_2 c_3$ | $0$ | $6$ | $5$ | $1$ | | $c'_1 \gets c'_1 + x_2 c'_0$ | $1$ | $5$ | $6$ | $0$ |
+| $c_0 \gets c_0 + x_3 c_1$ | $30$ | $6$ | $5$ | $1$ | | $c'_3 \gets c'_3 + x_3 c'_2$ | $1$ | $5$ | $6$ | $30$ |
+| $c_1 \gets c_1 + x_3 c_2$ | $30$ | $31$ | $5$ | $1$ | | $c'_2 \gets c'_2 + x_3 c'_1$ | $1$ | $5$ | $31$ | $30$ |
+| $c_2 \gets c_2 + x_3 c_3$ | $30$ | $31$ | $10$ | $1$ | | $c'_1 \gets c'_1 + x_3 c'_0$ | $1$ | $10$ | $31$ | $30$ |
+| Perform negation ($\leftarrow$) | $-30$ | $31$ | $-10$ | $1$ | | Perform negation ($\rightarrow$) | $1$ | $-10$ | $31$ | $-30$ |
+
+Now, we get $(x - 2)(x - 3)(x - 5) = x^3 -10x^2 + 31x - 30$, which is correct. 
+We can also note that the order in which the roots are processed can be random, as long as each root (not the value of the root) is processed and processed only once. 
+
+More generally, according to the feature of the cyclic polynomial, let $\lbrace x_1, x_2, x_3\rbrace = \lbrace 2, 3, 5\rbrace$ denote the roots. 
+As the equation still holds after adding $k$ to both sides of the equation, adding $k$ directly after performing negation should be correct. 
+No need to consider whether the $k$ should be negated or not. The principle behind this can be shown as follows. 
+
+| Coefficients ($\uparrow$) | $c_0$ | $c_1$ | $c_2$ | $c_3$ | | Coefficients ($\downarrow$) | $c'_0$ | $c'_1$ | $c'_2$ | $c'_3$ |
+| - | - | - | - | - | - | - | - | - | - | - |
+| Initial $\vec{c} \gets (0, 0, 0, 1)$ | $0$ | $0$ | $0$ | $1$ | | Initial $\vec{c}' \gets (1, 0, 0, 0)$ | $1$ | $0$ | $0$ | $0$ |
+| $c_2 \gets c_2 + x_1 c_3$ | $0$ | $0$ | $x1$ | $1$ | | $c'_1 \gets c'_1 + x_1 c'_0$ | $1$ | $x_1$ | $0$ | $0$ |
+| $c_1 \gets c_1 + x_2 c_2$ | $0$ | $x_1 x_2$ | $x_1$ | $1$ | | $c'_2 \gets c'_2 + x_2 c'_1$ | $1$ | $x_1$ | $x_1 x_2$ | $0$ |
+| $c_2 \gets c_2 + x_2 c_3$ | $0$ | $x_1 x_2$ | $x_1 + x_2$ | $1$ | | $c'_1 \gets c'_1 + x_2 c'_0$ | $1$ | $x_1 + x_2$ | $x_1 x_2$ | $0$ |
+| $c_0 \gets c_0 + x_3 c_1$ | $x_1 x_2 x_3$ | $x_1 x_2$ | $x1 + x_2$ | $1$ | | $c'_3 \gets c'_3 + x_3 c'_2$ | $1$ | $x_1 + x_2$ | $x_1 x_2$ | $x_1 x_2 x_3$ |
+| $c_1 \gets c_1 + x_3 c_2$ | $x_1 x_2 x_3$ | $x_1 x_2 + x_3(x_1 + x_2)$ | $x_1 + x_2$ | $1$ | | $c'_2 \gets c'_2 + x_3 c'_1$ | $1$ | $x_1 + x_2$ | $x_1 x_2 + x_3(x_1 + x_2)$ | $x_1 x_2 x_3$ |
+| | $x_1 x_2 x_3$ | $x_1 x_2 + x_1 x_3 + x_2 x_3$ | $x_1 + x_2$ | $1$ | | | $1$ | $x_1 + x_2$ | $x_1 x_2 + x_1 x_3 + x_2 x_3$ | $x_1 x_2 x_3$ |
+| $c_2 \gets c_2 + x_3 c_3$ | $x_1 x_2 x_3$ | $x_1 x_2 + x_1 x_3 + x_2 x_3$ | $x_1 + x_2 + x_3$ | $1$ | | $c'_1 \gets c'_1 + x_3 c'_0$ | $1$ | $x_1 + x_2 + x_3$ | $x_1 x_2 + x_1 x_3 + x_2 x_3$ | $x_1 x_2 x_3$ |
+| Perform negation ($\leftarrow$) | $-x_1 x_2 x_3$ | $x_1 x_2 + x_1 x_3 + x_2 x_3$ | $-(x_1 + x_2 + x_3)$ | $1$ | | Perform negation ($\rightarrow$) | $1$ | $-(x_1 + x_2 + x_3)$ | $x_1 x_2 + x_1 x_3 + x_2 x_3$ | $-x_1 x_2 x_3$ |
+
+The coefficients here satisfy the coefficients expressed using the cyclic polynomial at the beginning of this subsubsection. 
+The key point is that the result of multiplying the new root by the low-order sum happens to make up for the lack of the cyclic polynomial of the new root in the high-order sum, 
+without duplication or omission. Thus, we have the following method. The method takes the roots $X$ and the translation factor $k$ as input and outputs the coefficients $\vec{c}$. 
+
+```
+# This function outputs the coefficients from the constant term to the highest-order term (from $c_0$ to $c_n$). 
+def __computeCoefficients(self:object, roots:tuple|list|set, k:None|Element = None) -> tuple:
+	if isinstance(roots, (tuple, list, set)) and all(isinstance(root, Element) and root.type == ZR or isinstance(root, int) for root in roots):
+		n = len(roots)
+		coefficients = [self.__group.init(ZR, 0)] * n + [self.__group.init(ZR, 1)]
+		for r in roots:
+			for i in range(n):
+				coefficients[i] += r * coefficients[i + 1]
+		coefficients = [(-1) ** (n - i) * coefficients[i] for i in range(n + 1)]
+		if isinstance(k, Element) and k.type == ZR or isinstance(k, int):
+			coefficients[0] += k
+		return tuple(coefficients)
+	else:
+		return (self.__group.init(ZR, 1), )
+
+# This function outputs the coefficients from the highest-order term to the constant term (from $c_n$ to $c_0$). 
+def __computeCoefficients(self:object, roots:tuple|list|set, k:None|Element = None) -> tuple:
+	if isinstance(roots, (tuple, list, set)) and all(isinstance(root, Element) and root.type == ZR or isinstance(root, int) for root in roots):
+		n = len(roots)
+		coefficients = [self.__group.init(ZR, 1)] + [self.__group.init(ZR, 0)] * n
+		for r in roots:
+			for i in range(n, 0, -1):
+				coefficients[i] += r * coefficients[i - 1]
+		coefficients = [(-1) ** i * coefficients[i] for i in range(n + 1)]
+		if isinstance(k, Element) and k.type == ZR or isinstance(k, int):
+			coefficients[-1] += k
+		return tuple(coefficients)
+	else:
+		return (self.__group.init(ZR, 1), )
+```
+
+The time complexity of this algorithm is $O(n^2)$. As the inner loop starts from ``coefficients[cnt]`` where ``cnt`` is the current count of the roots that are processed and being processed, 
+we can use the ``cnt`` to optimize the method to $O\left(\cfrac{n(n + 1)}{2}\right)$. An improved method is shown as follows, with bitwise operations used for optimization. 
+
+```
+# This function outputs the coefficients from the constant term to the highest-order term (from $c_0$ to $c_n$). 
+def __computeCoefficients(self:object, roots:tuple|list|set, k:None|Element = None) -> tuple:
+	if isinstance(roots, (tuple, list, set)) and all(isinstance(root, Element) and root.type == ZR or isinstance(root, int) for root in roots):
+		n = len(roots)
+		cnt = n - 1
+		coefficients = [self.__group.init(ZR, 0)] * n + [self.__group.init(ZR, 1)]
+		for r in roots:
+			for i in range(cnt, n):
+				coefficients[i] += r * coefficients[i + 1]
+			cnt -= 1
+		coefficients = [-coefficients[i] if (n - i) & 1 else coefficients[i] for i in range(n + 1)]
+		if isinstance(k, Element) and k.type == ZR or isinstance(k, int):
+			coefficients[0] += k
+		return tuple(coefficients)
+	else:
+		return (k, )
+
+# This function outputs the coefficients from the highest-order term to the constant term (from $c_n$ to $c_0$). 
+def __computeCoefficients(self:object, roots:tuple|list|set, k:None|Element = None) -> tuple:
+	if isinstance(roots, (tuple, list, set)) and all(isinstance(root, Element) and root.type == ZR or isinstance(root, int) for root in roots):
+		n = len(roots)
+		cnt = 1
+		coefficients = [self.__group.init(ZR, 1)] + [self.__group.init(ZR, 0)] * n
+		for r in roots:
+			for i in range(cnt, 0, -1):
+				coefficients[i] += r * coefficients[i - 1]
+			cnt += 1
+		coefficients = [-coefficients[i] if i & 1 else coefficients[i] for i in range(n + 1)]
+		if isinstance(k, Element) and k.type == ZR or isinstance(k, int):
+			coefficients[-1] += k
+		return tuple(coefficients)
+	else:
+		return (k, )
+```
+
+After multiple experiments, we found the following issues in some versions of the Python Charm-Crypto framework library, some of which led to computation errors in coefficient computation and polynomial computation. Especially, the polynomial computation result of one of the roots based on the corresponding coefficients figured out is always non-zero. 
+
+- When ZR elements are used to express the coefficients, the following issues occur. These issues are fixed in [https://github.com/JHUISI/charm/pull/328](https://github.com/JHUISI/charm/pull/328). 
+  - ``self.__group.init(ZR, 1)`` multiplied by the ZR element from the same ``PairingGroup`` object does not equal to the ZR element itself. 
+  - Although some implementations ask users to specify ``0`` and ``1`` in the ZR field, the polynomial computation result of one of the roots, based on the corresponding coefficients figured out, is still always non-zero. 
+- When G1 elements are used to express the coefficients, the following issues occur. 
+  - ``self.__group.init(G1, 1)`` shows ``O``, and it is multiplied by any ZR element, integer, or ``float`` object is always ``O``. 
+  - While ``self.__group.init(G1, 1)`` (``O``) plus any G1 element is the G1 element itself, ``O`` multiplied by any G1 element itself is also the G1 element, which is strange. 
+- Exponentiation does not appear to be a repetition of multiplication. These issues are fixed in [https://github.com/JHUISI/charm/pull/328](https://github.com/JHUISI/charm/pull/328). 
+  - Neither ``x ** 2`` nor ``x ** self.__group.init(ZR, 2)`` is the same as ``x * x`` for any ``x`` belonging to the ``Element`` type. 
+  - While ``2 == self.__group.init(ZR, 2)`` returns ``False``, ``x ** 2`` returns the same as ``x ** self.__group.init(ZR, 2)`` where ``x`` is a G1 element, which is strange. 
+- The type of roots passed to the method is limited, which is not flexible enough. 
+- The last inner loop of each outer loop performs a multiplication by 1, which is unnecessary. 
+- $\cdots$
+
+Meanwhile, it is found that while ``self.__group.init(ZR, 1)`` is not the real ``1`` in the ZR or G1 field, 
+the addition, subtraction, multiplication, and division operations can still work correctly in the group since the group is closed. 
+That is, the elements in the group will be modulo the order of the group after the operation is completed. 
+However, problems exist in exponential operations. Therefore, we have to avoid using the ``1``, ``0``, or exponential operation in any coefficient computation in ``PairingGroup`` environments. 
+The final method is shown as follows. 
+
+```
+# This function outputs the coefficients from the constant term to the highest-order term (from $c_0$ to $c_n$), which is used in the official implementations. 
+def __computeCoefficients(self:object, roots:tuple|list, k:Element|int|float|None = None) -> tuple:
+	flag = False
+	if isinstance(roots, (tuple, list)) and roots:
+		n = len(roots)
+		if isinstance(roots[0], Element) and all(isinstance(root, Element) and root.type == roots[0].type for root in roots):
+			flag, coefficients = True, [None] * (n - 1) + [roots[0], self.__group.init(roots[0].type, 1)]
+			offset = k if isinstance(k, Element) and k.type == roots[0].type else None
+		elif isinstance(roots[0], (int, float)) and all(isinstance(root, (int, float)) for root in roots):
+			flag, coefficients = True, [None] * (n - 1) + [roots[0], 1]
+			offset = k if isinstance(k, (int, float)) else None
+	if flag:
+		cnt = n - 2
+		for r in roots[1:]:
+			coefficients[cnt] = r * coefficients[cnt + 1]
+			for i in range(cnt + 1, n - 1):
+				coefficients[i] += r * coefficients[i + 1]
+			coefficients[n - 1] += r
+			cnt -= 1
+		for i in range(n - 1, -1, -2):
+			coefficients[i] = -coefficients[i]
+		if offset is not None:
+			coefficients[0] += offset
+		return tuple(coefficients)
+	else:
+		return (k, )
+
+# This function outputs the coefficients from the highest-order term to the constant term (from $c_n$ to $c_0$). 
+def __computeCoefficients(self:object, roots:tuple|list, k:Element|int|float|None = None) -> tuple:
+	flag = False
+	if isinstance(roots, (tuple, list)) and roots:
+		n = len(roots)
+		if isinstance(roots[0], Element) and all(isinstance(root, Element) and root.type == roots[0].type for root in roots):
+			flag, coefficients = True, [self.__group.init(roots[0].type, 1), roots[0]] + [None] * (n - 1)
+			offset = k if isinstance(k, Element) and k.type == roots[0].type else None
+		elif isinstance(roots[0], (int, float)) and all(isinstance(root, (int, float)) for root in roots):
+			flag, coefficients = True, [1, roots[0]] + [None] * (n - 1)
+			offset = k if isinstance(k, (int, float)) else None
+	if flag:
+		cnt = 2
+		for r in roots[1:]:
+			coefficients[cnt] = r * coefficients[cnt - 1]
+			for i in range(cnt - 1, 1, -1):
+				coefficients[i] += r * coefficients[i - 1]
+			coefficients[1] += r
+			cnt += 1
+		for i in range(1, n + 1, 2):
+			coefficients[i] = -coefficients[i]
+		if offset is not None:
+			coefficients[-1] += offset
+		return tuple(coefficients)
+	else:
+		return (k, )
+```
+
+The corresponding procedures of the final method are shown as follows. In this problem, the coefficient of the highest-order term is always $1$, which should be omitted to save space complexity. Nonetheless, in practice, it is retained to meet the academic program specifications and space measurement requirements. By the way, this ``1`` is assigned to the corresponding ``1`` according to the type of the roots, and it never involves any computation throughout the script. 
+
+| Coefficients ($\uparrow$) | $c_0$ | $c_1$ | $c_2$ | $c_3$ | | Coefficients ($\downarrow$) | $c_0$ | $c_1$ | $c_2$ | $c_3$ |
+| - | - | - | - | - | - | - | - | - | - | - |
+| Initial $\vec{c} \gets (\mathbb{1}, \perp, \perp, \perp)$ | $1$ | $\perp$ | $\perp$ | $\perp$ | | Initial $\vec{c} \gets (\perp, \perp, \perp, \mathbb{1})$ | $\perp$ | $\perp$ | $\perp$ | $\mathbb{1}$ |
+| $c_1 \gets x_1$ | $\mathbb{1}$ | $x_1$ | $\perp$ | $\perp$ | | $c_2 \gets x_1 c_3$ | $\perp$ | $\perp$ | $x1$ | $\mathbb{1}$ |
+| $c_2 \gets x_2 c_1$ | $\mathbb{1}$ | $x_1$ | $x_1 x_2$ | $\perp$ | | $c_1 \gets x_2 c_2$ | $\perp$ | $x_1 x_2$ | $x_1$ | $\mathbb{1}$ |
+| $c_1 \gets c_1 + x_2$ | $\mathbb{1}$ | $x_1 + x_2$ | $x_1 x_2$ | $\perp$ | | $c_2 \gets c_2 + x_2 c_3$ | $\perp$ | $x_1 x_2$ | $x_1 + x_2$ | $\mathbb{1}$ |
+| $c_3 \gets x_3 c_2$ | $\mathbb{1}$ | $x_1 + x_2$ | $x_1 x_2$ | $x_1 x_2 x_3$ | | $c_0 \gets x_3 c_1$ | $x_1 x_2 x_3$ | $x_1 x_2$ | $x1 + x_2$ | $\mathbb{1}$ |
+| $c_2 \gets c_2 + x_3 c_1$ | $\mathbb{1}$ | $x_1 + x_2$ | $x_1 x_2 + x_3(x_1 + x_2)$ | $x_1 x_2 x_3$ | | $c_1 \gets c_1 + x_3 c_2$ | $x_1 x_2 x_3$ | $x_1 x_2 + x_3(x_1 + x_2)$ | $x_1 + x_2$ | $\mathbb{1}$ |
+| | $\mathbb{1}$ | $x_1 + x_2$ | $x_1 x_2 + x_1 x_3 + x_2 x_3$ | $x_1 x_2 x_3$ | | | $x_1 x_2 x_3$ | $x_1 x_2 + x_1 x_3 + x_2 x_3$ | $x_1 + x_2$ | $1$ |
+| $c_1 \gets c_1 + x_3$ | $\mathbb{1}$ | $x_1 + x_2 + x_3$ | $x_1 x_2 + x_1 x_3 + x_2 x_3$ | $x_1 x_2 x_3$ | | $c_2 \gets c_2 + x_3 c_3$ | $x_1 x_2 x_3$ | $x_1 x_2 + x_1 x_3 + x_2 x_3$ | $x_1 + x_2 + x_3$ | $\mathbb{1}$ |
+| Perform negation ($\rightarrow$) | $\mathbb{1}$ | $-(x_1 + x_2 + x_3)$ | $x_1 x_2 + x_1 x_3 + x_2 x_3$ | $-x_1 x_2 x_3$ | | Perform negation ($\leftarrow$) | $-x_1 x_2 x_3$ | $x_1 x_2 + x_1 x_3 + x_2 x_3$ | $-(x_1 + x_2 + x_3)$ | $\mathbb{1}$ |
+
+#### 1.2.6 Polynomial computation
+
+The polynomial computation here refers to the computation of $F(x)$ mentioned in the previous subsubsection based on the corresponding coefficients figured out. At first, the computation is accomplished by ``sum(coefficients[i] * x ** i for i in range(n + 1))``. The built-in function ``sum`` will initialize the integer ``0`` instead of assigning the first value to the initialization symbol, which can cause potential computational errors. 
+As elements should be regarded as numeric types that should not be rejected by ``sum``, this can be solved by specifying the ``start`` value. However, as polynomial computation involves exponential operations, ``x ** 2`` and ``x ** self.__group.init(ZR, 2)`` can be inconsistent with ``x * x`` for any ``x`` belonging to the ``Element`` type in some versions of the Python Charm-Crypto framework library. Therefore, the following method is designed. 
+
+```
+def __computePolynomial(self:object, x:Element, coefficients:tuple|list) -> Element:
+	if isinstance(x, Element) and x.type == ZR and isinstance(x, int) and isinstance(coefficients, (tuple, list)) and all(isinstance(coefficient, Element) and coefficient.type == ZR and isinstance(coefficient, int) for coefficient in coefficients):
+		eleResult = coefficients[0]
+		for i in range(1, len(coefficients)):
+			eResult = self.__group.init(ZR, 1)
+			for _ in range(i):
+				eResult *= x
+			eleResult += coefficients[i] * eResult
+		return eleResult
+	else:
+		return self.__group.init(ZR, 0)
+```
+
+However, due to similar issues, this method is revised as follows. The $n$ here corresponds to that in the coefficient computation. Similarly, the coefficient of the highest-order term, $1$, never involves any computation throughout the script. 
+
+```
+def __computePolynomial(self:object, x:Element|int|float, coefficients:tuple|list) -> Element|int|float|None:
+	if isinstance(coefficients, (tuple, list)) and coefficients and (															\
+		isinstance(x, Element) and all(isinstance(coefficient, Element) and coefficient.type == x.type for coefficient in coefficients)	\
+		or isinstance(x, (int, float)) and all(isinstance(coefficient, (int, float)) for coefficient in coefficients)						\
+	):
+		n, eleResult = len(coefficients) - 1, coefficients[0]
+		for i in range(1, n):
+			eResult = x
+			for _ in range(i - 1):
+				eResult *= x
+			eleResult += coefficients[i] * eResult
+		eResult = x
+		for _ in range(n - 1):
+			eResult *= x
+		eleResult += eResult
+		return eleResult
+	else:
+		return None
+```
+
+#### 1.2.7 Lagrange coefficient computation
+
+On some occasions, we are required to compute the Lagrange coefficients. 
+
+```
+def __computeLagrangeCoefficients(self:object, xPoints:tuple|list, yPoints:tuple|list, x:Element) -> Element:
+	if isinstance(xPoints, (tuple, list)) and isinstance(yPoints, (tuple, list)) and len(xPoints) == len(yPoints) and all(isinstance(ele, Element) and ele.type == ZR for ele in xPoints) and all(isinstance(ele, Element) and ele.type == ZR for ele in yPoints) and isinstance(x, Element) and x.type == ZR:
+		n, result = len(xPoints), self.__group.init(ZR, 1)
+		for i in range(n):
+			L_i = self.__group.init(ZR, 1)
+			for j in range(n):
+				if i != j:
+					L_i *= (x - xPoints[j]) / (xPoints[i] - xPoints[j])
+			result += yPoints[i] * L_i
+		return result
+	else:
+		return self.__init(ZR, 0)
+```
+
+#### 1.2.8 Concatenation for multiple objects
+
+On some occasions, we need to concatenate multiple objects, acting as byte concatenation. Please kindly refer to the following lines. 
+
+```
+def __concat(self:object, *vector:tuple|list) -> bytes:
+	abcBytes = b""
+	if isinstance(vector, (tuple, list)):
+		for item in vector:
+			if isinstance(item, (tuple, list)):
+				abcBytes += self.__concat(*item)
+			elif isinstance(item, Element):
+				abcBytes += self.__group.serialize(item)
+			elif isinstance(item, bytes):
+				abcBytes += item
+			else:
+				try:
+					abcBytes += bytes(item)
+				except:
+					pass
+	return abcBytes
+```
+
+### 1.3 Measurements
+
+The core measurements of a cryptographic scheme are correctness and security. All the implementations here have considered correctness, which can also be reflected in the exit code. 
+For example, the decryption function must restore the original message from the ciphertext encrypted by the corresponding encryption function. 
+Different Python scripts usually have different correctness checking mechanisms, and [SchemeCANIFPPCT/SchemeCANIFPPCT.py](./SchemeCANIFPPCT/SchemeCANIFPPCT.py) has a special control regarding the exit code. 
+The security (e.g., defense against certain kinds of attacks) of a cryptographic scheme needs to be analyzed theoretically. 
+Apart from these two core measurements, the time and space complexities are the two key measurements. 
+
+#### 1.3.1 Time complexity
+
+To compute the time consumption (time complexity) of a code set, please refer to the following lines. 
+Remember to perform a division if a procedure contains computation for multiple objects, while only the computation procedure of one of those objects should be counted. 
+
+```
+from time import perf_counter
+
+startTime = perf_counter()
+# Code to be tested
+endTime = perf_counter()
+timeDelta = endTime - startTime # second(s)
+```
+
+Here, we would like to emphasize the reason for not using ``time()`` or ``time_ns()`` in ``time``. 
+These functions return the system's real-time (wall-clock) value, which can be adjusted backwards or forwards (e.g., by NTP synchronization or manual user changes). 
+Such adjustments can cause incorrect or even negative elapsed time measurements. 
+For reliable performance measurement, a monotonic clock like ``perf_counter()`` (or ``perf_counter_ns()``) in ``time`` should be used instead. 
+
+Generally speaking, in a unified computing environment, bitwise operations with the same number of operations will be faster than general addition, subtraction, multiplication, and division. 
+In some cases, equivalent bit operations may require additional processing to achieve a certain function. 
+This may result in the overall operation being inferior to the solution without bit operations. Therefore, a time comparison is required. 
+
+During development, time consumption comparison for different implementations of the same solution is a frequent requirement. 
+The following Python script can be used to compare different implementations of the same solution in time consumption. Select the optimal one in practice after comparing via this script. 
+
+```
+from sys import exit
+from math import ceil
+from time import perf_counter
+EXIT_SUCCESS = 0
+EXIT_FAILURE = 1
+
+
+class Algorithms:
+	@staticmethod
+	def func1(n):
+		for i in range(n):
+			ceil(i / 8)
+	@staticmethod
+	def func2(n):
+		for i in range(n):
+			(i + 7) >> 3
+
+
+def main():
+	n = 100000000
+	d = {algorithm:float("inf") for algorithm in dir(Algorithms) if "__" not in algorithm}
+	for func in list(d.keys()):
+		startTime = perf_counter()
+		exec("Algorithms.{0}({1})".format(func, n))
+		endTime = perf_counter()
+		timeDelta = endTime - startTime
+		d[func] = timeDelta
+		print("Finished executing {0} in {1:.9f} second(s). ".format(func, timeDelta))
+	print("The optimal algorithm is {0}. ".format(sorted(d.items(), key = lambda x:x[1])[0][0]))
+	print("Please press the enter key to exit. ")
+	try:
+		input()
+	except:
+		print()
+	return EXIT_SUCCESS
+
+
+
+if "__main__" == __name__:
+	exit(main())
+```
+
+#### 1.3.2 Space complexity
+
+To compute the memory consumption (space complexity) of a variable for academic purposes (actually, the byte length of the serialized element), please refer to the following lines. 
+Since some cryptographic schemes write all curve system parameters, such as $\mathbb{G}_1$ and $p$, into $\textit{mpk}$, some write only some of them, and some do not write them at all, 
+here, in actual implementation, these parameters will not be put into $\textit{mpk}$ and therefore will not be counted in the following lines. 
+The code ``(group.secparam + 7) >> 3`` is a consideration of $\lambda$ values that do not meet $8 | \lambda$. 
+After filling several bytes, any remaining one or more bits will occupy an additional byte, even if they do not form a complete byte. 
+Specifically, some hash functions and concatenated ``bytes`` objects may return an integer whose actual byte length is longer than $\lambda$. 
+This case is seldom, but actually exists. When designing the measurement function in the scripts containing such a situation, the space complexity of the special variables needs to be assigned manually. 
+Additionally, as some special callable elements exist in ``SchemeIBPRME/SchemeIBPME.py``, this function has been designed separately in this Python script. 
+
+```
+def getLengthOf(self:object, obj:Element|int|bytes|tuple|list|set|dict) -> int|str:
+	if isinstance(obj, Element):
+		return len(self.__group.serialize(obj))
+	elif isinstance(obj, int) or callable(obj):
+		return (self.__group.secparam + 7) >> 3
+	elif isinstance(obj, bytes):
+		return len(obj)
+	elif isinstance(obj, (tuple, list, set)):
+		sizes = tuple(self.getLengthOf(o) for o in obj)
+		return sum(sizes) if all(isinstance(size, int) and size >= 1 for size in sizes) else "N/A"
+	elif isinstance(obj, dict):
+		sizes = tuple(self.getLengthOf(value) for value in obj.values())
+		return sum(sizes) if all(isinstance(size, int) and size >= 1 for size in sizes) else "N/A"
+	else:
+		return "N/A"
+```
+
+To compute the memory consumption (space complexity) of a variable for engineering purposes, please refer to the following lines. 
+These codes are not used in the official implementations of the cryptographic schemes here. Please adjust the codes in your own repositories if you wish to compute this measurement. 
+
+```
+from sys import getsizeof
+
+s = getsizeof(group.random(ZR)) # Byte(s)
+```
+
+To compute the overall runtime memory consumption (space complexity) of the Python program, please refer to the following lines. 
+These codes are not used in the official implementations of the cryptographic schemes here. Please adjust the codes in your own repositories if you wish to compute this measurement. 
+
+```
+import os
+try:
+	from psutil import Process
+except:
+	print("Cannot compute the memory via ``psutil.Process``. ")
+	print("Please try to install the ``psutil`` library via ``python -m pip install psutil`` or ``apt-get install python3-psutil``. ")
+	print("Please press the enter key to exit. ")
+	input()
+	exit(-1)
+
+process = Process(os.getpid())
+memory = process.memory_info().rss # Byte(s)
+```
+
+### 1.4 ``buildSchemeLaTeXPDFs.py``
+
+This is a Python script for building (generating LaTeX source files and compiling them to PDFs) LaTeX PDFs of schemes from the Python scripts. 
+If it succeeds, there will be a directory starting with the script file name and ending with "LaTeX", where the corresponding LaTeX source file and PDF file will be. 
+Please make sure that ``pdflatex`` is available and on the path. Normally, directly installing ``texlive-latex-base`` via the system's package manager is enough. 
+For developers, this script will check the style of the Python scripts. Please refer to the console outputs. 
+
+### 1.5 Git issues
+
+To clone the project, please try the following commands. 
+
+```shell
+cd ~
+git clone https://github.com/yueryang/Cryptographic-Schemes
+```
+
+It is also acceptable to fork this repository before cloning. 
+
+To synchronize this repository to the local machine after cloning, please try the following commands. 
+
+```shell
+cd ~/Cryptographic-Schemes
+git pull
+```
+
+To contribute to this repository, one should try the following commands after forking this repository to one's own GitHub account, 
+where ``${account}`` stands for the user's GitHub account and ``${repository}`` stands for the name of the forked repository (the default name is ``Cryptographic-Schemes``). 
+
+```shell
+cd ~
+git clone "https://github.com/${account}/${repository}"
+cd "${repository}"
+git pull
+```
+
+After modifying, please use the following commands for pushing to the forked repository, 
+where ``${repository}`` stands for the name of the forked repository (the default name is ``Cryptographic-Schemes``) and ``${message}`` stands for the commit message. 
+
+```shell
+cd "~/${repository}"
+git add .
+git commit -m "${message}"
+git push
+```
+
+Eventually, by operating in the forked repository, submit a Pull Request (PR) to the original repository. 
+If it is necessary to log in while pushing, please try the ``gh auth login`` command (recommended) or generate a token from your GitHub account. 
+
+## 2. Java
+
+The Java programming language was once used to implement the cryptographic schemes here in earlier days (~2019). 
+Each of them was implemented in a separate repository, resulting in many non-systematic repositories. 
+Although we have tried our best to update and link the repositories with each other, we still think that the best way is to merge them into a collection here together. 
+
+Subsequently, as the JDK has gradually evolved, the Java official has twice removed the APIs to compute the space complexity, forcing us to rewrite the code three times. 
+Furthermore, we were told to use the object length as the space complexity, and the websites storing the original JPBC libraries seemed down. 
+Therefore, before the related statements here are removed, please try to use Python instead of Java implementations for any purposes, including experiments and production. 
+
+As the JPBC library can be called without installation, we have gathered the necessary JPBC library files under the ``lib`` directory. 
+Please directly use the commmand ``java -cp lib/jpbc-api-2.0.0.jar:lib/jpbc-plaf-2.0.0.jar Scheme*/Scheme*.java`` to run the ``Scheme*/Scheme*.java`` file, 
+where the ``*`` here can refer to different strings excluding the path separators. 
+
+## 3. Acknowledgment
+
+We extend our sincere gratitude to the developers for their diligent efforts. Without their assistance, this repository would not exist. 
+
+- [Ubuntu 24.04.4 LTS (WSL)](https://learn.microsoft.com/windows/wsl/install)
+- [Python 3.15.x](https://www.python.org/ftp/python/)
+- [GMP-6.3.0](https://gmplib.org/)
+- [PBC-0.5.14](https://crypto.stanford.edu/pbc/download.html)
+- [OpenSSL library 3.0.13](https://www.openssl.org/) (``sudo apt-get install libssl-dev``)
+- [Official Python Charm-Crypto framework](https://github.com/JHUISI/charm)
+- [Python Charm-Crypto framework adapted to Python 3.12.x](https://github.com/EliusSolis/charm) ([merged to the official one on January 23rd, 2025](https://github.com/JHUISI/charm/pull/310))
+
+Thanks to [Department of Computer Science](https://www.cs.hku.hk/), [School of Computing and Data Science](https://www.cds.hku.hk/), [The University of Hong Kong](https://www.hku.hk/). 

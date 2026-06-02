@@ -883,11 +883,14 @@ class SchemeIBPME:
 	def getLengthOf(self:object, obj:Element|tuple|list|set|bytes|int) -> int:
 		if isinstance(obj, Element):
 			return len(self.__group.serialize(obj))
-		elif isinstance(obj, (tuple, list, set)):
-			sizes = tuple(self.getLengthOf(o) for o in obj)
-			return -1 if -1 in sizes else sum(sizes)
 		elif isinstance(obj, bytes):
 			return len(obj)
+		elif isinstance(obj, (tuple, list, set)):
+			sizes = tuple(self.getLengthOf(o) for o in obj)
+			return sum(sizes) if all(isinstance(size, int) and size >= 1 for size in sizes) else "N/A"
+		elif isinstance(obj, dict):
+			sizes = tuple(self.getLengthOf(value) for value in obj.values())
+			return sum(sizes) if all(isinstance(size, int) and size >= 1 for size in sizes) else "N/A"
 		elif isinstance(obj, int):
 			return ceil(ceil(log(obj + 1, 256)) / (self.__group.secparam >> 3)) * (self.__group.secparam >> 3)
 		elif callable(obj):
@@ -898,7 +901,7 @@ class SchemeIBPME:
 			else:
 				return self.__group.secparam >> 3
 		else:
-			return -1
+			return "N/A"
 
 
 def conductScheme(curveParameter:tuple|list|dict|str, run:int|None = None, isVerbose:bool = True) -> list:
@@ -1046,7 +1049,7 @@ def main() -> int:
 			print()
 			
 			# Parameters #
-			curveParameters = ("MNT201", "MNT224", "BN254", ("SS1024", 512), ("SS1024", 1024))
+			curveParameters = ("MNT201", "MNT224", "BN254", ("SS512", 512), ("SS1024", 512))
 			queries = ("curveParameter", "secparam", "runCount")
 			validators = ("isSystemValid", "isProxyDecPassed", "isDec1Passed", "isDec2Passed")
 			metrics = (																									\
