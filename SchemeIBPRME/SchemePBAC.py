@@ -1050,7 +1050,7 @@ def main() -> int:
 			print()
 			
 			# Parameters #
-			curveParameters = (("SS512", 128), ("SS512", 256), ("SS512", 384), ("SS512", 512), ("SS1024", 512))
+			curveParameters = (("SS512", 128), ("SS512", 256), ("SS512", 512), ("SS1024", 512))
 			queries = ("curveParameter", "secparam", "runCount")
 			validators = ("isSystemValid", "isProxyEncPassed", "isDec1Passed", "isDec2Passed")
 			metrics = (																											\

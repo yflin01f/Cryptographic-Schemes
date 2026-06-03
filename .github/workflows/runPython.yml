@@ -302,7 +302,7 @@ jobs:
           sudo make install
           sudo ldconfig
       
-      - name: Build and install the Python charm library
+      - name: Build and install the Python Charm-Crypto framework
         run: |
           cd "${{ github.workspace }}"
           git clone https://github.com/JHUISI/charm

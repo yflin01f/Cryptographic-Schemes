@@ -59,6 +59,11 @@ Eventually, measurements and git issues will be discussed.
 
 ### 1.1 Implementation details
 
+This subsection will first introduce the system and Python environments. Subsequently, statements about the command-line arguments (input), the savers (output), and the exit codes (output) will be provided. 
+Eventually, other relevant implementation issues are presented. 
+
+#### 1.1.1 System and Python environments
+
 To start with, the Python environments must be resolved. As installing Python directly via the system's package manager 
 (e.g., ``sudo apt install python3``, ``sudo apt-get install python3``, ``sudo yum install python3``, ``sudo dnf install python3``, and ``pkg install python3``) 
 will cause the management of Python libraries from the Python pip to be taken over by the system's package manager, we strongly recommend manually installing the latest Python. 
@@ -66,7 +71,6 @@ Taking the installation of the latest Python on the latest Ubuntu as an example,
 where ``apt-get update`` can be executed as ``apt-get update && apt-get upgrade -y`` if on a fresh operating system. 
 If it is suspected that the system already includes a system-wide Python and it is highly desirable to remove it entirely, 
 please be aware of the risks and execute ``apt purge --auto-remove python3`` before proceeding with the following shell commands. 
-
 
 ```shell
 apt-get update
@@ -88,27 +92,76 @@ cat > ~/.config/pip/pip.conf << "EOF"
 root-user-action = ignore
 EOF
 python -m pip install --upgrade pip
-python -m pip install wheel
+python -m pip install setuptools, wheel
 ```
 
 Subsequently, please follow [the official tutorial](https://github.com/JHUISI/charm) or the [``runPython`` workflow](./.github/workflows/runPython.yml) to deploy the Python Charm-Crypto framework. 
 A possible Python Charm-Crypto framework environment configuration tutorial for WSL on Windows in Chinese can be viewed at [tutorials_zh-CN](./tutorials_zh-CN.md) if necessary. 
-If you are a Chinese beginner of the Python Charm-Crypto framework, the subsequent content in this file may be helpful. 
+For Chinese beginners of the Python Charm-Crypto framework, the subsequent content in this tutorial file may be helpful. 
 
 To test the Python Charm-Crypto framework environment initially, please try to execute ``from charm.toolbox.pairinggroup import PairingGroup, G1, G2, GT, ZR, pair, pc_element as Element`` in Python, 
 which is also essentially how all of the Python scripts based on the Python Charm-Crypto framework in this repository import the Python Charm-Crypto framework. 
 
-Here are the statements related to inputs and outputs, where the default round count is ``10`` and the default output file path corresponds to the Python file path. 
+We have tried our best to reduce dependencies on third-party libraries. 
+However, to guarantee secure outputs (e.g., escaped characters) in savers, [several third-party libraries](./requirements.txt) are still required to be satisfied. 
+In the root directory of this repository, there is a file entitled ``requirements.txt``. 
+For easy deployment, users can run ``python -m pip install -r requirements.txt`` after navigating (``cd`` or ``cd /d``) into the root directory of this repository. 
+If the Python libraries are managed externally (e.g., being taken over by the system's package manager), please handle the environments manually, 
+or reinstall the Python environments manually according to the above tutorials. 
+
+Additionally, if installing ``libcst`` fails due to a higher version of Python, please try the following commands to install it separately. 
+Or, skip installing ``libcst`` if ``buildSchemeLaTeXPDFs.py`` will not be used. Please refer to the subsequent subsections for the details of this Python script. 
+
+```
+export PYO3_USE_ABI3_FORWARD_COMPATIBILITY=1
+python -m pip install libcst
+```
+
+#### 1.1.2 Command-line arguments
+
+Here are the statements related to the command-line arguments, where the default round count is ``10``, 
+the default output file type is ``.xlsx``, and the default output file path corresponds to the Python file path. 
+For more information about the output file type, please view the remaining subsubsections in this subsection. 
+Except for the curve parameters and scheme parameter loops, users can control the behaviors via the command-line arguments (e.g., the decimal place and the run count). 
+The parsers are designed to recognize the command-line arguments as robustly as possible. For example, literals like "000x0052.eF_3344" can still be recognized. 
+If both the prefix base descriptor and the suffix base descriptor are specified at the same time, the former one will take effect. 
+Most of the Python scripts here include a similar parser class with a difference in describing the scheme name. 
+For more details regarding the command-line arguments, please pass the argument ``-h`` to the Python scripts to view. 
 The [``runPython`` workflow](./.github/workflows/runPython.yml) workflow will execute the schemes that are pre-selected as default in manual trigger mode when a pull request or a push occurs. 
 
-- If a scheme is applicable to symmetric and asymmetric groups of prime orders, curve types and security parameters in tuple ``("MNT201", "MNT224", "BN254", ("SS512", 512), ("SS1024", 512))`` will be tested. 
-- If a scheme is only applicable to symmetric groups of prime orders, curve types and security parameters in tuple ``(("SS512", 128), ("SS512", 256), ("SS512", 384), ("SS512", 512), ("SS1024", 512))`` will be tested. 
+Here are the details that cannot be controlled by the command-line arguments. 
+
+- If a scheme is applicable to symmetric and asymmetric groups of prime orders, curve types, and security parameters in the tuple ``("MNT201", "MNT224", "BN254", ("SS512", 512), ("SS1024", 512))`` will be tested. 
+- If a scheme is only applicable to symmetric groups of prime orders, curve types and security parameters in the tuple ``(("SS512", 128), ("SS512", 256), ("SS512", 512), ("SS1024", 512))`` will be tested. 
 - The output files in the three-line table or plain text form should contain the input parameters, correctness-related counts, procedure time consumption, program memory consumption, storing sizes of elements from different fields, and storing sizes of important variables. 
-- Users should only modify the ``# Begin #`` part in the ``main`` function if they just want to test different parameters. 
+- Users should only modify the ``# Parameters #`` part in the ``main`` function if they just want to test different parameters. 
 
 We have already noticed that MNT159, SS512, and SS1024 have been warned due to their inadequate security. While MNT159 has been removed from all our Python scripts, 
 we can hardly remove SS512 and SS1024 since, after all, there are no other curves supporting the $e(g_l, g_r), g_l, g_r \in \mathbb{G}_1$ operation in the Python Charm-Crypto framework. 
 Therefore, we have to keep using SS512 and SS1024 currently. 
+
+#### 1.1.3 Savers
+
+Most of the Python scripts here share the same saver class. Non-TXT output file types currently supported are as follows. 
+While the savers will retrieve the output file type from the extension of the specified output file path in a non-case-sensitive manner, 
+the savers will retain the case of the specified output file path during the outputs. 
+
+- CSV
+- HTM
+- HTML
+- JSON
+- TEX
+- TSV
+- XLS (relying on ``xlwt``)
+- XLSX (relying on ``openpyxl``)
+- XML
+- YAML (relying on ``PyYAML``)
+- YML (relying on ``PyYAML``)
+
+If the necessary Python dependencies are not satisfied or base exceptions occur during the outputs, the savers will write to the specified output file path in TXT format. 
+If it still fails, the savers will print the results to the console. When the execution of each set of the scheme parameters is finished, the savers will be called once immediately. 
+
+#### 1.1.4 Exit codes
 
 The rules of exit codes are as follows. 
 
@@ -116,17 +169,19 @@ The rules of exit codes are as follows.
 - For all the Python scripts here, an ``EXIT_FAILURE`` ($1$) signal will be returned to its parent process if no results are obtained or any of the results fail any of the tests. 
 - For all the Python scripts here, an ``EOF`` ($-1$) signal will be returned to its parent process if the program lacks any of the necessary libraries. 
 
-Regarding command-line arguments, please pass the argument ``-h`` to the Python scripts to view the details. 
+#### 1.1.5 Other relevant implementation issues
 
-The following commands can be useful for executing one-stop testing. 
+Normally, executing ``python Scheme*/Scheme*.py`` should work fine, with all the command-line arguments set to defaults, where the ``*`` here can refer to different strings excluding the path separators. 
+
+The following commands can be useful for one-stop testing. 
 
 - On non-Windows operating systems
-  - Execute ``find . -maxdepth 1 -type f -name "*.py" -exec python {} Y 0 \;`` after navigating into (``cd``) the specified directory in a terminal to run all the Python scripts in that directory if a category of Python scripts is to be executed. 
-  - Execute ``find . -mindepth 2 -maxdepth 2 -type f -name "*.py" -exec python {} Y 0 \;`` after navigating into (``cd``) the root directory of this repository in a terminal to execute all the Python scripts in this repository if all categories of Python scripts are to be executed. 
+  - Execute ``find . -maxdepth 1 -type f -name "*.py" -exec python {} Y 0 \;`` after navigating (``cd``) into the specified directory in a terminal to run all the Python scripts in that directory if a category of Python scripts is to be executed. 
+  - Execute ``find . -mindepth 2 -maxdepth 2 -type f -name "*.py" -exec python {} Y 0 \;`` after navigating (``cd``) into the root directory of this repository in a terminal to execute all the Python scripts in this repository if all categories of Python scripts are to be executed. 
   - Add `` > /dev/null`` (or even `` > /dev/null 2>&1``) to the end of the commands, or use a screen if the printing affects the computation of the time consumption. 
 - On Windows operating systems
-  - Execute ``for %f in (*.py) do python "%f" Y 0`` after navigating into (``cd /d``) the specified directory in a terminal to run all the Python scripts in that directory if a category of Python scripts is to be executed. 
-  - Execute ``for /r %f in (*.py) do python "%f" Y 0`` after navigating into (``cd /d``) the root directory of this repository in a terminal to execute all the Python scripts in this repository if all categories of Python scripts are to be executed. 
+  - Execute ``for %f in (*.py) do python "%f" Y 0`` after navigating (``cd /d``) into the specified directory in a terminal to run all the Python scripts in that directory if a category of Python scripts is to be executed. 
+  - Execute ``for /r %f in (*.py) do python "%f" Y 0`` after navigating (``cd /d``) into the root directory of this repository in a terminal to execute all the Python scripts in this repository if all categories of Python scripts are to be executed. 
   - Add `` > NUL 2>&1`` to the end of the command lines if the printing affects the computation of the time consumption in a terminal. 
 
 To enhance robustness, type checks will be performed in each scheme procedure, whether or not they are explicitly required in the paper. 
@@ -706,7 +761,7 @@ def getLengthOf(self:object, obj:Element|int|bytes|tuple|list|set|dict) -> int|s
 ```
 
 To compute the memory consumption (space complexity) of a variable for engineering purposes, please refer to the following lines. 
-These codes are not used in the official implementations of the cryptographic schemes here. Please adjust the codes in your own repositories if you wish to compute this measurement. 
+These codes are not used in the official implementations of the cryptographic schemes here. One should adjust the codes in one's own repositories if one wishes to implement this measurement. 
 
 ```
 from sys import getsizeof
@@ -715,7 +770,7 @@ s = getsizeof(group.random(ZR)) # Byte(s)
 ```
 
 To compute the overall runtime memory consumption (space complexity) of the Python program, please refer to the following lines. 
-These codes are not used in the official implementations of the cryptographic schemes here. Please adjust the codes in your own repositories if you wish to compute this measurement. 
+These codes are not used in the official implementations of the cryptographic schemes here. One should adjust the codes in one's own repositories if one wishes to implement this measurement. 
 
 ```
 import os
@@ -732,6 +787,9 @@ process = Process(os.getpid())
 memory = process.memory_info().rss # Byte(s)
 ```
 
+Of course, it is also feasible to use an external memory monitor (such as the Task Manager) to record memory information (e.g., peak RSS) for each Python script. 
+The only caveat is that memory consumed during processes other than the experimental execution needs to be excluded. 
+
 ### 1.4 ``buildSchemeLaTeXPDFs.py``
 
 This is a Python script for building (generating LaTeX source files and compiling them to PDFs) LaTeX PDFs of schemes from the Python scripts. 
@@ -741,7 +799,8 @@ For developers, this script will check the style of the Python scripts. Please r
 
 ### 1.5 Git issues
 
-To clone the project, please try the following commands. 
+To clone the project, please try the following commands. It is highly recommended to place the repository directory under ``~`` as a non-root user. 
+Otherwise, please change the repository directory in the afterward git commands accordingly. 
 
 ```shell
 cd ~
@@ -778,7 +837,7 @@ git push
 ```
 
 Eventually, by operating in the forked repository, submit a Pull Request (PR) to the original repository. 
-If it is necessary to log in while pushing, please try the ``gh auth login`` command (recommended) or generate a token from your GitHub account. 
+If it is necessary to log in while pushing, please try the ``gh auth login`` command (recommended) or generate an authenticated token from the GitHub website. 
 
 ## 2. Java
 
@@ -799,10 +858,10 @@ where the ``*`` here can refer to different strings excluding the path separator
 We extend our sincere gratitude to the developers for their diligent efforts. Without their assistance, this repository would not exist. 
 
 - [Ubuntu 24.04.4 LTS (WSL)](https://learn.microsoft.com/windows/wsl/install)
-- [Python 3.15.x](https://www.python.org/ftp/python/)
+- [Python 3.15.0](https://www.python.org/ftp/python/)
 - [GMP-6.3.0](https://gmplib.org/)
 - [PBC-0.5.14](https://crypto.stanford.edu/pbc/download.html)
-- [OpenSSL library 3.0.13](https://www.openssl.org/) (``sudo apt-get install libssl-dev``)
+- [OpenSSL library 4.0](https://openssl-library.org/source/) (``sudo apt-get install libssl-dev``)
 - [Official Python Charm-Crypto framework](https://github.com/JHUISI/charm)
 - [Python Charm-Crypto framework adapted to Python 3.12.x](https://github.com/EliusSolis/charm) ([merged to the official one on January 23rd, 2025](https://github.com/JHUISI/charm/pull/310))
 
