@@ -5,7 +5,7 @@ try:
 except:
 	PairingGroup, G1, G2, GT, ZR, pair, Element = (None, ) * 7
 from codecs import lookup
-from hashlib import md5, sha1, sha224, sha256, sha384, sha512
+from hashlib import md5, sha1, sha3_224, sha3_256, sha3_384, sha3_512
 from time import perf_counter, sleep
 try:
 	os.chdir(os.path.abspath(os.path.dirname(__file__)))
@@ -606,20 +606,20 @@ class SchemeHIBME:
 		H1 = lambda x:self.__group.hash(x, G1) # $H_1:\mathbb{Z}_r \to \mathbb{G}_1$
 		H2 = lambda x:self.__group.hash(self.__group.serialize(x), G2) # $H_2:\mathbb{Z}_r \to \mathbb{G}_2$
 		if 512 == self.__group.secparam:
-			HHat = lambda x:int.from_bytes(sha512(self.__group.serialize(x)).digest(), byteorder = "big")
+			HHat = lambda x:int.from_bytes(sha3_512(self.__group.serialize(x)).digest(), byteorder = "big")
 		elif 384 == self.__group.secparam:
-			HHat = lambda x:int.from_bytes(sha384(self.__group.serialize(x)).digest(), byteorder = "big")
+			HHat = lambda x:int.from_bytes(sha3_384(self.__group.serialize(x)).digest(), byteorder = "big")
 		elif 256 == self.__group.secparam:
-			HHat = lambda x:int.from_bytes(sha256(self.__group.serialize(x)).digest(), byteorder = "big")
+			HHat = lambda x:int.from_bytes(sha3_256(self.__group.serialize(x)).digest(), byteorder = "big")
 		elif 224 == self.__group.secparam:
-			HHat = lambda x:int.from_bytes(sha224(self.__group.serialize(x)).digest(), byteorder = "big")
+			HHat = lambda x:int.from_bytes(sha3_224(self.__group.serialize(x)).digest(), byteorder = "big")
 		elif 160 == self.__group.secparam:
 			HHat = lambda x:int.from_bytes(sha1(self.__group.serialize(x)).digest(), byteorder = "big")
 		elif 128 == self.__group.secparam:
 			HHat = lambda x:int.from_bytes(md5(self.__group.serialize(x)).digest(), byteorder = "big")
 		else:
-			HHat = lambda x:int.from_bytes(sha512(self.__group.serialize(x)).digest() * (((self.__group.secparam - 1) >> 9) + 1), byteorder = "big") & self.__operand # $\hat{H}: \mathbb{G}_T \to \{0, 1\}^\lambda$
-			print("Setup: An irregular security parameter ($\\lambda = {0}$) is specified. It is recommended to use 128, 160, 224, 256, 384, 512, or 1024 as the security parameter. ".format(self.__group.secparam))
+			HHat = lambda x:int.from_bytes(sha3_512(self.__group.serialize(x)).digest() * (((self.__group.secparam - 1) >> 9) + 1), byteorder = "big") & self.__operand # $\hat{H}: \mathbb{G}_T \to \{0, 1\}^\lambda$
+			print("Setup: An irregular security parameter ($\\lambda = {0}$) is specified. It is recommended to use 224, 256, 384, 512, or 1024 as the security parameter. ".format(self.__group.secparam))
 		g1 = g ** alpha # $g_1 \gets g^\alpha$
 		A = pair(g1, g2) # $A \gets e(g_1, g_2)$
 		gBar = g ** b1 # $\bar{g} \gets g^{b_1}$
@@ -1161,7 +1161,7 @@ def main() -> int:
 			print()
 			
 			# Parameters #
-			curveParameters = ("MNT201", "MNT224", "BN254", ("SS512", 512), ("SS1024", 512))
+			curveParameters = ("MNT201", "MNT224", "BN254", ("SS512", 128), ("SS512", 256), ("SS512", 512), ("SS1024", 512), ("SS1024", 1024))
 			queries = ("curveParameter", "secparam", "l", "m", "n", "runCount")
 			validators = ("isSystemValid", "isDeriverPassed", "isSchemeCorrect")
 			metrics = (																									\

@@ -1300,13 +1300,13 @@ def main() -> int:
 			print()
 			
 			# Parameters #
-			curveParameters = (("SS512", 128), ("SS512", 256), ("SS512", 512), ("SS1024", 512))
+			curveParameters = (("SS512", 128), ("SS512", 160), ("SS512", 224), ("SS512", 256), ("SS512", 384), ("SS512", 512))
 			queries = ("curveParameter", "secparam", "n", "k", "d", "runCount")
 			validators = ("isSystemValid", "isSchemeCorrect", "isEKeySanity", "isDKeySanity", "isTracing1Verified", "isTracing2Verified")
-			metrics = (																	\
-				"Setup (s)", "EKGen (s)", "DKGen (s)", "Enc (s)", "Dec (s)", "EKeySanity (s)", "DKeySanity (s)", "Trace1 (s)", "Trace2 (s)", 			\
-				"elementOfZR (B)", "elementOfG1G2 (B)", "elementOfGT (B)", 				\
-				"mpk (B)", "msk (B)", "ek_ID_A_S (B)", "dk_ID_B_SPrime (B)", "CT (B)"	\
+			metrics = (																															\
+				"Setup (s)", "EKGen (s)", "DKGen (s)", "Enc (s)", "Dec (s)", "EKeySanity (s)", "DKeySanity (s)", "Trace1 (s)", "Trace2 (s)", 	\
+				"elementOfZR (B)", "elementOfG1G2 (B)", "elementOfGT (B)", 																		\
+				"mpk (B)", "msk (B)", "ek_ID_A_S (B)", "dk_ID_B_SPrime (B)", "CT (B)"															\
 			)
 			getValidatorJudges = lambda x:x[queryLength:queryValidatorLength]
 			getMetricJudges = lambda x:x[queryValidatorLength:]

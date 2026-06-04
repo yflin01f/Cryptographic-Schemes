@@ -216,7 +216,7 @@ class Builder:
 			self.__generationDiagnostics["Function"].append("The statement {0} should start with {1}. ".format(repr(string), repr(descriptor)))
 			return False
 		elif string[descriptorLength:] in (
-			"An irregular security parameter ($\\lambda = {0}$) is specified. It is recommended to use 128, 160, 224, 256, 384, 512, or 1024 as the security parameter. ", 
+			"An irregular security parameter ($\\lambda = {0}$) is specified. It is recommended to use 224, 256, 384, 512, or 1024 as the security parameter. ", 
 			"The variable $\textit{btrapdoor}_i$ should be a tuple containing 5 elements, but it is not, which has been generated randomly. ", (
 				"Each of the variables $S_A$, $P_A$, $S_B$, and $P_B$ should be a tuple containing 4 elements of $\\mathbb{Z}_r$, "
 				+ "but at least one of them is not, all of which have been generated randomly. "

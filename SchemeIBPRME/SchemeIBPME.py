@@ -5,7 +5,7 @@ try:
 except:
 	PairingGroup, G1, G2, GT, ZR, pair, Element = (None, ) * 7
 from codecs import lookup
-from hashlib import md5, sha1, sha224, sha256, sha384, sha512
+from hashlib import md5, sha1, sha3_224, sha3_256, sha3_384, sha3_512
 from math import ceil, log
 from secrets import randbelow
 from time import perf_counter, sleep
@@ -585,19 +585,19 @@ class SchemeIBPME:
 		
 		# convert #
 		if 512 == length:
-			return sha512(bytesToBeHashed).digest()
+			return sha3_512(bytesToBeHashed).digest()
 		elif 384 == length:
-			return sha384(bytesToBeHashed).digest()
+			return sha3_384(bytesToBeHashed).digest()
 		elif 256 == length:
-			return sha256(bytesToBeHashed).digest()
+			return sha3_256(bytesToBeHashed).digest()
 		elif 224 == length:
-			return sha224(bytesToBeHashed).digest()
+			return sha3_224(bytesToBeHashed).digest()
 		elif 160 == length:
 			return sha1(bytesToBeHashed).digest()
 		elif 128 == length:
 			return md5(bytesToBeHashed).digest()
 		else:
-			return (int.from_bytes(sha512(bytesToBeHashed).digest() * ceil(length / 512), byteorder = "big") & ((1 << length) - 1)).to_bytes(ceil(length / 8))
+			return (int.from_bytes(sha3_512(bytesToBeHashed).digest() * ceil(length / 512), byteorder = "big") & ((1 << length) - 1)).to_bytes(ceil(length / 8))
 	def Setup(self:object) -> tuple: # $\textbf{Setup}() \to (\textit{mpk}, \textit{msk})$
 		# Checks #
 		self.__flag = False
@@ -618,7 +618,7 @@ class SchemeIBPME:
 		H3 = lambda x:self.__group.hash(self.__group.serialize(x), ZR) # $H_3: \mathbb{G}_T \to \mathbb{Z}_r$
 		H4 = lambda x1, x2 = b"", x3 = b"":self.__hash(x1, x2, x3, self.__group.secparam) # $H_4: \{0, 1\}^\lambda \times \mathbb{G}_T^2 \times \mathbb{G}_1^2 \to \{0, 1\}^\lambda$
 		if self.__group.secparam not in (128, 160, 224, 256, 384, 512):
-			print("Setup: An irregular security parameter ($\\lambda = {0}$) is specified. It is recommended to use 128, 160, 224, 256, 384, 512, or 1024 as the security parameter. ".format(self.__group.secparam))
+			print("Setup: An irregular security parameter ($\\lambda = {0}$) is specified. It is recommended to use 224, 256, 384, 512, or 1024 as the security parameter. ".format(self.__group.secparam))
 		H5 = lambda x1, x2 = b"", x3 = b"", x4 = b"", x5 = b"":self.__hash(x1, x2, x3, x4, x5, self.__group.secparam) # $H_5: \{0, 1\}^\lambda \times \mathbb{G}_T^2 \times \mathbb{G}_1^2 \to \{0, 1\}^\lambda$
 		H6 = lambda x:self.__hash(x, self.__group.secparam * 3) # $H_6: \mathbb{G}_T \to \{0, 1\}^{3\lambda}$
 		H7 = lambda x:self.__hash(x, self.__group.secparam << 1) # $H_7: \mathbb{G}_T \to \{0, 1\}^{2\lambda}$
@@ -1049,7 +1049,7 @@ def main() -> int:
 			print()
 			
 			# Parameters #
-			curveParameters = ("MNT201", "MNT224", "BN254", ("SS512", 512), ("SS1024", 512))
+			curveParameters = ("MNT201", "MNT224", "BN254", ("SS512", 128), ("SS512", 256), ("SS512", 512), ("SS1024", 512), ("SS1024", 1024))
 			queries = ("curveParameter", "secparam", "runCount")
 			validators = ("isSystemValid", "isProxyDecPassed", "isDec1Passed", "isDec2Passed")
 			metrics = (																									\

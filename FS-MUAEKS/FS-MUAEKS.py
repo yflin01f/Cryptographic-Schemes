@@ -1,6 +1,6 @@
 from sys import argv, exit
 from datetime import datetime
-from hashlib import sha256
+from hashlib import sha3_256
 from math import log2
 from pytz import timezone
 from time import sleep, time
@@ -129,9 +129,9 @@ class PARS:
 # Child Functions #
 def H_1(message:array, m:int) -> array:
 	message_bytes = message.tobytes()
-	sha256_hash = sha256()
-	sha256_hash.update(message_bytes)
-	hash_value = sha256_hash.digest()
+	sha3_256_hash = sha3_256()
+	sha3_256_hash.update(message_bytes)
+	hash_value = sha3_256_hash.digest()
 	hash_string = "".join(format(byte, "08b") for byte in hash_value)
 	hash_list = [int(bit) for bit in hash_string][:(m * (m - 1)) >> 1] # let hash_list has a maximum length of m(m - 1) / 2 to fill the hash value in the upper right corner of the matrix
 	hash_list += [0] * (((m * (m - 1)) >> 1) - len(hash_list)) # fill into m(m - 1) / 2

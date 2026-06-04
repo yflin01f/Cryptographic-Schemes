@@ -5,7 +5,7 @@ try:
 except:
 	PairingGroup, G1, GT, ZR, pair, Element = (None, ) * 6
 from codecs import lookup
-from hashlib import md5, sha1, sha224, sha256, sha384, sha512
+from hashlib import md5, sha1, sha3_224, sha3_256, sha3_384, sha3_512
 from math import ceil, log
 from secrets import randbelow
 from time import perf_counter, sleep
@@ -595,20 +595,20 @@ class SchemePBAC:
 			)), ZR																														\
 		) # $H_3: \mathbb{G}_T^2 \times \{0, 1\}^\lambda \to \mathbb{Z}_r$
 		if 512 == self.__group.secparam:
-			H4 = lambda x:int.from_bytes(sha512(self.__group.serialize(x)).digest(), byteorder = "big")
+			H4 = lambda x:int.from_bytes(sha3_512(self.__group.serialize(x)).digest(), byteorder = "big")
 		elif 384 == self.__group.secparam:
-			H4 = lambda x:int.from_bytes(sha384(self.__group.serialize(x)).digest(), byteorder = "big")
+			H4 = lambda x:int.from_bytes(sha3_384(self.__group.serialize(x)).digest(), byteorder = "big")
 		elif 256 == self.__group.secparam:
-			H4 = lambda x:int.from_bytes(sha256(self.__group.serialize(x)).digest(), byteorder = "big")
+			H4 = lambda x:int.from_bytes(sha3_256(self.__group.serialize(x)).digest(), byteorder = "big")
 		elif 224 == self.__group.secparam:
-			H4 = lambda x:int.from_bytes(sha224(self.__group.serialize(x)).digest(), byteorder = "big")
+			H4 = lambda x:int.from_bytes(sha3_224(self.__group.serialize(x)).digest(), byteorder = "big")
 		elif 160 == self.__group.secparam:
 			H4 = lambda x:int.from_bytes(sha1(self.__group.serialize(x)).digest(), byteorder = "big")
 		elif 128 == self.__group.secparam:
 			H4 = lambda x:int.from_bytes(md5(self.__group.serialize(x)).digest(), byteorder = "big")
 		else:
-			H4 = lambda x:int.from_bytes(sha512(self.__group.serialize(x)).digest() * ceil(self.__group.secparam / 512), byteorder = "big") & self.__operand # $H_4: \{0, 1\}^* \to \{0, 1\}^\lambda$
-			print("Setup: An irregular security parameter ($\\lambda = {0}$) is specified. It is recommended to use 128, 160, 224, 256, 384, 512, or 1024 as the security parameter. ".format(self.__group.secparam))
+			H4 = lambda x:int.from_bytes(sha3_512(self.__group.serialize(x)).digest() * ceil(self.__group.secparam / 512), byteorder = "big") & self.__operand # $H_4: \{0, 1\}^* \to \{0, 1\}^\lambda$
+			print("Setup: An irregular security parameter ($\\lambda = {0}$) is specified. It is recommended to use 224, 256, 384, 512, or 1024 as the security parameter. ".format(self.__group.secparam))
 		H5 = lambda x:self.__group.hash(x, G1) # $H_5: \{0, 1\}^* \to \mathbb{G}_1$
 		H6 = lambda x:self.__group.hash(x, G1) # $H_6: \{0, 1\}^* \to \mathbb{G}_1$
 		gHat = g ** s # $\hat{g} \gets g^s$
@@ -1050,7 +1050,7 @@ def main() -> int:
 			print()
 			
 			# Parameters #
-			curveParameters = (("SS512", 128), ("SS512", 256), ("SS512", 512), ("SS1024", 512))
+			curveParameters = (("SS512", 128), ("SS512", 160), ("SS512", 224), ("SS512", 256), ("SS512", 384), ("SS512", 512))
 			queries = ("curveParameter", "secparam", "runCount")
 			validators = ("isSystemValid", "isProxyEncPassed", "isDec1Passed", "isDec2Passed")
 			metrics = (																											\

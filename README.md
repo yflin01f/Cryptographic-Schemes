@@ -132,8 +132,8 @@ The [``runPython`` workflow](./.github/workflows/runPython.yml) workflow will ex
 
 Here are the details that cannot be controlled by the command-line arguments. 
 
-- If a scheme is applicable to symmetric and asymmetric groups of prime orders, curve types, and security parameters in the tuple ``("MNT201", "MNT224", "BN254", ("SS512", 512), ("SS1024", 512))`` will be tested. 
-- If a scheme is only applicable to symmetric groups of prime orders, curve types and security parameters in the tuple ``(("SS512", 128), ("SS512", 256), ("SS512", 512), ("SS1024", 512))`` will be tested. 
+- If a scheme is applicable to symmetric and asymmetric groups of prime orders, curve types, and security parameters in the tuple ``("MNT201", "MNT224", "BN254", ("SS512", 128), ("SS512", 256), ("SS512", 512), ("SS1024", 512), ("SS1024", 1024))`` will be tested. 
+- If a scheme is only applicable to symmetric groups of prime orders, curve types and security parameters in the tuple ``(("SS512", 128), ("SS512", 160), ("SS512", 224), ("SS512", 256), ("SS512", 384), ("SS512", 512))`` will be tested. 
 - The output files in the three-line table or plain text form should contain the input parameters, correctness-related counts, procedure time consumption, program memory consumption, storing sizes of elements from different fields, and storing sizes of important variables. 
 - Users should only modify the ``# Parameters #`` part in the ``main`` function if they just want to test different parameters. 
 
@@ -268,21 +268,23 @@ When there are hash functions, the following rules will be applied.
 The following lines can handle the $\hat{H}$, which hashes an element to a ``bytes`` object with a length of $\lambda$ stored as an integer. 
 
 ```
+from hashlib import md5, sha1, sha3_224, sha3_256, sha3_384, sha3_512
+
 if 512 == self.__group.secparam:
-	HHat = lambda x:int.from_bytes(sha512(self.__group.serialize(x)).digest(), byteorder = "big")
+	HHat = lambda x:int.from_bytes(sha3_512(self.__group.serialize(x)).digest(), byteorder = "big")
 elif 384 == self.__group.secparam:
-	HHat = lambda x:int.from_bytes(sha384(self.__group.serialize(x)).digest(), byteorder = "big")
+	HHat = lambda x:int.from_bytes(sha3_384(self.__group.serialize(x)).digest(), byteorder = "big")
 elif 256 == self.__group.secparam:
-	HHat = lambda x:int.from_bytes(sha256(self.__group.serialize(x)).digest(), byteorder = "big")
+	HHat = lambda x:int.from_bytes(sha3_256(self.__group.serialize(x)).digest(), byteorder = "big")
 elif 224 == self.__group.secparam:
-	HHat = lambda x:int.from_bytes(sha224(self.__group.serialize(x)).digest(), byteorder = "big")
+	HHat = lambda x:int.from_bytes(sha3_224(self.__group.serialize(x)).digest(), byteorder = "big")
 elif 160 == self.__group.secparam:
 	HHat = lambda x:int.from_bytes(sha1(self.__group.serialize(x)).digest(), byteorder = "big")
 elif 128 == self.__group.secparam:
 	HHat = lambda x:int.from_bytes(md5(self.__group.serialize(x)).digest(), byteorder = "big")
 else:
 	HHat = lambda x:int.from_bytes(sha512(self.__group.serialize(x)).digest() * (((self.__group.secparam - 1) >> 9) + 1), byteorder = "big") & self.__operand # $\hat{H}: \mathbb{G}_T \to \{0, 1\}^\lambda$
-	print("Setup: An irregular security parameter ($\\lambda = {0}$) is specified. It is recommended to use 128, 160, 224, 256, 384, or 512 as the security parameter. ".format(self.__group.secparam))
+	print("Setup: An irregular security parameter ($\\lambda = {0}$) is specified. It is recommended to use 224, 256, 384, 512, or 1024 as the security parameter. ".format(self.__group.secparam))
 ```
 
 #### 1.2.4 Product
@@ -770,6 +772,7 @@ from sys import getsizeof
 s = getsizeof(group.random(ZR)) # Byte(s)
 ```
 
+The measurements above are used to measure the space complexity of a variable. 
 To compute the overall runtime memory consumption (space complexity) of the Python program, please refer to the following lines. 
 These codes are not used in the official implementations of the cryptographic schemes here. One should adjust the codes in one's own repositories if one wishes to implement this measurement. 
 
@@ -779,7 +782,7 @@ try:
 	from psutil import Process
 except:
 	print("Cannot compute the memory via ``psutil.Process``. ")
-	print("Please try to install the ``psutil`` library via ``python -m pip install psutil`` or ``apt-get install python3-psutil``. ")
+	print("Please try to install the ``psutil`` library via ``python -m pip install psutil``. ")
 	print("Please press the enter key to exit. ")
 	input()
 	exit(-1)

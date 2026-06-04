@@ -5,7 +5,7 @@ try:
 except:
 	PairingGroup, G1, G2, GT, ZR, pair, Element = (None, ) * 7
 from codecs import lookup
-from hashlib import md5, sha1, sha224, sha256, sha384, sha512
+from hashlib import md5, sha1, sha3_224, sha3_256, sha3_384, sha3_512
 from secrets import randbelow
 from time import perf_counter, sleep
 try:
@@ -631,20 +631,20 @@ class SchemeVLPSICA:
 		SVec = tuple(g2 ** (s ** i) for i in range(self.__m + self.__d + 1)) # $\vec{S} \gets (S_0, S_1, \cdots, S_{m + d}) = (g_2^{s_0}, g_2^{s_1}, \cdots, g_2^{s^{m + d}})$
 		SPrime = g1 ** s # $S' \gets g_1^s \in \mathbb{G}_1$
 		if 512 == self.__group.secparam:
-			H = lambda x:int.from_bytes(sha512(self.__group.serialize(x)).digest(), byteorder = "big")
+			H = lambda x:int.from_bytes(sha3_512(self.__group.serialize(x)).digest(), byteorder = "big")
 		elif 384 == self.__group.secparam:
-			H = lambda x:int.from_bytes(sha384(self.__group.serialize(x)).digest(), byteorder = "big")
+			H = lambda x:int.from_bytes(sha3_384(self.__group.serialize(x)).digest(), byteorder = "big")
 		elif 256 == self.__group.secparam:
-			H = lambda x:int.from_bytes(sha256(self.__group.serialize(x)).digest(), byteorder = "big")
+			H = lambda x:int.from_bytes(sha3_256(self.__group.serialize(x)).digest(), byteorder = "big")
 		elif 224 == self.__group.secparam:
-			H = lambda x:int.from_bytes(sha224(self.__group.serialize(x)).digest(), byteorder = "big")
+			H = lambda x:int.from_bytes(sha3_224(self.__group.serialize(x)).digest(), byteorder = "big")
 		elif 160 == self.__group.secparam:
 			H = lambda x:int.from_bytes(sha1(self.__group.serialize(x)).digest(), byteorder = "big")
 		elif 128 == self.__group.secparam:
 			H = lambda x:int.from_bytes(md5(self.__group.serialize(x)).digest(), byteorder = "big")
 		else:
-			H = lambda x:int.from_bytes(sha512(self.__group.serialize(x)).digest() * (((self.__group.secparam - 1) >> 9) + 1), byteorder = "big") & self.__operand # $H: \mathbb{G}_T \to \{0, 1\}^\lambda$
-			print("Setup: An irregular security parameter ($\\lambda = {0}$) is specified. It is recommended to use 128, 160, 224, 256, 384, 512, or 1024 as the security parameter. ".format(self.__group.secparam))
+			H = lambda x:int.from_bytes(sha3_512(self.__group.serialize(x)).digest() * (((self.__group.secparam - 1) >> 9) + 1), byteorder = "big") & self.__operand # $H: \mathbb{G}_T \to \{0, 1\}^\lambda$
+			print("Setup: An irregular security parameter ($\\lambda = {0}$) is specified. It is recommended to use 224, 256, 384, 512, or 1024 as the security parameter. ".format(self.__group.secparam))
 		self.__mpk = (g1, SPrime, H) # $\textit{mpk} \gets (g_1, S', H)$
 		self.__msk = (g2, SVec) # $\textit{msk} \gets (g_2, \vec{S})$
 		
@@ -957,7 +957,7 @@ def main() -> int:
 			print()
 			
 			# Parameters #
-			curveParameters = ("MNT201", "MNT224", "BN254", ("SS512", 512), ("SS1024", 512))
+			curveParameters = ("MNT201", "MNT224", "BN254", ("SS512", 128), ("SS512", 256), ("SS512", 512), ("SS1024", 512), ("SS1024", 1024))
 			queries = ("curveParameter", "secparam", "m", "n", "d", "runCount")
 			validators = ("isSystemValid", "isSchemeCorrect")
 			metrics = (																						\

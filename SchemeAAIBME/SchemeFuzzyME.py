@@ -5,7 +5,7 @@ try:
 except:
 	PairingGroup, G1, GT, ZR, pair, Element = (None, ) * 6
 from codecs import lookup
-from hashlib import md5, sha1, sha224, sha256, sha384, sha512
+from hashlib import md5, sha1, sha3_224, sha3_256, sha3_384, sha3_512
 from random import shuffle
 from time import perf_counter, sleep
 try:
@@ -1025,7 +1025,7 @@ def main() -> int:
 			print()
 			
 			# Parameters #
-			curveParameters = (("SS512", 128), ("SS512", 256), ("SS512", 512), ("SS1024", 512))
+			curveParameters = (("SS512", 128), ("SS512", 160), ("SS512", 224), ("SS512", 256), ("SS512", 384), ("SS512", 512))
 			queries = ("curveParameter", "secparam", "n", "d", "runCount")
 			validators = ("isSystemValid", "isSchemeCorrect")
 			metrics = (																		\

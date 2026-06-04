@@ -1,7 +1,7 @@
 from sys import argv, exit
 from collections import OrderedDict
 from datetime import datetime
-from hashlib import sha256
+from hashlib import sha3_256
 from math import log2
 from pytz import timezone
 from time import sleep, time
@@ -165,9 +165,9 @@ def TrapGen(pars:PARS) -> tuple:
 
 def H_1(message:array, q:int, n:int) -> array:
 	message_bytes = message.tobytes()
-	sha256_hash = sha256()
-	sha256_hash.update(message_bytes)
-	hash_value = sha256_hash.digest()
+	sha3_256_hash = sha3_256()
+	sha3_256_hash.update(message_bytes)
+	hash_value = sha3_256_hash.digest()
 	hash_string = "".join(format(byte, "02x") for byte in hash_value)
 	hash_list = [int("0x" + bit, base = 16) % q for bit in hash_string][:n] # let hash_list has a maximum length of n
 	hash_list += [0] * (n - len(hash_list)) # fill into n
@@ -175,16 +175,16 @@ def H_1(message:array, q:int, n:int) -> array:
 
 def H_2(message:array, q:int) -> int:
 	message_bytes = message.tobytes()
-	sha256_hash = sha256()
-	sha256_hash.update(message_bytes)
-	hash_value = sha256_hash.digest()
+	sha3_256_hash = sha3_256()
+	sha3_256_hash.update(message_bytes)
+	hash_value = sha3_256_hash.digest()
 	return int(hash_value.hex(), base = 16) % q
 
 def H_3(message:array, m:int) -> array:
 	message_bytes = message.tobytes()
-	sha256_hash = sha256()
-	sha256_hash.update(message_bytes)
-	hash_value = sha256_hash.digest()
+	sha3_256_hash = sha3_256()
+	sha3_256_hash.update(message_bytes)
+	hash_value = sha3_256_hash.digest()
 	hash_string = "".join(format(byte, "08b") for byte in hash_value)
 	hash_list = [int(bit) for bit in hash_string][:(m * (m - 1)) >> 1] # let hash_list has a maximum length of m(m - 1) / 2 to fill the hash value in the upper right corner of the matrix
 	hash_list += [0] * (((m * (m - 1)) >> 1) - len(hash_list)) # fill into m(m - 1) / 2
@@ -194,9 +194,9 @@ def H_3(message:array, m:int) -> array:
 
 def H_4(message:array, n:int, m:int) -> array:
 	message_bytes = message.tobytes()
-	sha256_hash = sha256()
-	sha256_hash.update(message_bytes)
-	hash_value = sha256_hash.digest()
+	sha3_256_hash = sha3_256()
+	sha3_256_hash.update(message_bytes)
+	hash_value = sha3_256_hash.digest()
 	hash_string = "".join(format(byte, "08b") for byte in hash_value)
 	hash_list = [int(bit) for bit in hash_string][:((n * (n - 1)) >> 1) + n * (m - n)] # let hash_list has a maximum length of n(n - 1) / 2 + n(m - n) to fill the hash value in the upper right corner of the matrix
 	hash_list += [0] * (((n * (n - 1)) >> 1) + n * (m - n) - len(hash_list)) # fill into mn - n(n + 1) / 2
