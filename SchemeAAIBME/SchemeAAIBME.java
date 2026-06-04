@@ -3,12 +3,12 @@ import java.io.FileOutputStream;
 import java.math.BigInteger;
 import java.net.URLDecoder;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-
-import java.util.Arrays;
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Map;
 
 import it.unisa.dia.gas.jpbc.Element;
 import it.unisa.dia.gas.jpbc.Field;
@@ -17,11 +17,40 @@ import it.unisa.dia.gas.jpbc.PairingParameters;
 import it.unisa.dia.gas.plaf.jpbc.pairing.PairingFactory;
 import it.unisa.dia.gas.plaf.jpbc.pairing.a.TypeACurveGenerator;
 
+
 public class SchemeAAIBME
 {
-	public static long getObjectSize(Object x)
+	public static long getObjectSize(Object x, PARS pars)
 	{
-		return 0L;
+		if (x instanceof Element)
+			return ((Element) x).toBytes().length;
+		else if (x instanceof Integer)
+			return pars.getZp().getLengthInBytes();
+		else if (x instanceof byte[])
+			return ((byte[]) x).length;
+		else if (x instanceof Object[])
+		{
+			long total = 0;
+			for (Object o : (Object[]) x)
+				total += getObjectSize(o, pars);
+			return total;
+		}
+		else if (x instanceof Collection)
+		{
+			long total = 0;
+			for (Object o : (Collection<?>) x)
+				total += getObjectSize(o, pars);
+			return total;
+		}
+		else if (x instanceof Map)
+		{
+			long total = 0;
+			for (Object value : ((Map<?,?>) x).values())
+				total += getObjectSize(value, pars);
+			return total;
+		}
+		else
+			return 0;
 	}
 	public static HashMap<String, Long> test(int n, int k, int d, int timeToTest)
 	{
@@ -63,7 +92,7 @@ public class SchemeAAIBME
 		}
 		runTime /= timeToTest;
 		Key_Value.put("EKGen_Time", runTime);
-		Key_Value.put("EKGen_Space", getObjectSize(ek));
+		Key_Value.put("EKGen_Space", getObjectSize(ek, pars));
 		
 		/* DKGen */
 		runTime = 0;
@@ -80,7 +109,7 @@ public class SchemeAAIBME
 		d_i_prime = dk[3];
 		M = pars.getGT().newRandomElement().getImmutable();
 		Key_Value.put("DKGen_Time", runTime);
-		Key_Value.put("DKGen_Space", getObjectSize(dk) + getObjectSize(ID_A) + getObjectSize(P_A) + getObjectSize(ID_B) + getObjectSize(P_B) + getObjectSize(M));
+		Key_Value.put("DKGen_Space", getObjectSize(dk, pars) + getObjectSize(ID_A, pars) + getObjectSize(P_A, pars) + getObjectSize(ID_B, pars) + getObjectSize(P_B, pars) + getObjectSize(M, pars));
 		//Value.put(M.toString(), (long) M.toString().length()); // comment this line if M is too long
 		
 		/* Enc */
@@ -93,7 +122,7 @@ public class SchemeAAIBME
 		}
 		runTime /= timeToTest;
 		Key_Value.put("Enc_Time", runTime);
-		Key_Value.put("Enc_Space", getObjectSize(list) + getObjectSize(D_i) + getObjectSize(d_i) + getObjectSize(D_i_prime) + getObjectSize(d_i_prime));
+		Key_Value.put("Enc_Space", getObjectSize(list, pars) + getObjectSize(D_i, pars) + getObjectSize(d_i, pars) + getObjectSize(D_i_prime, pars) + getObjectSize(d_i_prime, pars));
 		
 		C_0 = list.get(0)[0].getImmutable();
 		C_1 = list.get(1)[0].getImmutable();
@@ -119,7 +148,7 @@ public class SchemeAAIBME
 		if (runTime < 10000) // Solve Dec null situation
 			runTime += Key_Value.get("Enc_Time") / timeToTest;
 		Key_Value.put("Dec_Time", runTime);
-		//Key_Value.put("Dec_Space", getObjectSize(secret));
+		//Key_Value.put("Dec_Space", getObjectSize(secret, pars));
 		
 		/* EKeySanity */
 		runTime = 0;
@@ -167,10 +196,17 @@ public class SchemeAAIBME
 	
 	public static boolean dump(String str, boolean isAlert, String encoding)
 	{
-		File newFile;
+		File newFile = null;
 		try
 		{
-			newFile = new File(URLDecoder.decode(ClassLoader.getSystemResource("").getPath(), encoding) + "result.txt");
+			final String baseFilePath = System.getProperty("sun.java.command");
+			String outputFilePath = null;
+			if (baseFilePath != null && baseFilePath.startsWith("jdk.compiler/com.sun.tools.javac.launcher.SourceLauncher "))
+				outputFilePath = baseFilePath.substring(57, baseFilePath.length() - 5) + ".txt";
+			else
+				outputFilePath = URLDecoder.decode(ClassLoader.getSystemResource("").getPath(), encoding) + "SchemeAAIBME.java";
+			System.out.println(outputFilePath);
+			newFile = new File(outputFilePath);
 			if (!newFile.exists())
 				newFile.createNewFile();
 		}

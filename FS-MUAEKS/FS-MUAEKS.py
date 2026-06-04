@@ -378,7 +378,7 @@ def printHelp() -> None:
 	print("\t{0}\tThe Python script finished not passing all the verifications. ".format(EXIT_FAILURE))
 	print("\t{0}\tThe Python script received unrecognized commandline options. ".format(EOF), end = "\n\n")
 	print("Note: ")
-	print("\t1) All the commandline options are optional and not case-sensitive. ")
+	print("\t1) All the commandline options are optional and case-insensitive. ")
 	print("\t2) The parameters n, m, q, l_S, and l_R should be positive integers and will obey the following priority: values obtained from the commandline > values specified by the user within the script > default values set within the script. ")
 	print("\t3) The parameters n and m should meet the requirement that \"2n | m\". Otherwise, they will be set to their default values respectively. ", end = "\n\n")
 

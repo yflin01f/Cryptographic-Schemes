@@ -48,6 +48,6 @@ We would like to express our sincere gratitude to everyone who has cited this wo
 
 #### Note
 
-1) All the commandline options are optional and not case-sensitive. 
+1) All the commandline options are optional and case-insensitive. 
 2) The parameters $n$, $m$, $q$, $l_S$, and $l_R$ should be positive integers and will obey the following priority: values obtained from the command line > values specified by the user within the script > default values set within the script. 
 3) The parameters $n$ and $m$ should meet the requirement that $2n | m$. Otherwise, they will be set to their default values respectively. 

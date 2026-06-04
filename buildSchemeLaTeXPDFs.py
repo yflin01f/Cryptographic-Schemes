@@ -153,7 +153,7 @@ class Builder:
 			"Is the system valid? No. The parameters $n$ and $d$ should be two positive integers satisfying $2 \\leqslant d \\leqslant n$. ", 
 			"Is the system valid? No. The parameters $n$, $k$, and $d$ should be three positive integers satisfying $1 \\leqslant d \\leqslant k \\leqslant n$. ", 
 			"Is the system valid? Yes. ", "Is the tracing verified? {0}. ", "Is tracing 1 verified (M1 == message1)? {0}. ", "Is tracing 2 verified (M2 == message2)? {0}. ", 
-			"No experiments were conducted. ", "Options (not case-sensitive): ", "Original:", 
+			"No experiments were conducted. ", "Options (case-insensitive): ", "Original:", 
 			"Parser: The extension name of the output file path passed is one of the protected extension names, which would be reset to the default extension {0}. ", 
 			"Parser: The output file path passed looks like a folder, which would be connected with the default file name {0}. ", 
 			"Parser: The path {0} exists not to be a regular file. ", "Please press the enter key to exit ({0}). ", "Please refer to https://github.com/JHUISI/charm if necessary. ", 

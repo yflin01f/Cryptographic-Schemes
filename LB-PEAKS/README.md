@@ -57,7 +57,7 @@ We would like to express our sincere gratitude to everyone who has cited this wo
 
 #### Note
 
-1) All the commandline options are optional and not case-sensitive. 
+1) All the commandline options are optional and case-insensitive. 
 2) The commandline parameters will be appended to the parameter list specified by the user within the script. 
 3) The parameters $n$, $m$, and $q$ should be positive integers that are greater than $1$. 
 4) The parameters $n$ and $m$ should meet the requirement that $2n | m$. Otherwise, they will be set to their default values respectively. 

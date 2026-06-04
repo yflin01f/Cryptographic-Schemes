@@ -120,10 +120,16 @@ python -m pip install libcst
 
 #### 1.1.2 Command-line arguments
 
-Here are the statements related to the command-line arguments, where the default round count is ``10``, 
-the default output file type is ``.xlsx``, and the default output file path corresponds to the Python file path. 
-For more information about the output file type, please view the remaining subsubsections in this subsection. 
-Except for the curve parameters and scheme parameter loops, users can control the behaviors via the command-line arguments (e.g., the decimal place and the run count). 
+Except for the curve parameters and scheme parameter loops, users can control behaviors via the command-line arguments (e.g., the output file path, the decimal place, and the run count). 
+The default output file type is ``.xlsx``, the default output file path corresponds to the Python file path, the default decimal place is 9, and the default run count is 10. 
+All the arguments are optional and processed sequentially. If the same argument is provided multiple times, the last valid one will overwrite the previous ones. 
+
+When the output file path is passed as a relative path, the base path to compute the absolute path is the path to the Python script itself. 
+Actually, the Python script will navigate (``cd`` or ``cd /d``) into the directory of the Python script at the beginning of the Python script, with the working directory restored after it exits. 
+For security reasons, file types (case-insensitive) "C", "CPP", "IPYNB", "JAR", "JAVA", "M", and "PY" will be rejected for the output file paths. 
+This rejection will only be performed during the parsing of the command-line arguments. 
+For more information about the output, as well as supported file types, please view the remaining subsubsections in this subsection. 
+
 The parsers are designed to recognize the command-line arguments as robustly as possible. For example, literals like "000x0052.eF_3344" can still be recognized. 
 If both the prefix base descriptor and the suffix base descriptor are specified at the same time, the former one will take effect. 
 Most of the Python scripts here include a similar parser class with a difference in describing the scheme name. 
@@ -144,7 +150,7 @@ Therefore, we have to keep using SS512 and SS1024 currently.
 #### 1.1.3 Savers
 
 Most of the Python scripts here share the same saver class. Non-TXT output file types currently supported are as follows. 
-While the savers will retrieve the output file type from the extension of the specified output file path in a non-case-sensitive manner, 
+While the savers will retrieve the output file type from the extension of the specified output file path in a case-insensitive manner, 
 the savers will retain the case of the specified output file path during the outputs. 
 
 - CSV
@@ -159,8 +165,9 @@ the savers will retain the case of the specified output file path during the out
 - YAML (relying on ``PyYAML``)
 - YML (relying on ``PyYAML``)
 
+As long as the experiment of each set of the scheme parameters is finished, the savers will be called. 
 If the necessary Python dependencies are not satisfied or base exceptions occur during the outputs, the savers will write to the specified output file path in TXT format. 
-If it still fails, the savers will print the results to the console. When the execution of each set of the scheme parameters is finished, the savers will be called once immediately. 
+If it still fails, the savers will print the results to the console. 
 
 #### 1.1.4 Exit codes
 
@@ -856,6 +863,47 @@ Therefore, before the related statements here are removed, please try to use Pyt
 As the JPBC library can be called without installation, we have gathered the necessary JPBC library files under the ``lib`` directory. 
 Please directly use the commmand ``java -cp lib/jpbc-api-2.0.0.jar:lib/jpbc-plaf-2.0.0.jar Scheme*/Scheme*.java`` to run the ``Scheme*/Scheme*.java`` file, 
 where the ``*`` here can refer to different strings excluding the path separators. 
+
+### 2.1 Time complexity
+
+The Java implementations here use ``System.nanoTime()`` to obtain the starting time and the ending time for each procedure. 
+Subsequently, the time delta is computed as the ending time minus the starting time. 
+This time consumption measurement will not be affected by manual wall clock adjustments. 
+
+### 2.2 Space complexity
+
+Before JDK 11, people used ``getObjectSize(x)`` (``import static jdk.nashorn.internal.ir.debug.ObjectSizeCalculator.getObjectSize;``) 
+happily and conveniently to measure the memory consumption of a Java variable ``x``, whatever the type of ``x`` is. 
+However, from JDK 11, the Java official marked this function as "deprecated for removal", and removed it completely from JDK 15. 
+Subsequently, users are forced to discover new ways to measure the size of a variable. 
+For example, [Classmexer](https://www.javamex.com/classmexer/) is a possible third-party package to implement the size of a variable. 
+The core methodology is to recursively retrieve the lower levels of the object down to the basic types (such as ``int`` and ``long``), and subsequently sum up the lengths of these basic types. 
+A possible measurement example based on Classmexer of this core methodology is as follows. 
+
+```
+import com.javamex.classmexer.MemoryUtil;
+import com.javamex.classmexer.MemoryUtil.VisibilityFilter;
+
+public static long getObjectSize(Object object)
+{
+	return MemoryUtil.deepMemoryUsageOf(object, VisibilityFilter.ALL);
+}
+```
+
+Also, some people tried to serialize the object first and measure the size of the stream, forming another methodology. 
+
+However, as the JDK develops, these methodologies can hardly keep up, especially when a variable belongs to a type from a JAR 
+(that cannot be recursively retrieved due to the inaccessibility) and when a variable is private in a class (that cannot be accessed). 
+Nowadays, it is very difficult to compute the size of a variable. Fortunately, we were told to use the object length as the space complexity. 
+Therefore, the size of an object in Java under the cryptographic background is defined as its object length. 
+
+Due to the historical reasons above, for some cryptographic schemes, one or two versions of the Java implementations were provided in other repositories, 
+which have been merged into this repository and removed from GitHub. 
+In these repositories, the only differences were the memory measurements, which belonged to some of the outdated methodologies mentioned above. 
+Therefore, this repository only contains the up-to-date Java implementation, with the up-to-date memory measurements, for each cryptographic scheme. 
+
+Please use an external memory monitor (such as the Task Manager) to record memory information (e.g., peak RSS) for each Java implementation if necessary. 
+Meanwhile, space measurements other than the computation of the object length will not be officially offered in this repository. 
 
 ## 3. Acknowledgment
 

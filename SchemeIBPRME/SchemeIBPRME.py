@@ -51,7 +51,7 @@ class Parser:
 	def __printHelp(self:object) -> None:
 		print("This is the official implementation of the IBPRME cryptographic scheme in Python programming language based on the Python Charm-Crypto framework. ")
 		print()
-		print("Options (not case-sensitive): ")
+		print("Options (case-insensitive): ")
 		print("\t{0} [utf-8|utf-16|...]\t\tSpecify the encoding mode for CSV and TXT outputs. The default value is {1}. ".format(self.__formatOption(Parser.__OptionEncoding), Parser.__DefaultEncoding))
 		print("\t{0}\t\tPrint this help document. ".format(self.__formatOption(Parser.__OptionHelp)))
 		print("\t{0} [|.|./{1}.xlsx|./{1}.csv|...]\t\tSpecify the output file path, leaving it empty for console output. The default value is {2}. ".format(	\
