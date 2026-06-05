@@ -128,9 +128,9 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v6
         with:
-          sparse-checkout:
-            - '${{ matrix.cryptographicScheme }}'
-            - 'lib/'
+          sparse-checkout: |
+            ${{ matrix.cryptographicScheme }}
+            lib/
       
       - name: Prepare environment
         id: ready

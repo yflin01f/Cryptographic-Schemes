@@ -187,10 +187,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v6
         with:
-          sparse-checkout:
-            - '${{ matrix.cryptographicScheme }}'
-            - 'buildSchemeLaTeXPDFs.py'
-            - 'requirements.txt'
+          sparse-checkout: |
+            ${{ matrix.cryptographicScheme }}
+            buildSchemeLaTeXPDFs.py
+            requirements.txt
       
       - name: Get ready
         id: ready
