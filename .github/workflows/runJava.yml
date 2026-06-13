@@ -15,7 +15,7 @@ on:
       - '.github/workflows/runJava.yml'
   workflow_dispatch:
     inputs:
-      runSchemeAAIBME:
+      executeSchemeAAIBME:
         description: 'SchemeAAIBME'
         required: true
         default: true
@@ -100,15 +100,12 @@ jobs:
         run: |
           if [[ "${{ github.event_name }}" == "workflow_dispatch" ]];
           then
-            runSchemeAAIBME="${{ github.event.inputs.runSchemeAAIBME }}"
+            executeSchemeAAIBME="${{ github.event.inputs.executeSchemeAAIBME }}"
           else
-            runSchemeAAIBME="true"
+            executeSchemeAAIBME="true"
           fi
           matrix=()
-          if [[ "true" == "${runSchemeAAIBME}" ]];
-          then
-            matrix+=("SchemeAAIBME/SchemeAAIBME.java")
-          fi
+          [[ "true" == "${executeSchemeAAIBME}" ]] && matrix+=("SchemeAAIBME/SchemeAAIBME.java")
           if [[ ${#matrix[@]} -ge 1 ]];
           then
             echo "matrix=$(printf '%s\n' "${matrix[@]}" | jq -R . | jq -s -c 'unique')" >> "${GITHUB_OUTPUT}"
@@ -132,7 +129,7 @@ jobs:
             ${{ matrix.cryptographicScheme }}
             lib/
       
-      - name: Prepare environment
+      - name: Get ready
         id: ready
         run: |
           cd "${{ github.workspace }}"
@@ -169,60 +166,60 @@ jobs:
           then
             case "${strippedRunCountString: -1}" in
               'B'|'b')
-                base=2
+                radix=2
                 strippedRunCountString="${strippedRunCountString:0:-1}"
                 ;;
               'Q'|'q')
-                base=4
+                radix=4
                 strippedRunCountString="${strippedRunCountString:0:-1}"
                 ;;
               'O'|'o')
-                base=8
+                radix=8
                 strippedRunCountString="${strippedRunCountString:0:-1}"
                 ;;
               'D'|'d')
-                base=10
+                radix=10
                 strippedRunCountString="${strippedRunCountString:0:-1}"
                 ;;
               'X'|'x')
-                base=16
+                radix=16
                 strippedRunCountString="${strippedRunCountString:0:-1}"
                 ;;
               *)
-                base=10
+                radix=10
                 ;;
             esac
           else
             case "${strippedRunCountString:0:1}" in
               'B'|'b')
-                base=2
+                radix=2
                 strippedRunCountString="${strippedRunCountString:1}"
                 ;;
               'Q'|'q')
-                base=4
+                radix=4
                 strippedRunCountString="${strippedRunCountString:1}"
                 ;;
               'O'|'o')
-                base=8
+                radix=8
                 strippedRunCountString="${strippedRunCountString:1}"
                 ;;
               'D'|'d')
-                base=10
+                radix=10
                 strippedRunCountString="${strippedRunCountString:1}"
                 ;;
               'X'|'x')
-                base=16
+                radix=16
                 strippedRunCountString="${strippedRunCountString:1}"
                 ;;
               *)
-                base=10
+                radix=10
                 ;;
             esac
           fi
           strippedRunCountString="$(echo "${strippedRunCountString}" | sed 's/^0*//')"
           strippedRunCountString="${strippedRunCountString%%.*}"
           runCount=10
-          { runCount=$((${base}#$strippedRunCountString)); } 2>/dev/null
+          { runCount=$((${radix}#$strippedRunCountString)); } 2>/dev/null
           if (( minusCount % 2 == 1 ));
           then
             runCount=$(( -runCount ))
@@ -232,37 +229,37 @@ jobs:
             runCount=10
           fi
           
-          folderPath="$(dirname "${{ matrix.cryptographicScheme }}")"
+          directoryPath="$(dirname "${{ matrix.cryptographicScheme }}")"
           mainFileName="$(basename "${{ matrix.cryptographicScheme }}" | sed "s/\.[^.]*\$//g")"
           timeString="HKT$(date '+%Y%m%d%H%M%S')"
-          outputFilePath="${folderPath}/${mainFileName}-Java${javaVersion}-p${decimalPlace}-r${runCount}-${timeString}${outputFormat}"
+          outputFilePath="${directoryPath}/${mainFileName}-Java${javaVersion}-p${decimalPlace}-r${runCount}-${timeString}${outputFormat}"
           outputFileName="$(basename "${outputFilePath}")"
-          schemeLaTeXFilePath="${folderPath}/${mainFileName}LaTeX/${mainFileName}-${timeString}.tex"
-          schemePDFFilePath="${folderPath}/${mainFileName}LaTeX/${mainFileName}-${timeString}.pdf"
+          schemeLaTeXFilePath="${directoryPath}/${mainFileName}LaTeX/${mainFileName}-${timeString}.tex"
+          schemePDFFilePath="${directoryPath}/${mainFileName}LaTeX/${mainFileName}-${timeString}.pdf"
           echo "Cryptographic scheme: ${{ matrix.cryptographicScheme }}"
-          echo "Output format: ${outputFormat}"
+          echo "Java version: ${javaVersion}"
+          echo "Decimal place: ${decimalPlaceString} (${decimalPlace})"
+          echo "Run count: ${runCountString} (${runCount})"
           echo "Time string: ${timeString}"
+          echo "Output format: ${outputFormat}"
           echo "Output file path: ${outputFilePath}"
           echo "Output file name: ${outputFileName}"
-          echo "Java version: ${javaVersion}"
-          echo "Run count: ${runCount}"
-          echo "Decimal place: ${decimalPlaceString} (${decimalPlace})"
           echo "Scheme LaTeX file path: ${schemeLaTeXFilePath}"
           echo "Scheme PDF file path: ${schemePDFFilePath}"
+          echo "javaVersion=${javaVersion}" >> "${GITHUB_OUTPUT}"
+          echo "decimalPlace=${decimalPlaceString}" >> "${GITHUB_OUTPUT}"
+          echo "runCount=${runCount}" >> "${GITHUB_OUTPUT}"
           echo "timeString=${timeString}" >> "${GITHUB_OUTPUT}"
           echo "outputFilePath=${outputFilePath}" >> "${GITHUB_OUTPUT}"
           echo "outputFileName=${outputFileName}" >> "${GITHUB_OUTPUT}"
-          echo "javaVersion=${javaVersion}" >> "${GITHUB_OUTPUT}"
-          echo "runCount=${runCount}" >> "${GITHUB_OUTPUT}"
-          echo "decimalPlace=${decimalPlaceString}" >> "${GITHUB_OUTPUT}"
           echo "schemeLaTeXFilePath=${schemeLaTeXFilePath}" >> "${GITHUB_OUTPUT}"
           echo "schemePDFFilePath=${schemePDFFilePath}" >> "${GITHUB_OUTPUT}"
         env:
           javaVersion: ${{ github.event.inputs.javaVersion || 25 }}
-          outputFormat: ${{ github.event.inputs.outputFormat || '.xlsx' }}
           decimalPlaceString: ${{ github.event.inputs.decimalPlace || '9' }}
           runCountString: ${{ github.event.inputs.runCount || '10' }}
           TZ: 'Asia/Hong_Kong'
+          outputFormat: ${{ github.event.inputs.outputFormat || '.xlsx' }}
       
       - name: Set up JDK ${{ steps.ready.outputs.javaVersion }}
         uses: actions/setup-java@v5
@@ -281,7 +278,6 @@ jobs:
           else
             echo "Could not execute the cryptographic scheme file \"${{ matrix.cryptographicScheme }}\" via Java. "
             tree
-            exit 1
           fi
       
       - name: Upload result

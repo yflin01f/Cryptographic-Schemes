@@ -64,7 +64,7 @@ Eventually, other relevant implementation issues are presented.
 
 To start with, the Python environments must be resolved. As installing Python directly via the system's package manager 
 (e.g., ``sudo apt install python3``, ``sudo apt-get install python3``, ``sudo yum install python3``, ``sudo dnf install python3``, and ``pkg install python3``) 
-will cause the management of Python libraries from the Python pip to be taken over by the system's package manager, which is quite anonying and inconvenient 
+will cause the management of Python libraries from the Python pip to be taken over by the system's package manager, which is quite annoying and inconvenient 
 (especially when executing ``pip install`` and ``python -m pip install --upgrade pip``) we strongly recommend manually installing the latest Python. 
 Taking the installation of the latest Python on the latest Ubuntu as an example, here is a possible set of shell commands to finish the manual installation, 
 where ``apt-get update`` can be executed as ``apt-get update && apt-get upgrade -y`` if on a fresh operating system. 
@@ -102,7 +102,7 @@ To test the Python Charm-Crypto framework environment initially, please try to e
 which is also essentially how all of the Python scripts based on the Python Charm-Crypto framework in this repository import the Python Charm-Crypto framework. 
 
 We have tried our best to reduce dependencies on third-party libraries. 
-However, to guarantee secure outputs (e.g., escaped characters) in savers, [several third-party libraries](./requirements.txt) are still required to be satisfied. 
+However, to support some binary file types in savers, [several third-party libraries](./requirements.txt) are still required to be satisfied. 
 In the root directory of this repository, there is a file entitled ``requirements.txt``. 
 For easy deployment, users can run ``python -m pip install -r requirements.txt`` after navigating (``cd`` or ``cd /d``) into the root directory of this repository. 
 If the Python libraries are managed externally (e.g., being taken over by the system's package manager), please handle the environments manually, 
@@ -124,13 +124,15 @@ All the arguments are optional and processed sequentially. If the same argument 
 
 When the output file path is passed as a relative path, the base path to compute the absolute path is the path to the Python script itself. 
 Actually, the Python script will navigate (``cd`` or ``cd /d``) into the directory of the Python script at the beginning of the Python script, with the working directory restored after it exits. 
-For security reasons, file types (case-insensitive) "C", "CPP", "IPYNB", "JAR", "JAVA", "M", and "PY" will be rejected for the output file paths. 
-This rejection will only be performed during the parsing of the command-line arguments. 
+For security reasons, file types (case-insensitive) "ASM", "BAT", "C", "CMD", "CPP", "CS", "GO", "H", "HPP", "IPYNB", "JAR", "JAVA", 
+"JS", "KT", "LUA", "M", "O", "PHP", "PS1", "PY", "R", "RB", "RS", "S", "SH", and "SQL" will be rejected for the output file paths. 
+This rejection will be performed during the parsing of the command-line arguments and the saving procedure in the savers. 
+For the former, the file type will be silently defaulted to XLSX. For the latter, the saving procedure will be rejected with a prompt. 
 For more information about the output, as well as supported file types, please view the remaining subsubsections in this subsection. 
 
 The parsers are designed to recognize the command-line arguments as robustly as possible. 
 For example, regarding the parsing of a number, if both the prefix base descriptor and the suffix base descriptor are specified at the same time, the former will take effect. 
-Literals like "000x0052_eF.33__44" can still be recognized as 21231.200256347656 ($\cfrac{347851985}{16384} = 21231.20025634765625$). Detailed parsing procedures are as follows. 
+Literals like "----000x0052_eF.33__44" can still be recognized as 21231.200256347656 $\left(\cfrac{347851985}{16384} = 21231.20025634765625\right)$. Detailed parsing procedures are as follows. 
 
 1) Initially, remove all the whitespace characters and underscores from the string. 
 2) Define the sign part by scanning the '+' and '-' characters at the beginning of the string obtained in Step 1). 
@@ -162,7 +164,7 @@ Otherwise, convert the integer and decimal parts, respectively, by using [Horner
 
 Most of the Python scripts here include a similar parser class with a difference in describing the scheme name. 
 For more details regarding the command-line arguments, please pass the argument ``-h`` to the Python scripts to view. 
-The [``runPython`` workflow](./.github/workflows/runPython.yml) workflow will execute the schemes that are pre-selected as default in manual trigger mode when a pull request or a push occurs. 
+The [``runPython`` workflow](./.github/workflows/runPython.yml) will execute the schemes that are pre-selected as default in manual trigger mode when a pull request or a push occurs. 
 
 Here are the details that cannot be controlled by the command-line arguments. 
 
@@ -177,25 +179,44 @@ Therefore, we have to keep using SS512 and SS1024 currently.
 
 #### 1.1.3 Savers
 
-Most of the Python scripts here share the same saver class. Non-TXT output file types currently supported are as follows. 
+Most of the Python scripts here share the same saver class. 
+Non-TXT output file types currently supported are as follows, along with their dependencies, decimal conversion, character filtering, and character escaping rules. 
+Decimal conversion, character filtering, and character escaping are processed sequentially. 
+Throughout all the output file types, no third-party libraries are required. 
 While the savers will retrieve the output file type from the extension of the specified output file path in a case-insensitive manner, 
 the savers will retain the case of the specified output file path during the outputs. 
 
-- CSV
-- HTM
-- HTML
-- JSON
-- TEX
-- TSV
-- XLS (relying on ``xlwt``)
-- XLSX (relying on ``openpyxl``)
-- XML
-- YAML (relying on ``PyYAML``)
-- YML (relying on ``PyYAML``)
+| Type | Dependency | Decimal conversion | Character filtering | Character escaping |
+| - | - | - | - | - |
+| CSV | ``__import__("csv").writer`` | Format decimals according to the specified decimal place | Accept all the characters | Escape characters according to CSV format rules |
+| HTM | No extra libraries to import | Format decimals according to the specified decimal place | Accept all the characters | Escape ``&`` $\rightarrow$ ``"'<>`` $\rightarrow$ ``\n\r`` |
+| HTML | No extra libraries to import | Format decimals according to the specified decimal place | Accept all the characters | Escape ``&`` $\rightarrow$ ``"'<>`` $\rightarrow$ ``\n\r`` |
+| JSON | ``__import__("json").dump`` | To distinguish decimals from strings, no conversion is applied | Accept all the characters | ``ensure_ascii = True`` |
+| TEX | No extra libraries to import | Format decimals according to the specified decimal place | Filter to retain only printable ASCII characters | Escape ``#$%&_{}`` $\rightarrow$ ``<>^~`` $\rightarrow$ ``\`` |
+| TSV | ``__import__("csv").writer`` | Format decimals according to the specified decimal place | Accept all the characters | Escape characters according to TSV format rules |
+| XLS | ``xlwt`` | Format decimals according to the specified decimal place | Accept all the characters | No character escaping due to binary storing |
+| XLSX | ``openpyxl`` | Format decimals according to the specified decimal place | Filter to retain '\t', '\n', '\r', and characters >= ' ' | No character escaping due to binary storing |
+| XML | No extra libraries to import | Format decimals according to the specified decimal place | Filter to retain only printable ASCII characters | Escape ``&`` $\rightarrow$ ``"'<>`` |
+| YAML | ``__import__("json").dump`` | To distinguish decimals from strings, no conversion is applied | Accept all the characters | ``ensure_ascii = True`` |
+| YML | ``__import__("json").dump`` | To distinguish decimals from strings, no conversion is applied | Accept all the characters | ``ensure_ascii = True`` |
 
 As long as the experiment of each set of the scheme parameters is finished, the savers will be called. 
-If the necessary Python dependencies are not satisfied or base exceptions occur during the outputs, the savers will write to the specified output file path in TXT format. 
+Savers will check whether each of the non-atomic values belongs to a correct type (``tuple`` and ``list``) 
+and whether each of the atomic values is None or belongs to a correct type (``bool``, ``float``, ``int``, and ``str``). 
+If not, the saving procedure will return ``False`` directly. 
+If the necessary Python dependencies are not satisfied or other base exceptions occur during the outputs, the savers will write a Python ``dict`` object to the specified output file path in TXT format. 
 If it still fails, the savers will print the results to the console. 
+
+The following Python code can be used to test the security of the savers. 
+As Unicode characters like U+202B, U+202E, and U+200F are not filtered in the HTM and HTML outputs, they will still take effect. 
+
+```python
+columns = ("A", "B", "C")
+results = [[None, True, 333333333333333333.333333333, -4, ""], ["\u0001", "\a", "\r", "\n"], ["ABCD\u202EEFG", "ABCD\u200BEFG", "><"]]
+for extension in (".csv", ".htm", ".html", ".json", ".tex", ".tsv", ".txt", ".xls", ".xlsx", ".xml", ".yaml", ".yml"):
+	saver = Saver("test" + extension, columns = columns)
+	saver.save(results)
+```
 
 #### 1.1.4 Exit codes
 
@@ -799,7 +820,7 @@ def getLengthOf(self:object, obj:Element|int|bytes|tuple|list|set|dict) -> int|s
 ```
 
 To compute the memory consumption (space complexity) of a variable for engineering purposes, please refer to the following lines. 
-These codes are not used in the official implementations of the cryptographic schemes here. One should adjust the codes in one's own repositories if one wishes to implement this measurement. 
+These codes are not used in the official implementations of the cryptographic schemes here. One should adjust the code in one's own repositories if one wishes to implement this measurement. 
 
 ```
 from sys import getsizeof
@@ -839,7 +860,7 @@ For developers, this script will check the style of the Python scripts. Please r
 ### 1.5 Git issues
 
 To clone the project, please try the following commands. It is highly recommended to place the repository directory under ``~`` as a non-root user. 
-Otherwise, please change the repository directory in the afterward git commands accordingly. 
+Otherwise, please change the repository directory in the subsequent git commands accordingly. 
 
 ```shell
 cd ~
@@ -940,7 +961,7 @@ We extend our sincere gratitude to the developers for their diligent efforts. Wi
 - [Ubuntu 24.04.4 LTS (WSL)](https://learn.microsoft.com/windows/wsl/install)
 - [Python 3.15.0](https://www.python.org/ftp/python/)
 - [GMP-6.3.0](https://gmplib.org/)
-- [PBC-0.5.14](https://crypto.stanford.edu/pbc/download.html)
+- [PBC-1.0.0](https://crypto.stanford.edu/pbc/download.html)
 - [OpenSSL library 4.0](https://openssl-library.org/source/) (``sudo apt-get install libssl-dev``)
 - [Official Python Charm-Crypto framework](https://github.com/JHUISI/charm)
 - [Python Charm-Crypto framework adapted to Python 3.12.x](https://github.com/EliusSolis/charm) ([merged to the official one on January 23rd, 2025](https://github.com/JHUISI/charm/pull/310))

@@ -4,4 +4,3 @@ libcst
 setuptools
 xlwt # XLS
 openpyxl # XLSX
-PyYAML # YAML/YML

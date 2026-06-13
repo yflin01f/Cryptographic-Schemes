@@ -19,37 +19,37 @@ on:
       - 'requirements.txt'
   workflow_dispatch:
     inputs:
-      runSchemeAAIBME:
+      executeSchemeAAIBME:
         description: 'SchemeAAIBME'
         required: true
         default: true
         type: boolean
-      runSchemeCANIFPPCT:
+      executeSchemeCANIFPPCT:
         description: 'SchemeCANIFPPCT'
         required: true
         default: true
         type: boolean
-      runSchemeHIBME:
+      executeSchemeHIBME:
         description: 'SchemeHIBME'
         required: true
         default: true
         type: boolean
-      runSchemeIBMEMR:
+      executeSchemeIBMEMR:
         description: 'SchemeIBMEMR'
         required: true
         default: true
         type: boolean
-      runSchemeIBMETR:
+      executeSchemeIBMETR:
         description: 'SchemeIBMETR'
         required: true
         default: true
         type: boolean
-      runSchemeIBPRME:
+      executeSchemeIBPRME:
         description: 'SchemeIBPRME'
         required: true
         default: true
         type: boolean
-      runSchemeVLPSICA:
+      executeSchemeVLPSICA:
         description: 'SchemeVLPSICA'
         required: true
         default: false
@@ -123,51 +123,30 @@ jobs:
         run: |
           if [[ "${{ github.event_name }}" == "workflow_dispatch" ]];
           then
-            runSchemeAAIBME="${{ github.event.inputs.runSchemeAAIBME }}"
-            runSchemeCANIFPPCT="${{ github.event.inputs.runSchemeCANIFPPCT }}"
-            runSchemeHIBME="${{ github.event.inputs.runSchemeHIBME }}"
-            runSchemeIBMEMR="${{ github.event.inputs.runSchemeIBMEMR }}"
-            runSchemeIBMETR="${{ github.event.inputs.runSchemeIBMETR }}"
-            runSchemeIBPRME="${{ github.event.inputs.runSchemeIBPRME }}"
-            runSchemeVLPSICA="${{ github.event.inputs.runSchemeVLPSICA }}"
+            executeSchemeAAIBME="${{ github.event.inputs.executeSchemeAAIBME }}"
+            executeSchemeCANIFPPCT="${{ github.event.inputs.executeSchemeCANIFPPCT }}"
+            executeSchemeHIBME="${{ github.event.inputs.executeSchemeHIBME }}"
+            executeSchemeIBMEMR="${{ github.event.inputs.executeSchemeIBMEMR }}"
+            executeSchemeIBMETR="${{ github.event.inputs.executeSchemeIBMETR }}"
+            executeSchemeIBPRME="${{ github.event.inputs.executeSchemeIBPRME }}"
+            executeSchemeVLPSICA="${{ github.event.inputs.executeSchemeVLPSICA }}"
           else
-            runSchemeAAIBME="true"
-            runSchemeCANIFPPCT="true"
-            runSchemeHIBME="true"
-            runSchemeIBMEMR="true"
-            runSchemeIBMETR="true"
-            runSchemeIBPRME="true"
-            runSchemeVLPSICA="false"
+            executeSchemeAAIBME="true"
+            executeSchemeCANIFPPCT="true"
+            executeSchemeHIBME="true"
+            executeSchemeIBMEMR="true"
+            executeSchemeIBMETR="true"
+            executeSchemeIBPRME="true"
+            executeSchemeVLPSICA="false"
           fi
           matrix=()
-          if [[ "true" == "${runSchemeAAIBME}" ]];
-          then
-            matrix+=("SchemeAAIBME/SchemeAAIBME.py" "SchemeAAIBME/SchemeFuzzyME.py" "SchemeIBMETR/SchemeIBMECH.py")
-          fi
-          if [[ "true" == "${runSchemeCANIFPPCT}" ]];
-          then
-            matrix+=("SchemeCANIFPPCT/SchemeCANIFPPCT.py")
-          fi
-          if [[ "true" == "${runSchemeHIBME}" ]];
-          then
-            matrix+=("SchemeHIBME/SchemeAnonymousME.py" "SchemeHIBME/SchemeHIBME.py")
-          fi
-          if [[ "true" == "${runSchemeIBMEMR}" ]];
-          then
-            matrix+=("SchemeIBMEMR/SchemeIBBME.py" "SchemeIBMETR/SchemeIBME.py" "SchemeIBMEMR/SchemeIBMEMR.py")
-          fi
-          if [[ "true" == "${runSchemeIBMETR}" ]];
-          then
-            matrix+=("SchemeIBMETR/SchemeAIBE.py" "SchemeIBMETR/SchemeARES.py" "SchemeIBMETR/SchemeIBME.py" "SchemeIBMETR/SchemeIBMECH.py" "SchemeIBMETR/SchemeIBMETR.py")
-          fi
-          if [[ "true" == "${runSchemeIBPRME}" ]];
-          then
-            matrix+=("SchemeIBMETR/SchemeIBME.py" "SchemeIBMETR/SchemeIBMECH.py" "SchemeIBPRME/SchemeIBPME.py" "SchemeIBPRME/SchemeIBPRME.py" "SchemeIBPRME/SchemePBAC.py")
-          fi
-          if [[ "true" == "${runSchemeVLPSICA}" ]];
-          then
-            matrix+=("SchemeVLPSICA/SchemeVLPSICA.py")
-          fi
+          [[ "true" == "${executeSchemeAAIBME}" ]] && matrix+=("SchemeAAIBME/SchemeAAIBME.py" "SchemeAAIBME/SchemeFuzzyME.py" "SchemeIBMETR/SchemeIBMECH.py")
+          [[ "true" == "${executeSchemeCANIFPPCT}" ]] && matrix+=("SchemeCANIFPPCT/SchemeCANIFPPCT.py")
+          [[ "true" == "${executeSchemeHIBME}" ]] && matrix+=("SchemeHIBME/SchemeAnonymousME.py" "SchemeHIBME/SchemeHIBME.py")
+          [[ "true" == "${executeSchemeIBMEMR}" ]] && matrix+=("SchemeIBMEMR/SchemeIBBME.py" "SchemeIBMETR/SchemeIBME.py" "SchemeIBMEMR/SchemeIBMEMR.py")
+          [[ "true" == "${executeSchemeIBMETR}" ]] && matrix+=("SchemeIBMETR/SchemeAIBE.py" "SchemeIBMETR/SchemeARES.py" "SchemeIBMETR/SchemeIBME.py" "SchemeIBMETR/SchemeIBMECH.py" "SchemeIBMETR/SchemeIBMETR.py")
+          [[ "true" == "${executeSchemeIBPRME}" ]] && matrix+=("SchemeIBMETR/SchemeIBME.py" "SchemeIBMETR/SchemeIBMECH.py" "SchemeIBPRME/SchemeIBPME.py" "SchemeIBPRME/SchemeIBPRME.py" "SchemeIBPRME/SchemePBAC.py")
+          [[ "true" == "${executeSchemeVLPSICA}" ]] && matrix+=("SchemeVLPSICA/SchemeVLPSICA.py")
           if [[ ${#matrix[@]} -ge 1 ]];
           then
             echo "matrix=$(printf '%s\n' "${matrix[@]}" | jq -R . | jq -s -c 'unique')" >> "${GITHUB_OUTPUT}"
@@ -229,60 +208,60 @@ jobs:
           then
             case "${strippedRunCountString: -1}" in
               'B'|'b')
-                base=2
+                radix=2
                 strippedRunCountString="${strippedRunCountString:0:-1}"
                 ;;
               'Q'|'q')
-                base=4
+                radix=4
                 strippedRunCountString="${strippedRunCountString:0:-1}"
                 ;;
               'O'|'o')
-                base=8
+                radix=8
                 strippedRunCountString="${strippedRunCountString:0:-1}"
                 ;;
               'D'|'d')
-                base=10
+                radix=10
                 strippedRunCountString="${strippedRunCountString:0:-1}"
                 ;;
               'X'|'x')
-                base=16
+                radix=16
                 strippedRunCountString="${strippedRunCountString:0:-1}"
                 ;;
               *)
-                base=10
+                radix=10
                 ;;
             esac
           else
             case "${strippedRunCountString:0:1}" in
               'B'|'b')
-                base=2
+                radix=2
                 strippedRunCountString="${strippedRunCountString:1}"
                 ;;
               'Q'|'q')
-                base=4
+                radix=4
                 strippedRunCountString="${strippedRunCountString:1}"
                 ;;
               'O'|'o')
-                base=8
+                radix=8
                 strippedRunCountString="${strippedRunCountString:1}"
                 ;;
               'D'|'d')
-                base=10
+                radix=10
                 strippedRunCountString="${strippedRunCountString:1}"
                 ;;
               'X'|'x')
-                base=16
+                radix=16
                 strippedRunCountString="${strippedRunCountString:1}"
                 ;;
               *)
-                base=10
+                radix=10
                 ;;
             esac
           fi
           strippedRunCountString="$(echo "${strippedRunCountString}" | sed 's/^0*//')"
           strippedRunCountString="${strippedRunCountString%%.*}"
           runCount=10
-          { runCount=$((${base}#$strippedRunCountString)); } 2>/dev/null
+          { runCount=$((${radix}#$strippedRunCountString)); } 2>/dev/null
           if (( minusCount % 2 == 1 ));
           then
             runCount=$(( -runCount ))
@@ -292,37 +271,37 @@ jobs:
             runCount=10
           fi
           
-          folderPath="$(dirname "${{ matrix.cryptographicScheme }}")"
+          directoryPath="$(dirname "${{ matrix.cryptographicScheme }}")"
           mainFileName="$(basename "${{ matrix.cryptographicScheme }}" | sed "s/\.[^.]*\$//g")"
           timeString="HKT$(date '+%Y%m%d%H%M%S')"
-          outputFilePath="${folderPath}/${mainFileName}-Python${pythonVersion}-p${decimalPlace}-r${runCount}-${timeString}${outputFormat}"
+          outputFilePath="${directoryPath}/${mainFileName}-Python${pythonVersion}-p${decimalPlace}-r${runCount}-${timeString}${outputFormat}"
           outputFileName="$(basename "${outputFilePath}")"
-          schemeLaTeXFilePath="${folderPath}/${mainFileName}LaTeX/${mainFileName}-${timeString}.tex"
-          schemePDFFilePath="${folderPath}/${mainFileName}LaTeX/${mainFileName}-${timeString}.pdf"
+          schemeLaTeXFilePath="${directoryPath}/${mainFileName}LaTeX/${mainFileName}-${timeString}.tex"
+          schemePDFFilePath="${directoryPath}/${mainFileName}LaTeX/${mainFileName}-${timeString}.pdf"
           echo "Cryptographic scheme: ${{ matrix.cryptographicScheme }}"
-          echo "Output format: ${outputFormat}"
+          echo "Python version: ${pythonVersion}"
+          echo "Decimal place: ${decimalPlaceString} (${decimalPlace})"
+          echo "Run count: ${runCountString} (${runCount})"
           echo "Time string: ${timeString}"
+          echo "Output format: ${outputFormat}"
           echo "Output file path: ${outputFilePath}"
           echo "Output file name: ${outputFileName}"
-          echo "Python version: ${pythonVersion}"
-          echo "Run count: ${runCount}"
-          echo "Decimal place: ${decimalPlaceString} (${decimalPlace})"
           echo "Scheme LaTeX file path: ${schemeLaTeXFilePath}"
           echo "Scheme PDF file path: ${schemePDFFilePath}"
+          echo "pythonVersion=${pythonVersion}" >> "${GITHUB_OUTPUT}"
+          echo "decimalPlace=${decimalPlaceString}" >> "${GITHUB_OUTPUT}"
+          echo "runCount=${runCount}" >> "${GITHUB_OUTPUT}"
           echo "timeString=${timeString}" >> "${GITHUB_OUTPUT}"
           echo "outputFilePath=${outputFilePath}" >> "${GITHUB_OUTPUT}"
           echo "outputFileName=${outputFileName}" >> "${GITHUB_OUTPUT}"
-          echo "pythonVersion=${pythonVersion}" >> "${GITHUB_OUTPUT}"
-          echo "runCount=${runCount}" >> "${GITHUB_OUTPUT}"
-          echo "decimalPlace=${decimalPlaceString}" >> "${GITHUB_OUTPUT}"
           echo "schemeLaTeXFilePath=${schemeLaTeXFilePath}" >> "${GITHUB_OUTPUT}"
           echo "schemePDFFilePath=${schemePDFFilePath}" >> "${GITHUB_OUTPUT}"
         env:
           pythonVersion: ${{ github.event.inputs.pythonVersion || '3.x' }}
-          outputFormat: ${{ github.event.inputs.outputFormat || '.xlsx' }}
           decimalPlaceString: ${{ github.event.inputs.decimalPlace || '9' }}
           runCountString: ${{ github.event.inputs.runCount || '10' }}
           TZ: 'Asia/Hong_Kong'
+          outputFormat: ${{ github.event.inputs.outputFormat || '.xlsx' }}
       
       - name: Install system dependencies
         run: |
@@ -344,8 +323,15 @@ jobs:
       - name: Build LaTeX and the PDF for the cryptographic scheme
         run: |
           cd "${{ github.workspace }}"
-          echo "\$ python buildSchemeLaTeXPDFs.py \"${{ matrix.cryptographicScheme }}\""
-          python buildSchemeLaTeXPDFs.py "${{ matrix.cryptographicScheme }}"
+          echo "The current working directory is \"$(pwd)\". "
+          if [[ -f buildSchemeLaTeXPDFs.py && -f "${{ matrix.cryptographicScheme }}" ]];
+          then
+            echo "\$ python buildSchemeLaTeXPDFs.py \"${{ matrix.cryptographicScheme }}\""
+            python buildSchemeLaTeXPDFs.py "${{ matrix.cryptographicScheme }}"
+          else
+            echo "Could not execute the cryptographic scheme file \"buildSchemeLaTeXPDFs.py\" via Python ${{ steps.ready.outputs.pythonVersion }}. "
+            tree
+          fi
         env:
           FORMATTER: '%p%s%mLaTeX%s%m-${{ steps.ready.outputs.timeString }}'
           WAITING_TIME: 0
