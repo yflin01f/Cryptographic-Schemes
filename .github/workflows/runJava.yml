@@ -101,11 +101,29 @@ jobs:
           if [[ "${{ github.event_name }}" == "workflow_dispatch" ]];
           then
             executeSchemeAAIBME="${{ github.event.inputs.executeSchemeAAIBME }}"
+            executeSchemeCANIFPPCT="${{ github.event.inputs.executeSchemeCANIFPPCT }}"
+            executeSchemeHIBME="${{ github.event.inputs.executeSchemeHIBME }}"
+            executeSchemeIBMEMR="${{ github.event.inputs.executeSchemeIBMEMR }}"
+            executeSchemeIBMETR="${{ github.event.inputs.executeSchemeIBMETR }}"
+            executeSchemeIBPRME="${{ github.event.inputs.executeSchemeIBPRME }}"
+            executeSchemeVLPSICA="${{ github.event.inputs.executeSchemeVLPSICA }}"
           else
             executeSchemeAAIBME="true"
+            executeSchemeCANIFPPCT="true"
+            executeSchemeHIBME="true"
+            executeSchemeIBMEMR="true"
+            executeSchemeIBMETR="true"
+            executeSchemeIBPRME="true"
+            executeSchemeVLPSICA="false"
           fi
           matrix=()
-          [[ "true" == "${executeSchemeAAIBME}" ]] && matrix+=("SchemeAAIBME/SchemeAAIBME.java")
+          [[ "true" == "${executeSchemeAAIBME}" ]] && matrix+=("SchemeAAIBME/SchemeAAIBME.java" "SchemeAAIBME/SchemeFuzzyME.java" "SchemeIBMETR/SchemeIBMECH.java")
+          [[ "true" == "${executeSchemeCANIFPPCT}" ]] && matrix+=("SchemeCANIFPPCT/SchemeCANIFPPCT.java")
+          [[ "true" == "${executeSchemeHIBME}" ]] && matrix+=("SchemeHIBME/SchemeAnonymousME.java" "SchemeHIBME/SchemeHIBME.java")
+          [[ "true" == "${executeSchemeIBMEMR}" ]] && matrix+=("SchemeIBMEMR/SchemeIBBME.java" "SchemeIBMETR/SchemeIBME.java" "SchemeIBMEMR/SchemeIBMEMR.java")
+          [[ "true" == "${executeSchemeIBMETR}" ]] && matrix+=("SchemeIBMETR/SchemeAIBE.java" "SchemeIBMETR/SchemeARES.java" "SchemeIBMETR/SchemeIBME.java" "SchemeIBMETR/SchemeIBMECH.java" "SchemeIBMETR/SchemeIBMETR.java")
+          [[ "true" == "${executeSchemeIBPRME}" ]] && matrix+=("SchemeIBMETR/SchemeIBME.java" "SchemeIBMETR/SchemeIBMECH.java" "SchemeIBPRME/SchemeIBPME.java" "SchemeIBPRME/SchemeIBPRME.java" "SchemeIBPRME/SchemePBAC.java")
+          [[ "true" == "${executeSchemeVLPSICA}" ]] && matrix+=("SchemeVLPSICA/SchemeVLPSICA.java")
           if [[ ${#matrix[@]} -ge 1 ]];
           then
             echo "matrix=$(printf '%s\n' "${matrix[@]}" | jq -R . | jq -s -c 'unique')" >> "${GITHUB_OUTPUT}"
